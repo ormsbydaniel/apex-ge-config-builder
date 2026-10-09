@@ -1,0 +1,172 @@
+import { describe, expect, it } from 'vitest';
+import { getEffectiveFormat, listStacAssets, resolveDataSourceInspectionAccess, sampleStacAsset, updateStacAssetFormatMap } from '@/utils/stacAssetFormat';
+import { DataSourceItemSchema } from '@/schemas/configSchema';
+
+const fakeFetch = (routes: Record<string, any>) => async (url: string) => {
+  const key = Object.keys(routes).find((k) => url.startsWith(k));
+  return key ? { ok: true, json: async () => routes[key] } : { ok: false, status: 404, json: async () => ({}) };
+};
+
+describe('STAC asset format', () => {
+  it('uses the selected asset mapping as the effective format for STAC sources', () => {
+    const item = { format: 'stac', assets: ['visual', 'data'], assetFormats: { visual: 'cog' as const, data: 'flatgeobuf' as const } };
+    expect(getEffectiveFormat(item)).toBe('cog');
+    expect(getEffectiveFormat(item, 'data')).toBe('flatgeobuf');
+    expect(getEffectiveFormat({ format: 'stac', assets: ['missing'], assetFormats: { visual: 'cog' } })).toBe('stac');
+    expect(getEffectiveFormat({ format: 'stac' })).toBe('stac');
+    expect(getEffectiveFormat({ format: 'geojson', assets: ['visual'], assetFormats: { visual: 'cog' } })).toBe('geojson');
+  });
+
+  it('detects a COG asset from a collection items link', async () => {
+    const res = await sampleStacAsset('https://x.test/collections/c', ['classification'], fakeFetch({
+      'https://x.test/collections/c/items': { type: 'FeatureCollection', features: [{ type: 'Feature', properties: {}, assets: {
+        thumbnail: { href: 't.png', type: 'image/png' },
+        classification: { href: 'https://x.test/a.tif', type: 'image/tiff; application=geotiff', 'eo:bands': [{ name: 'B04' }] },
+      } }] },
+      'https://x.test/collections/c': { links: [{ rel: 'items', href: 'https://x.test/collections/c/items' }] },
+    }));
+    expect(res).toMatchObject({ format: 'cog', sampleUrl: 'https://x.test/a.tif', bandLabels: ['B04'], assetName: 'classification' });
+  });
+
+  it('detects FlatGeobuf from an items URL', async () => {
+    const res = await sampleStacAsset('https://x.test/items', ['data'], fakeFetch({
+      'https://x.test/items': { features: [{ assets: { data: { href: 'https://x.test/f.fgb' } } }] },
+    }));
+    expect(res.format).toBe('flatgeobuf');
+  });
+
+  it('lists asset names with detected formats from an items endpoint', async () => {
+    const assets = await listStacAssets('https://x.test/items', fakeFetch({
+      'https://x.test/items': { features: [{ assets: {
+        visual: { href: 'https://x.test/v.tif', type: 'image/tiff; application=geotiff', title: 'True colour' },
+        data: { href: 'https://x.test/f.fgb' },
+        thumb: { href: 't.png', type: 'image/png' },
+      } }] },
+    }));
+    expect(assets).toEqual([
+      { name: 'visual', title: 'True colour', format: 'cog' },
+      { name: 'data', title: undefined, format: 'flatgeobuf' },
+      { name: 'thumb', title: undefined, format: undefined },
+    ]);
+  });
+
+  it('lists collection-level assets for static collections', async () => {
+    const assets = await listStacAssets('https://x.test/collection.json', fakeFetch({
+      'https://x.test/collection.json': { assets: { csv: { href: 'data.csv' } } },
+    }));
+    expect(assets).toEqual([{ name: 'csv', title: undefined, format: 'csv' }]);
+  });
+
+  it('returns an empty list when the first item has no assets', async () => {
+    const assets = await listStacAssets('https://x.test/items', fakeFetch({
+      'https://x.test/items': { features: [{ properties: {} }] },
+    }));
+    expect(assets).toEqual([]);
+  });
+
+  it('keeps name-keyed assetFormats through validation', () => {
+    const parsed = DataSourceItemSchema.parse({
+      url: 'https://x.test',
+      format: 'stac',
+      zIndex: 1,
+      assets: ['visual', 'data'],
+      assetFormats: { visual: 'cog', data: 'flatgeobuf' },
+    });
+    expect(parsed.assetFormats).toEqual({ visual: 'cog', data: 'flatgeobuf' });
+  });
+
+  it('updates one mapped asset without removing other saved formats', () => {
+    expect(updateStacAssetFormatMap(
+      { visual: 'cog', data: 'flatgeobuf' },
+      'visual',
+      'xyz',
+    )).toEqual({ visual: 'xyz', data: 'flatgeobuf' });
+    expect(updateStacAssetFormatMap(
+      { visual: 'cog', data: 'flatgeobuf' },
+      'visual',
+      undefined,
+    )).toEqual({ data: 'flatgeobuf' });
+  });
+
+  it('passes direct source access through unchanged', async () => {
+    await expect(resolveDataSourceInspectionAccess({
+      format: 'cog',
+      url: 'https://x.test/direct.tif',
+    })).resolves.toEqual({ format: 'cog', url: 'https://x.test/direct.tif' });
+  });
+
+  it('resolves a STAC source to its selected sample asset without changing its mapped format', async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fakeFetch({
+      'https://inspection.test/items': { features: [{ assets: { data: { href: 'https://inspection.test/data.fgb' } } }] },
+    }) as unknown as typeof fetch;
+    try {
+      await expect(resolveDataSourceInspectionAccess({
+        format: 'stac',
+        url: 'https://inspection.test/items',
+        assets: ['data'],
+        assetFormats: { data: 'flatgeobuf' },
+      })).resolves.toEqual({ format: 'flatgeobuf', url: 'https://inspection.test/data.fgb' });
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+
+  it('returns unavailable access for incomplete or unresolvable STAC sources', async () => {
+    await expect(resolveDataSourceInspectionAccess({ format: 'stac' })).resolves.toBeNull();
+    await expect(resolveDataSourceInspectionAccess({
+      format: 'stac', url: 'https://x.test/items', assets: ['data'],
+    })).resolves.toBeNull();
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = fakeFetch({
+      'https://unresolved.test/items': { features: [{ assets: { data: { title: 'No href' } } }] },
+    }) as unknown as typeof fetch;
+    try {
+      await expect(resolveDataSourceInspectionAccess({
+        format: 'stac',
+        url: 'https://unresolved.test/items',
+        assets: ['data'],
+        assetFormats: { data: 'geojson' },
+      })).resolves.toBeNull();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
+});
+
+import { decideStacAutoSelection, getStacItemEndpointKey } from '@/utils/stacAssetFormat';
+
+describe('automatic STAC asset selection', () => {
+  it('keys item endpoints without their filter query', () => {
+    expect(getStacItemEndpointKey('https://x.test/collections/c/items?limit=5&bbox=1,2,3,4')).toBe('https://x.test/collections/c/items');
+    expect(getStacItemEndpointKey('https://x.test/collections/c/items?limit=9')).toBe('https://x.test/collections/c/items');
+    expect(getStacItemEndpointKey('https://x.test/collections/c/items/abc')).toBe('https://x.test/collections/c/items/abc');
+    expect(getStacItemEndpointKey('https://x.test/collections/c')).toBeNull();
+    expect(getStacItemEndpointKey('not a url')).toBeNull();
+  });
+
+  it('auto-selects a single asset', () => {
+    expect(decideStacAutoSelection([{ name: 'data', format: 'flatgeobuf' }], 'old')).toEqual({ kind: 'select', asset: { name: 'data', format: 'flatgeobuf' } });
+  });
+
+  it('asks for a choice among multiple assets unless the current one is offered', () => {
+    const assets = [{ name: 'visual' }, { name: 'data' }];
+    expect(decideStacAutoSelection(assets)).toEqual({ kind: 'choose' });
+    expect(decideStacAutoSelection(assets, 'stale')).toEqual({ kind: 'choose' });
+    expect(decideStacAutoSelection(assets, 'data')).toEqual({ kind: 'keep' });
+    expect(decideStacAutoSelection([])).toEqual({ kind: 'none' });
+  });
+});
+
+describe('isVectorDataSource', () => {
+  it('treats mapped STAC vector assets as vector sources', async () => {
+    const { isVectorDataSource } = await import('@/utils/stacAssetFormat');
+    expect(isVectorDataSource({ format: 'stac', assets: ['data'], assetFormats: { data: 'flatgeobuf' } })).toBe(true);
+    expect(isVectorDataSource({ format: 'stac', assets: ['data'], assetFormats: { data: 'geojson' } })).toBe(true);
+    expect(isVectorDataSource({ format: 'stac', assets: ['visual'], assetFormats: { visual: 'cog' } })).toBe(false);
+    expect(isVectorDataSource({ format: 'stac' })).toBe(false);
+    expect(isVectorDataSource({ format: 'geojson' })).toBe(true);
+    expect(isVectorDataSource({ format: 'cog' })).toBe(false);
+  });
+});

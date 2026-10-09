@@ -6,13 +6,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Copy, Trash2, Clock, Info, Edit, Layers } from 'lucide-react';
 import { DataSourceItem as DataSourceItemType, TimeframeType, Service, DataSourceMeta, DataSourceLayout } from '@/types/config';
 import { BandSelectorDialog } from './BandSelectorDialog';
-import { extractDisplayName } from '@/utils/urlDisplay';
+import { extractDisplayName, extractStacDisplayName, truncateDisplayName } from '@/utils/urlDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimestampForTimeframe } from '@/utils/dateUtils';
 import CogMetadataDialog from './CogMetadataDialog';
 import FlatGeobufMetadataDialog from './FlatGeobufMetadataDialog';
 import WmsWmtsMetadataDialog from './WmsWmtsMetadataDialog';
 import { fetchCogHeaderMetadata } from '@/utils/cogMetadata';
+import StacMetadataDialog from './StacMetadataDialog';
 
 interface DataSourceItemProps {
   dataSource: DataSourceItemType;
@@ -56,6 +57,7 @@ const DataSourceItem = ({
   const [showBandSelector, setShowBandSelector] = useState(false);
   const [showFlatGeobufDialog, setShowFlatGeobufDialog] = useState(false);
   const [showWmsWmtsDialog, setShowWmsWmtsDialog] = useState(false);
+  const [showStacDialog, setShowStacDialog] = useState(false);
   const [cogBandCount, setCogBandCount] = useState<number | null>(null);
   const [cogBandLoading, setCogBandLoading] = useState(false);
 
@@ -90,16 +92,21 @@ const DataSourceItem = ({
     }
   };
 
-  const getDisplayName = () => {
+  const getDisplayName = (truncate: boolean = true) => {
     const format = dataSource.format?.toLowerCase() || '';
-    
+
+    // STAC rows show the item ID (single item) or the collection's items path
+    if (format === 'stac') {
+      return extractStacDisplayName(dataSource.url || '', truncate);
+    }
+
     // For web services, try to get the layers parameter
     if (['wms', 'wmts', 'wfs'].includes(format)) {
       if (dataSource.layers) {
-        return dataSource.layers;
+        return truncate ? truncateDisplayName(dataSource.layers) : dataSource.layers;
       }
     }
-    
+
     // For XYZ services, get the domain
     if (format === 'xyz' && dataSource.url) {
       try {
@@ -109,9 +116,9 @@ const DataSourceItem = ({
         // Fall back to extractDisplayName if URL parsing fails
       }
     }
-    
+
     // For all other cases, use the existing utility
-    return extractDisplayName(dataSource.url || '', dataSource.format || '');
+    return extractDisplayName(dataSource.url || '', dataSource.format || '', truncate);
   };
 
   const getZIndex = () => {
@@ -143,7 +150,7 @@ const DataSourceItem = ({
         <Badge variant="outline" className="text-xs flex-shrink-0">
           {dataSource.format?.toUpperCase() || 'UNKNOWN'}
         </Badge>
-        
+
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -152,13 +159,36 @@ const DataSourceItem = ({
               </span>
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs break-all">{dataSource.url || 'No URL'}</p>
+              <p className="max-w-xs break-all">{dataSource.url || getDisplayName(false)}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
 
-      <div className="flex items-center gap-1 flex-shrink-0 flex-wrap">
+      <div className="flex items-center gap-1 flex-shrink-0 flex-wrap" aria-label="Dataset metadata">
+        {/* Asset name badges for STAC sources */}
+        {dataSource.format?.toLowerCase() === 'stac' && Array.isArray(dataSource.assets) && dataSource.assets.map((assetName) => {
+          const assetFormat = dataSource.assetFormats?.[assetName];
+          const label = assetFormat ? `${assetName} (${assetFormat})` : assetName;
+          return (
+            <TooltipProvider key={assetName}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge
+                    variant="outline"
+                    className="max-w-[12rem] flex-shrink-0 border-asset-badge-border bg-asset-badge text-xs text-asset-badge-foreground"
+                  >
+                    <span className="truncate">{label}</span>
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs break-all">{assetFormat ? `${assetName} — ${assetFormat}` : assetName}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          );
+        })}
+
         {/* Band count badge for COG files */}
         {isCog && cogBandLoading && (
           <span className="text-xs text-muted-foreground animate-pulse">bands…</span>
@@ -198,6 +228,19 @@ const DataSourceItem = ({
             onClick={() => setShowMetadataDialog(true)}
             className="h-6 w-6 p-0"
             title="View COG Metadata"
+          >
+            <Info className="h-3 w-3" />
+          </Button>
+        )}
+
+        {/* Info icon for STAC sources */}
+        {dataSource.format?.toLowerCase() === 'stac' && dataSource.url && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setShowStacDialog(true)}
+            className="h-6 w-6 p-0"
+            title="View STAC Metadata"
           >
             <Info className="h-3 w-3" />
           </Button>
@@ -368,6 +411,9 @@ const DataSourceItem = ({
           currentLayout={currentLayout}
           onUpdateLayout={onUpdateLayout}
         />
+      )}
+      {dataSource.format?.toLowerCase() === 'stac' && dataSource.url && (
+        <StacMetadataDialog dataSource={dataSource} open={showStacDialog} onOpenChange={setShowStacDialog} />
       )}
       {/* Band Selector Dialog */}
       {isCog && cogBandCount !== null && cogBandCount > 1 && (

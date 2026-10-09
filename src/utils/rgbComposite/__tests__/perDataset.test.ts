@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applyToScope, resetToFirst, copyToAll, countOwn, computeBatchStretch, datasetLabel,
+  applyToScope, resetToFirst, copyToAll, countOwn, computeBatchStretch, datasetLabel, cogIndices,
 } from '../perDataset';
 import { DataSourceItemSchema } from '@/schemas/configSchema';
 
@@ -74,5 +74,15 @@ describe('per-dataset multi-band settings', () => {
       expect((parsed.data as any).batchStretch).toEqual({ method: 'mean-2sd' });
     }
     expect(DataSourceItemSchema.safeParse(cog(3, { styleSource: 'nope' })).success).toBe(false);
+  });
+
+  it('treats mapped STAC COG assets as COGs without including other STAC assets', () => {
+    const stacCog = { format: 'stac', url: 'https://x/items', assets: ['visual'], assetFormats: { visual: 'cog' }, bands: [3, 2, 1] } as any;
+    const stacVector = { format: 'stac', url: 'https://x/vector-items', assets: ['data'], assetFormats: { data: 'flatgeobuf' } } as any;
+    const data = [stacVector, cog(1), stacCog];
+    expect(cogIndices(data)).toEqual([1, 2]);
+    const out = applyToScope(data, 2, setBands([9, 7, 1]));
+    expect(out[2]).toMatchObject({ format: 'stac', url: 'https://x/items', assets: ['visual'], bands: [9, 7, 1], styleSource: 'own' });
+    expect(out[0]).toBe(stacVector);
   });
 });

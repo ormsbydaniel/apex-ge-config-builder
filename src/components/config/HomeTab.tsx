@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/utils/dateUtils";
 import React, { useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -466,7 +467,7 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
                     <div className="space-y-1">
                       <div className="text-sm text-muted-foreground flex items-center gap-2">
                         <div className="h-2 w-2 rounded-full bg-green-500" />
-                        <span>Last loaded: {config.lastLoaded.toLocaleString()}</span>
+                        <span>Last loaded: {formatDisplayDate(config.lastLoaded, true)}</span>
                       </div>
                       {config.lastLoadedSource && (
                         <div
@@ -488,7 +489,7 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
                   {config.lastExported && (
                     <div className="text-sm text-muted-foreground flex items-center gap-2">
                       <div className="h-2 w-2 rounded-full bg-blue-500" />
-                      <span>Last exported: {config.lastExported.toLocaleString()}</span>
+                      <span>Last exported: {formatDisplayDate(config.lastExported, true)}</span>
                     </div>
                   )}
                   {config.isLoading && (
@@ -646,7 +647,7 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
                               </div>
                               {latest && (
                                 <div className="text-[11px] text-muted-foreground">
-                                  {latest.toLocaleString()}
+                                  {formatDisplayDate(latest, true)}
                                 </div>
                               )}
                             </div>

@@ -9,7 +9,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { DataSourceMeta } from '@/types/layer';
 import { DataSourceItem } from '@/types/dataSource';
 import { Category, Colormap } from '@/types/category';
-import { isVectorFormat } from '@/utils/fieldDetection';
+import { isVectorDataSource } from '@/utils/stacAssetFormat';
 import ColorRampPreview from '@/components/ui/ColorRampPreview';
 import CategoryEditorDialog from '@/components/form/CategoryEditorDialog';
 import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
@@ -17,7 +17,7 @@ import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
-import { countOwn, stripVisualisation } from '@/utils/rgbComposite/perDataset';
+import { countOwn, isCog, stripVisualisation } from '@/utils/rgbComposite/perDataset';
 
 interface LayerDataVisualisationSectionProps {
   source: DataSource;
@@ -35,8 +35,8 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   
   // Detect RGB composites from data source items
   const convertToRgbSources = (source.data || []).filter((d: DataSourceItem) => d.convertToRGB === true);
-  const indexSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.spectralIndex);
-  const computedSources = (source.data || []).filter((d: DataSourceItem) => d.format === 'cog' && !!d.computedComposite);
+  const indexSources = (source.data || []).filter((d: DataSourceItem) => isCog(d) && !!d.spectralIndex);
+  const computedSources = (source.data || []).filter((d: DataSourceItem) => isCog(d) && !!d.computedComposite);
   const convertToRgbCount = convertToRgbSources.length + indexSources.length + computedSources.length;
 
   const hasCategories = categories.length > 0;
@@ -115,12 +115,12 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   };
 
   const hasVectorStyling = source.data.some(
-    item => isVectorFormat(item.format) && Array.isArray(item.style) && item.style.length > 0
+    item => isVectorDataSource(item) && Array.isArray(item.style) && item.style.length > 0
   );
 
   const handleDeleteVectorStyling = () => {
     const updatedData = (source.data || []).map((d: DataSourceItem) => {
-      if (isVectorFormat(d.format) && d.style) {
+      if (isVectorDataSource(d) && d.style) {
         const { style, ...rest } = d;
         return rest as DataSourceItem;
       }
@@ -245,7 +245,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             )}
             {hasRgbComposites && countOwn(source.data || []) > 0 && (
               <span className="text-[10px] text-muted-foreground italic">
-                {countOwn(source.data || [])} of {(source.data || []).filter((d) => d.format === 'cog').length} datasets with own settings
+                {countOwn(source.data || [])} of {(source.data || []).filter(isCog).length} datasets with own settings
               </span>
             )}
           </div>
@@ -349,13 +349,13 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
             Vector Styling <span className="normal-case tracking-normal font-normal italic">
               {(() => {
-                const vectorItem = source.data.find(item => isVectorFormat(item.format) && Array.isArray(item.style) && item.style.length > 0);
+                const vectorItem = source.data.find(item => isVectorDataSource(item) && Array.isArray(item.style) && item.style.length > 0);
                 return <VectorStyleSummary rules={vectorItem?.style ?? []} />;
               })()}
             </span>
             </span>
             {(() => {
-              const hasVectorData = source.data.some(item => isVectorFormat(item.format));
+              const hasVectorData = source.data.some(item => isVectorDataSource(item));
               const btn = (
                 <Button
                   variant="ghost"

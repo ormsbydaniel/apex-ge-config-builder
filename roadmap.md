@@ -34,3 +34,27 @@
 
 - [x] Add a Computed Composites tab and barren-soil RGB recipe matching the supplied openEO graph, using definition presets without per-channel histograms.
 - [x] Preserve per-dataset scope, save/reopen and exported rendering; verify formulas and schema persistence with focused tests.
+
+## STAC asset formats
+- [x] Phase 1–2: name-keyed `assetFormats` map with detection and manual selection
+- [x] Replace the duplicated asset-name controls with one discovery-first selector, manual entry, rescan, and format override
+- [x] Add shared in-memory inspection access and refine the row badge to show the asset format
+- [x] Phase 2B: enable multi-band COG styling for mapped STAC assets using in-memory sample URLs
+- [x] Phase 2A: gate vector styling, field detection, statistics and field-value charts on effective format with in-memory sample URLs
+- [ ] Later: CSV assets and remaining format-specific tools (constraints, validation) on effective format
+
+## STAC item queries
+- [x] Assess queryables-driven support and scope the first release to core URL parameters.
+- [x] Add guided bbox, datetime, and limit controls with URL-only persistence.
+- [x] Simplify the STAC form with side-by-side asset fields, inline result limit, and badge-based date/bbox dialogs.
+- [x] Move query actions before assets, make result limit an add action/badge, and move manual entry beside Asset name.
+- [x] Show only the STAC root in the editable URL field and display the complete formulated URL after filter badges.
+- [x] Collection queryables for CQL2 property filters.
+
+## Configuration donor sources
+- [x] Align Import Layer Card with Load Configuration by offering test/development and tutorial configs.
+- [x] Make the Examples and Tutorials pickers use the full available dialog height.
+
+## STAC dataset metadata
+- [x] Add an (i) metadata action to STAC rows with Collection, Item, and Asset tabs plus file inspection.
+- [x] Fix the dialog resizing by opening it at a fixed size matching the COG metadata dialog's scrolled footprint.

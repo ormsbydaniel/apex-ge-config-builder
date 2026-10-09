@@ -29,3 +29,13 @@ describe('populate field details', () => {
     });
   });
 });
+describe('fieldDetectionSources with STAC', () => {
+  it('includes STAC sources whose mapped asset is a vector format', () => {
+    const sources = [
+      { url: 'https://x.test/collections/c/items', format: 'stac', assets: ['data'], assetFormats: { data: 'flatgeobuf' } },
+      { url: 'https://x.test/collections/c/items', format: 'stac', assets: ['visual'], assetFormats: { visual: 'cog' } },
+      { url: 'https://x.test/collections/c/items', format: 'stac' },
+    ] as any;
+    expect(fieldDetectionSources(sources).map(({ index }) => index)).toEqual([0]);
+  });
+});

@@ -1,3 +1,4 @@
+import { DISPLAY_DATE_FORMAT, getTimeframeDisplayFormat } from "@/utils/dateUtils";
 import React from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
@@ -54,20 +55,6 @@ const UnifiedTimePeriodSection = ({
     }
   };
 
-  const getDateDisplayFormat = () => {
-    switch (timeframe) {
-      case 'Years':
-        return 'yyyy';
-      case 'Months':
-        return 'MMMM yyyy';
-      case 'Days':
-        return 'PP';
-      case 'Time':
-        return 'PPpp';
-      default:
-        return 'PP';
-    }
-  };
 
   // State for time input when timeframe is 'Time'
   const [timeValue, setTimeValue] = React.useState<string>(() => {
@@ -184,7 +171,7 @@ const UnifiedTimePeriodSection = ({
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
                 {selectedDate ? (
-                  format(selectedDate, timeframe === 'Time' ? 'PP' : getDateDisplayFormat())
+                  format(selectedDate, timeframe === 'Time' ? DISPLAY_DATE_FORMAT : getTimeframeDisplayFormat(timeframe))
                 ) : (
                   <span>{getDateFormatPlaceholder()}</span>
                 )}

@@ -9,7 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Loader2, AlertTriangle, Plus, X } from 'lucide-react';
 import { DataSourceItem } from '@/types/dataSource';
-import { detectFieldsFromSource, DetectedField } from '@/utils/fieldDetection';
+import type { DetectedField } from '@/utils/fieldDetection';
+import { detectFieldsFromDataSource } from '@/utils/stacAssetFormat';
 
 interface FieldSelectorDialogProps {
   open: boolean;
@@ -55,7 +56,7 @@ export function FieldSelectorDialog({
     setLoading(true);
     let cancelled = false;
 
-    detectFieldsFromSource(source.url, source.format)
+    detectFieldsFromDataSource(source)
       .then(fields => {
         if (cancelled) return;
         setDetected(fields);

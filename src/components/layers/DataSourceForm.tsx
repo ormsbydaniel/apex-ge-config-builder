@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,11 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Save, X, Database, Globe, Plus, Server, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+import { Save, X, Database, Globe, Server, CalendarIcon, ChevronLeft, ChevronRight, Pencil, RefreshCw } from 'lucide-react';
 import { Service, DataSourceFormat, DataSourceItem, TimeframeType, LayerInfo } from '@/types/config';
 import { dateStringToTimestamp, TemporalSuggestion } from '@/utils/timeDimension';
+import { isManualTimestampRequired } from '@/utils/timestampRequirement';
 import { fetchServiceVersion, layerHasTimeDimension } from '@/utils/serviceCapabilities';
 import { FORMAT_CONFIGS } from '@/constants/formats';
+import { decideStacAutoSelection, getStacItemEndpointKey, listStacAssets, sampleStacAsset, STAC_ASSET_FORMATS, updateStacAssetFormatMap, type StacAssetChoice, type StacAssetFormat } from '@/utils/stacAssetFormat';
+import { getStacUrlBase, replaceStacUrlBase } from '@/utils/stacQuery';
 
 
 import { useServices } from '@/hooks/useServices';
@@ -27,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { ServiceSelectionModal, ServiceSelectionValue } from './components/ServiceSelectionModals';
 import { CatalogueLayerSelection } from './components/CatalogueBrowser';
 import { ServiceCardList } from './components/ServiceCardList';
+import StacQueryEditor from './components/StacQueryEditor';
 
 import { determineZLevel } from '@/utils/drawOrderUtils';
 import ParametersEditor, { ParameterRow, applyOgcServiceVersion, recordToRows } from './ParametersEditor';
@@ -100,7 +107,17 @@ const DataSourceForm = ({
   const [directLayers, setDirectLayers] = useState(editingDataSource?.layers || '');
   const [zIndex, setZIndex] = useState(editingDataSource?.zIndex ?? getRecommendedZIndex(getInitialFormat()));
   const [stacAssets, setStacAssets] = useState<string[]>(editingDataSource?.assets || []);
-  const [newStacAsset, setNewStacAsset] = useState('');
+  const initialStacAssetName = editingDataSource?.assets?.[0];
+  const [stacAssetFormat, setStacAssetFormat] = useState<StacAssetFormat | undefined>(
+    initialStacAssetName ? editingDataSource?.assetFormats?.[initialStacAssetName] : undefined,
+  );
+  const [isDetectingStac, setIsDetectingStac] = useState(false);
+  const [discoveredAssets, setDiscoveredAssets] = useState<StacAssetChoice[] | null>(null);
+  const [isListingAssets, setIsListingAssets] = useState(false);
+  const [isEnteringStacAsset, setIsEnteringStacAsset] = useState(false);
+  const [isAssetSelectOpen, setIsAssetSelectOpen] = useState(false);
+  const assetDiscoveryRequest = useRef(0);
+  const [manualStacAsset, setManualStacAsset] = useState(editingDataSource?.assets?.[0] || '');
   const [minZoom, setMinZoom] = useState<number | undefined>(editingDataSource?.minZoom);
   const [maxZoom, setMaxZoom] = useState<number | undefined>(editingDataSource?.maxZoom);
   
@@ -197,7 +214,10 @@ const DataSourceForm = ({
       setUseTimeParameter(editingDataSource.useTimeParameter ?? true);
       setParameterRows(recordToRows(editingDataSource.parameters));
       setStacAssets(editingDataSource.assets || []);
-      setNewStacAsset('');
+      const editingStacAssetName = editingDataSource.assets?.[0];
+      setStacAssetFormat(editingStacAssetName ? editingDataSource.assetFormats?.[editingStacAssetName] : undefined);
+      setManualStacAsset(editingDataSource.assets?.[0] || '');
+      setIsEnteringStacAsset(false);
       setMinZoom(editingDataSource.minZoom);
       setMaxZoom(editingDataSource.maxZoom);
        const editingVersion = dataFormat === 'wmts'
@@ -221,6 +241,23 @@ const DataSourceForm = ({
       setIsDirty(false);
     }
   }, [editingDataSource, layerType]);
+
+  // Endpoint identity ignores the query string, so filter edits don't reset discovery
+  const stacEndpointKey = selectedFormat === 'stac' ? getStacItemEndpointKey(directUrl) : null;
+  const stacUrlBase = getStacUrlBase(directUrl);
+
+  // Clear discovered STAC assets when the endpoint changes so stale names aren't offered
+  useEffect(() => {
+    setDiscoveredAssets(null);
+  }, [stacUrlBase]);
+
+  // Automatically discover assets once an items/item endpoint is entered
+  useEffect(() => {
+    if (!stacEndpointKey || isEnteringStacAsset) return;
+    const timer = setTimeout(() => { void discoverStacAssets(true); }, 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stacEndpointKey]);
 
   // Track dirty state and update ConfigContext
   useEffect(() => {
@@ -300,7 +337,9 @@ const DataSourceForm = ({
     : Object.entries(FORMAT_CONFIGS);
 
   // Check if current format supports statistics
-  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson';
+  // STAC sources support statistics when their selected asset maps to a vector format.
+  const supportsStatistics = selectedFormat === 'flatgeobuf' || selectedFormat === 'geojson'
+    || (selectedFormat === 'stac' && (stacAssetFormat === 'flatgeobuf' || stacAssetFormat === 'geojson'));
 
   const handleFormatChange = (format: DataSourceFormat) => {
     setSelectedFormat(format);
@@ -533,6 +572,15 @@ const DataSourceForm = ({
       return;
     }
 
+    if (selectedFormat === 'stac' && (!stacAssets[0]?.trim() || !stacAssetFormat)) {
+      toast({
+        title: "Incomplete asset details",
+        description: "Select or enter an asset name and choose its format.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validate position for comparison layers
     if (needsPosition && !selectedPosition) {
       toast({
@@ -580,7 +628,11 @@ const DataSourceForm = ({
       }
     }
 
-    const needsManualTimestamp = requiresTimestamp && (!isWmsOrWmts || !effectiveUseTimeParameter);
+    const needsManualTimestamp = isManualTimestampRequired({
+      requiresTimestamp: !!requiresTimestamp,
+      format: selectedFormat,
+      useTimeParameter: effectiveUseTimeParameter,
+    });
 
     
     if (needsManualTimestamp && !selectedDate) {
@@ -609,12 +661,27 @@ const DataSourceForm = ({
     if (selectedFormat === 'stac') {
       if (stacAssets.length > 0) baseItem.assets = stacAssets;
       else delete baseItem.assets;
+      let formatToSave = stacAssetFormat;
+      if (!formatToSave) {
+        try {
+          const sample = await sampleStacAsset(url, stacAssets);
+          formatToSave = sample.format;
+          if (sample.bandLabels?.length && !baseItem.bandLabels) baseItem.bandLabels = sample.bandLabels;
+        } catch {
+          // Non-fatal: save without a detected format
+        }
+      }
+      const selectedAssetName = stacAssets[0]?.trim();
+      const assetFormats = updateStacAssetFormatMap(editingDataSource?.assetFormats, selectedAssetName, formatToSave);
+      if (assetFormats) baseItem.assetFormats = assetFormats;
+      else delete baseItem.assetFormats;
       if (minZoom !== undefined) baseItem.minZoom = minZoom;
       else delete baseItem.minZoom;
       if (maxZoom !== undefined) baseItem.maxZoom = maxZoom;
       else delete baseItem.maxZoom;
     } else {
       delete baseItem.assets;
+      delete baseItem.assetFormats;
     }
 
     // Band labels extracted from STAC eo:bands metadata (used by RGB composite recipes)
@@ -649,7 +716,14 @@ const DataSourceForm = ({
       delete baseItem.timestamps;
     } else {
       delete baseItem.useTimeParameter;
-      if (needsManualTimestamp && selectedDate) {
+      if (selectedFormat === 'stac') {
+        // STAC items supply their own datetime; a timestamp is only a manual override.
+        if (requiresTimestamp && selectedDate) {
+          baseItem.timestamps = [Math.floor(selectedDate.getTime() / 1000)];
+        } else {
+          delete baseItem.timestamps;
+        }
+      } else if (needsManualTimestamp && selectedDate) {
         baseItem.timestamps = [Math.floor(selectedDate.getTime() / 1000)];
       }
     }
@@ -729,59 +803,194 @@ const DataSourceForm = ({
     onCancel();
   };
 
+  // Shared STAC detection: fills asset format and band labels from the first item.
+  const runStacDetect = async (assetNames: string[]) => {
+    setIsDetectingStac(true);
+    try {
+      const sample = await sampleStacAsset(directUrl.trim(), assetNames);
+      if (sample.format) {
+        setStacAssetFormat(sample.format);
+        if (sample.bandLabels?.length) setStacBandLabels(sample.bandLabels);
+        toast({ title: 'Asset format detected', description: `${sample.assetName ?? 'Asset'}: ${FORMAT_CONFIGS[sample.format]?.label ?? sample.format}` });
+      } else {
+        setStacAssetFormat(undefined);
+        toast({ title: 'Format not recognised', description: 'Choose the asset format manually.', variant: 'destructive' });
+      }
+    } catch (e) {
+      toast({ title: 'Could not read STAC items', description: e instanceof Error ? e.message : String(e), variant: 'destructive' });
+    } finally {
+      setIsDetectingStac(false);
+    }
+  };
+
+  const discoverStacAssets = async (automatic = false) => {
+    const requestId = ++assetDiscoveryRequest.current;
+    setIsListingAssets(true);
+    try {
+      const assets = await listStacAssets(directUrl.trim());
+      if (requestId !== assetDiscoveryRequest.current) return; // stale response
+      const decision = decideStacAutoSelection(assets, stacAssets[0]);
+      if (decision.kind === 'none') {
+        toast({ title: 'No assets found', description: 'The first item does not advertise any assets. Use manual entry to type the asset name.', variant: 'destructive' });
+        return;
+      }
+      setDiscoveredAssets(assets);
+      if (decision.kind === 'select') {
+        const { name, format } = decision.asset;
+        if (name !== stacAssets[0] || !stacAssetFormat) {
+          setStacAssets([name]);
+          setStacAssetFormat(format ?? editingDataSource?.assetFormats?.[name]);
+          setStacBandLabels(null);
+          void runStacDetect([name]);
+        }
+      } else if (decision.kind === 'choose') {
+        setStacAssets([]);
+        setStacAssetFormat(undefined);
+        setStacBandLabels(null);
+        setIsAssetSelectOpen(true);
+      }
+    } catch (e) {
+      if (requestId !== assetDiscoveryRequest.current) return;
+      toast({ title: 'Could not read STAC items', description: `${e instanceof Error ? e.message : String(e)}${automatic ? ' Use manual entry to type the asset name.' : ''}`, variant: 'destructive' });
+    } finally {
+      if (requestId === assetDiscoveryRequest.current) setIsListingAssets(false);
+    }
+  };
+
   const renderStacOptions = (idPrefix: string) => {
     if (selectedFormat !== 'stac') return null;
 
-    const addAsset = () => {
-      const assetName = newStacAsset.trim();
-      if (!assetName || stacAssets.includes(assetName)) return;
-      setStacAssets([...stacAssets, assetName]);
-      setNewStacAsset('');
-    };
+    const selectedAsset = stacAssets[0];
+    const assetChoices = discoveredAssets
+      ? discoveredAssets.some((asset) => asset.name === selectedAsset) || !selectedAsset
+        ? discoveredAssets
+        : [{ name: selectedAsset }, ...discoveredAssets]
+      : selectedAsset
+        ? [{ name: selectedAsset }]
+        : [];
 
     return (
-      <div className="space-y-4 border-t pt-4">
-        <div className="space-y-2">
-          <Label htmlFor={`${idPrefix}StacAsset`}>Asset names</Label>
-          <div className="flex gap-2">
-            <Input
-              id={`${idPrefix}StacAsset`}
-              value={newStacAsset}
-              onChange={(event) => setNewStacAsset(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  addAsset();
-                }
-              }}
-              placeholder="e.g. low_tide_image"
-              autoComplete="off"
-            />
-            <Button type="button" variant="outline" size="icon" onClick={addAsset} aria-label="Add asset name">
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          {stacAssets.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {stacAssets.map((asset) => (
-                <Badge key={asset} variant="secondary" className="gap-2">
-                  {asset}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-4 w-4"
-                    onClick={() => setStacAssets(stacAssets.filter((name) => name !== asset))}
-                    aria-label={`Remove ${asset}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </Badge>
-              ))}
+      <div className="space-y-4">
+        <StacQueryEditor url={directUrl} onChange={setDirectUrl} />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <div className="flex h-5 items-center gap-1">
+              <Label htmlFor={`${idPrefix}StacAsset`}>Asset name <span className="text-destructive">*</span></Label>
+              <TooltipProvider delayDuration={400}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5"
+            aria-label={isEnteringStacAsset ? 'Browse discovered assets' : 'Manual entry'}
+            onClick={() => {
+              if (isEnteringStacAsset) {
+                setIsEnteringStacAsset(false);
+                setDiscoveredAssets(null);
+                setStacAssets([]);
+                setStacAssetFormat(undefined);
+              } else {
+                setManualStacAsset(selectedAsset || '');
+                setIsEnteringStacAsset(true);
+                setStacAssetFormat(undefined);
+                setStacBandLabels(null);
+              }
+            }}
+          >
+            {isEnteringStacAsset ? <Database className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
+          </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{isEnteringStacAsset ? 'Browse discovered assets' : 'Manual entry'}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
-          )}
-          <p className="text-xs text-muted-foreground">Optional asset names advertised by the collection.</p>
+            {isEnteringStacAsset ? (
+              <Input
+                id={`${idPrefix}StacAsset`}
+                value={manualStacAsset}
+                onChange={(event) => {
+                  const name = event.target.value;
+                  const trimmedName = name.trim();
+                  setManualStacAsset(name);
+                  setStacAssets(trimmedName ? [trimmedName] : []);
+                  setStacAssetFormat(trimmedName ? editingDataSource?.assetFormats?.[trimmedName] : undefined);
+                }}
+                placeholder="Enter an asset name"
+                autoComplete="off"
+              />
+            ) : discoveredAssets ? (
+              <Select
+                open={isAssetSelectOpen}
+                onOpenChange={setIsAssetSelectOpen}
+                value={selectedAsset ?? ''}
+                onValueChange={(name) => {
+                  const choice = discoveredAssets.find((asset) => asset.name === name);
+                  setStacAssets([name]);
+                  setStacAssetFormat(choice?.format ?? editingDataSource?.assetFormats?.[name]);
+                  setStacBandLabels(null);
+                  void runStacDetect([name]);
+                }}
+              >
+                <SelectTrigger id={`${idPrefix}StacAsset`} aria-label="Asset name">
+                  <SelectValue placeholder="Select an asset…">{selectedAsset}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {assetChoices.map((asset) => (
+                    <SelectItem key={asset.name} value={asset.name}>
+                      {asset.name}{asset.format ? ` — ${FORMAT_CONFIGS[asset.format]?.label ?? asset.format.toUpperCase()}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Button
+                id={`${idPrefix}StacAsset`}
+                type="button"
+                variant="outline"
+                className="w-full justify-start font-normal"
+                disabled={!directUrl.trim() || isListingAssets}
+                onClick={() => void discoverStacAssets(false)}
+              >
+                {isListingAssets ? 'Finding assets…' : selectedAsset || 'Browse assets from the first item…'}
+              </Button>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label className="flex h-5 items-center" htmlFor={`${idPrefix}StacAssetFormat`}>Asset format</Label>
+            <Select
+              value={stacAssetFormat}
+              onValueChange={(value) => setStacAssetFormat(value as StacAssetFormat)}
+              disabled={!selectedAsset || isDetectingStac}
+            >
+              <SelectTrigger id={`${idPrefix}StacAssetFormat`}>
+                <SelectValue placeholder={isDetectingStac ? 'Detecting…' : 'Select format…'} />
+              </SelectTrigger>
+              <SelectContent>
+                {STAC_ASSET_FORMATS.map((format) => (
+                  <SelectItem key={format} value={format}>{FORMAT_CONFIGS[format]?.label ?? format.toUpperCase()}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+        <div className="flex flex-wrap justify-end gap-1">
+          {!isEnteringStacAsset && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1 px-2 text-xs"
+              disabled={!directUrl.trim() || isListingAssets}
+              onClick={() => void discoverStacAssets(false)}
+            >
+              <RefreshCw className={cn('h-3 w-3', isListingAssets && 'animate-spin')} />
+              Rescan collection
+            </Button>
+          )}
+        </div>
+        <Separator />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor={`${idPrefix}MinZoom`}>Minimum zoom</Label>
@@ -792,7 +1001,24 @@ const DataSourceForm = ({
             <Input id={`${idPrefix}MaxZoom`} type="number" value={maxZoom ?? ''} onChange={(event) => setMaxZoom(event.target.value === '' ? undefined : Number(event.target.value))} min="0" autoComplete="off" />
           </div>
         </div>
+        <div className="space-y-2">
+          <Label htmlFor={`${idPrefix}StacZIndex`}>Z-Index</Label>
+          <Input
+            id={`${idPrefix}StacZIndex`}
+            name={`${idPrefix}StacZIndex`}
+            type="number"
+            value={zIndex}
+            onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+            min="0"
+            max="200"
+            autoComplete="off"
+          />
+          <p className="text-xs text-muted-foreground">
+            Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+          </p>
+        </div>
       </div>
+
     );
   };
 
@@ -984,8 +1210,8 @@ const DataSourceForm = ({
                   <Input
                     id="directUrl"
                     name="directUrl"
-                    value={directUrl}
-                    onChange={(e) => setDirectUrl(e.target.value)}
+                    value={selectedFormat === 'stac' ? getStacUrlBase(directUrl) : directUrl}
+                    onChange={(e) => setDirectUrl(selectedFormat === 'stac' ? replaceStacUrlBase(directUrl, e.target.value) : e.target.value)}
                     placeholder={config_format.urlPlaceholder}
                     autoComplete="url"
                   />
@@ -1005,22 +1231,25 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <Label htmlFor="directZIndex">Z-Index</Label>
-                  <Input
-                    id="directZIndex"
-                    name="directZIndex"
-                    type="number"
-                    value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
-                    min="0"
-                    max="200"
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
-                  </p>
-                </div>
+                {selectedFormat !== 'stac' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="directZIndex">Z-Index</Label>
+                    <Input
+                      id="directZIndex"
+                      name="directZIndex"
+                      type="number"
+                      value={zIndex}
+                      onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+                      min="0"
+                      max="200"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                    </p>
+                  </div>
+                )}
+
 
                 {renderStacOptions('direct')}
 
@@ -1028,7 +1257,7 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="timestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
+                      <Label htmlFor="timestamp">Timestamp {selectedFormat === 'stac' ? <span className="text-muted-foreground font-normal">(optional)</span> : ((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
                       
                       {/* WMS/WMTS TIME Parameter Option */}
                       {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -1118,9 +1347,21 @@ const DataSourceForm = ({
                                 />
                               </PopoverContent>
                             </Popover>
+                            {selectedFormat === 'stac' && (selectedDate || dateInputValue) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                type="button"
+                                onClick={() => { setSelectedDate(undefined); setDateInputValue(''); }}
+                              >
+                                Clear
+                              </Button>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                            {selectedFormat === 'stac'
+                              ? "Leave blank to use each STAC item's own datetime. Set a date only to override it."
+                              : `This timestamp will be used for temporal data visualization (${timeframe} timeframe).`}
                           </p>
                         </>
                       ) : null}
@@ -1220,8 +1461,8 @@ const DataSourceForm = ({
                   <Input
                     id="serviceDirectUrl"
                     name="serviceDirectUrl"
-                    value={directUrl}
-                    onChange={(e) => setDirectUrl(e.target.value)}
+                    value={selectedFormat === 'stac' ? getStacUrlBase(directUrl) : directUrl}
+                    onChange={(e) => setDirectUrl(selectedFormat === 'stac' ? replaceStacUrlBase(directUrl, e.target.value) : e.target.value)}
                     placeholder={config_format.urlPlaceholder}
                     autoComplete="url"
                   />
@@ -1241,22 +1482,25 @@ const DataSourceForm = ({
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <Label htmlFor="serviceDirectZIndex">Z-Index</Label>
-                  <Input
-                    id="serviceDirectZIndex"
-                    name="serviceDirectZIndex"
-                    type="number"
-                    value={zIndex}
-                    onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
-                    min="0"
-                    max="200"
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
-                  </p>
-                </div>
+                {selectedFormat !== 'stac' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="serviceDirectZIndex">Z-Index</Label>
+                    <Input
+                      id="serviceDirectZIndex"
+                      name="serviceDirectZIndex"
+                      type="number"
+                      value={zIndex}
+                      onChange={(e) => setZIndex(parseInt(e.target.value) || getRecommendedZIndex(selectedFormat))}
+                      min="0"
+                      max="200"
+                      autoComplete="off"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Recommended: {getRecommendedZIndex(selectedFormat)} (based on format)
+                    </p>
+                  </div>
+                )}
+
 
                 {renderStacOptions('service')}
 
@@ -1264,7 +1508,7 @@ const DataSourceForm = ({
                 {requiresTimestamp && (
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="serviceTimestamp">Timestamp {((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
+                      <Label htmlFor="serviceTimestamp">Timestamp {selectedFormat === 'stac' ? <span className="text-muted-foreground font-normal">(optional)</span> : ((selectedFormat === 'wms' || selectedFormat === 'wmts') && useTimeParameter) ? '' : '*'}</Label>
                       
                       {/* WMS/WMTS TIME Parameter Option */}
                       {(selectedFormat === 'wms' || selectedFormat === 'wmts') && (
@@ -1354,9 +1598,21 @@ const DataSourceForm = ({
                                 />
                               </PopoverContent>
                             </Popover>
+                            {selectedFormat === 'stac' && (selectedDate || dateInputValue) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                type="button"
+                                onClick={() => { setSelectedDate(undefined); setDateInputValue(''); }}
+                              >
+                                Clear
+                              </Button>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            This timestamp will be used for temporal data visualization ({timeframe} timeframe).
+                            {selectedFormat === 'stac'
+                              ? "Leave blank to use each STAC item's own datetime. Set a date only to override it."
+                              : `This timestamp will be used for temporal data visualization (${timeframe} timeframe).`}
                           </p>
                         </>
                       ) : null}

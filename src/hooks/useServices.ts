@@ -1,3 +1,4 @@
+import { formatDisplayDate } from "@/utils/dateUtils";
 
 import { useState } from 'react';
 import { Service, ServiceCapabilities, DataSourceFormat } from '@/types/config';
@@ -38,7 +39,7 @@ export const useServices = (services: Service[], onAddService: (service: Service
       const layers = objects.map(object => ({
         name: object.key,
         title: object.key.split('/').pop() || object.key,
-        abstract: `S3 Object - Size: ${Math.round(object.size / 1024)}KB, Modified: ${new Date(object.lastModified).toLocaleDateString()}`
+        abstract: `S3 Object - Size: ${Math.round(object.size / 1024)}KB, Modified: ${formatDisplayDate(object.lastModified)}`
       }));
 
       return {

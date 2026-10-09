@@ -76,3 +76,27 @@ supported shapes.
   API may be rate-limiting. Filter by date upstream where possible.
 - Signed URLs are common in commercial STAC catalogues; the builder
   stores the base URL and re-signs at view time when supported.
+
+## Viewing STAC metadata
+
+Click the **(i)** button on a STAC dataset row to open **STAC Metadata**. It has three tabs:
+
+- **Collection**: title, description, licence, extents, keywords and the asset types the collection offers.
+- **Item**: the single item, or the first item returned by your filters, with its date, extent, key properties and the list of assets.
+- **Asset**: details for the selected asset, plus a button that opens the COG or FlatGeobuf file inspector.
+
+This view is read-only. Temporary or signed file links are never saved to your configuration.
+
+## Drawing the area on a map
+
+The **Bounding box filter** dialog includes a small map. Choose **Draw area** and drag a rectangle, or pan to an area and click **Use current map view**; the West/South/East/North boxes stay in sync with the rectangle. Only `bbox=W,S,E,N` is saved in the address. Queryables named `geometry` describe the item footprint — spatial filtering on them uses this bbox filter.
+
+## Property filters
+
+For STAC items endpoints, **+ Add property filter** lists the properties the collection publishes in its `queryables` response (for example `eo:cloud_cover`). Choose a property, a condition suited to its type and a value; each rule appears as a badge and rules are combined with AND. **Test filter** runs the query once and reports how many items match, or the server's error.
+
+Filters are saved only in the data source URL as `filter=<CQL2 text>&filter-lang=cql2-text`. If a collection does not publish queryables, enter the property name and type manually. Filters the editor cannot split into simple rules (for example ones using OR) are shown as a single **Custom filter** that you can edit as raw text.
+
+## Query method: items or search
+
+The query editor offers a **Query method** choice between the **Items endpoint** (`.../collections/{id}/items?…`, the default) and the **Search endpoint** (`.../search?collections={id}&…`). Switching rewrites the address and keeps every filter — bbox, datetime, limit and property filters — intact. Some servers only evaluate property filters on the search endpoint, so if a filter has no effect on the result set, switch to **Search endpoint** and use **Test filter** to confirm. A pasted `/search?collections=…` address is recognised directly. Searches spanning several collections (`collections=a,b`) are recognised but cannot be switched back to the items endpoint, which serves a single collection.

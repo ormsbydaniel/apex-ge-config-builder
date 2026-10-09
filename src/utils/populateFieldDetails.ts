@@ -1,12 +1,13 @@
 import type { DataSourceItem } from '@/types/dataSource';
 import type { FieldsConfig } from '@/types/category';
 import type { DetectedField } from '@/utils/fieldDetection';
+import { getEffectiveFormat } from '@/utils/stacAssetFormat';
 import { assignFieldOrder } from '@/utils/fieldOrder';
 
 /** Only these formats can currently be inspected by the field detector. */
 export function fieldDetectionSources(sources: DataSourceItem[]) {
   return sources.flatMap((source, index) =>
-    source.url && ['geojson', 'json', 'flatgeobuf', 'fgb'].includes(source.format?.toLowerCase())
+    source.url && ['geojson', 'json', 'flatgeobuf', 'fgb'].includes(getEffectiveFormat(source)?.toLowerCase())
       ? [{ ...source, index, url: source.url }]
       : []
   );

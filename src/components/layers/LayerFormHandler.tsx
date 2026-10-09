@@ -7,6 +7,7 @@ import LayerFormContainer from './LayerFormContainer';
 import DataSourceForm from './DataSourceForm';
 import ConstraintSourceForm from './components/ConstraintSourceForm';
 import { ChartSourceForm } from './components/ChartSourceForm';
+import { getEffectiveFormat, isVectorDataSource } from '@/utils/stacAssetFormat';
 
 interface LayerFormHandlerProps {
   showLayerForm: boolean;
@@ -179,7 +180,7 @@ const LayerFormHandler = ({
         onAddStatisticsLayer={onStatisticsLayerAdded}
         onAddService={onAddService}
         onCancel={onDataSourceCancel}
-        allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson'] : undefined}
+        allowedFormats={isAddingStatistics ? ['flatgeobuf', 'geojson', 'stac'] : undefined}
         isAddingStatistics={isAddingStatistics}
         editingDataSource={editingDataSource}
         editingIndex={editingDataSourceIndex ?? undefined}
@@ -227,8 +228,9 @@ const LayerFormHandler = ({
     }
     
     // Filter COG sources from the current layer's data for pixelValues chart support
+    // Includes STAC datasets whose selected asset is mapped as a COG
     const cogSources = (currentLayer.data || []).filter(
-      (d: any) => d.format === 'cog'
+      (d: any) => getEffectiveFormat(d) === 'cog'
     );
 
     // COG sources that carry timestamps — used for pixelTimeSeries chart support
@@ -238,7 +240,7 @@ const LayerFormHandler = ({
 
     // Filter vector sources for fieldValues chart support
     const vectorSources = (currentLayer.data || []).filter(
-      (d: any) => d.format === 'geojson' || d.format === 'flatgeobuf'
+      (d: any) => isVectorDataSource(d)
     );
     
     // Create handler that routes to add or update based on editing state

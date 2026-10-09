@@ -44,6 +44,11 @@ export default {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
+				'asset-badge': {
+					DEFAULT: 'hsl(var(--asset-badge))',
+					foreground: 'hsl(var(--asset-badge-foreground))',
+					border: 'hsl(var(--asset-badge-border))'
+				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'

@@ -30,7 +30,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { FieldsConfig, FieldConfig } from '@/types/category';
 import FieldItem from './FieldItem';
 import FieldsCopyFromLayer from './FieldsCopyFromLayer';
-import { detectFieldsFromSource } from '@/utils/fieldDetection';
+import { detectFieldsFromDataSource } from '@/utils/stacAssetFormat';
 import { useToast } from '@/hooks/use-toast';
 import { assignFieldOrder } from '@/utils/fieldOrder';
 import { fieldDetectionSources, mergeDetectedFields } from '@/utils/populateFieldDetails';
@@ -138,7 +138,7 @@ const FieldsEditorTabs = ({
     setPickerOpen(false);
     setIsDetecting(true);
     try {
-      const fields = await detectFieldsFromSource(source.url, source.format);
+      const fields = await detectFieldsFromDataSource(source);
       if (fields.length === 0) {
         toast({
           title: 'No fields found',

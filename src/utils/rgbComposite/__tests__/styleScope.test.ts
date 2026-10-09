@@ -41,6 +41,14 @@ describe('composite style scope', () => {
     expect(visualisationName(items[0], 10)).toBe('Natural colour');
     expect(visualisationName(items[1], 10)).toBe('Agriculture');
   });
+
+  it('styles mapped STAC COG assets while preserving their STAC identity', () => {
+    const stacCog = { format: 'stac', url: 'https://example.org/items', zIndex: 0, assets: ['visual'], assetFormats: { visual: 'cog' } } as DataSourceItem;
+    const stacVector = { format: 'stac', url: 'https://example.org/vector-items', zIndex: 1, assets: ['data'], assetFormats: { data: 'flatgeobuf' } } as DataSourceItem;
+    const result = applyCompositeStyle([stacCog, stacVector], 0, [4, 3, 2], true, () => ({ variables: { rMin: 1 } }));
+    expect(result[0]).toMatchObject({ format: 'stac', url: 'https://example.org/items', assets: ['visual'], assetFormats: { visual: 'cog' }, convertToRGB: true, bands: [4, 3, 2] });
+    expect(result[1]).toBe(stacVector);
+  });
 });
 import { applyIndexStyle } from '../styleScope';
 describe('computed style scope', () => {
