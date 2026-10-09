@@ -1,7 +1,7 @@
 ---
-title: 8-7. Preview and review
+title: 8-8. Preview and review
 ---
-# 8-7. Preview and review
+# 8-8. Preview and review
 
 ## View the result
 
