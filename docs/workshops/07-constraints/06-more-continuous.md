@@ -1,13 +1,14 @@
 ---
 title: 7-6. Add more continuous constraints
 ---
+
 # 7-6. Add more continuous constraints
 
 Repeat the pattern from [7-5](05-continuous-constraint.md) for four more
 constraint layers. Each one is a separate COG, prepared on the same grid as the
 wind power data.
 
-For each row below: **Add constraint** → **Direct URL** → paste the URL → set
+For each row below (or just a couple if you prefer): **Add constraint** → **Direct URL** → paste the URL → set
 the label, type **Continuous**, min, max and units → **Save**.
 
 **Slope** — min `0`, max `65`, units `degrees`
@@ -36,7 +37,7 @@ https://eox-gtif-public.s3.eu-central-1.amazonaws.com/DHI/WSF_EucDist_Austria_38
 
 ## Combining constraints
 
-Constraints are applied **together**: a pixel is only drawn where *every*
+Constraints are applied **together**: a pixel is only drawn where _every_
 active constraint is satisfied. That turns the layer into a simple
 site-suitability tool.
 
@@ -54,8 +55,8 @@ with the best wind resource.
 ![Austria Wind Power Density layer with multiple continuous constraints combined in the Constraints panel](../../assets/screenshots/more-continuous-constraints-result.png)
 
 !!! note "Order matters for readability, not for logic"
-    Constraints are combined regardless of their order in the list, but the
-    order in the **Constraints** tab is the order they appear in the viewer.
-    Use the move controls to put the most important filters first.
+Constraints are combined regardless of their order in the list, but the
+order in the **Constraints** tab is the order they appear in the viewer.
+Use the move controls to put the most important filters first.
 
 ### Did you remember to export?
