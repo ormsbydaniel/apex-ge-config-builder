@@ -28,6 +28,8 @@ interface DataSourceFormState {
 interface LayerStateManagementState {
   expansion: LayerExpansionState;
   dataSourceForm: DataSourceFormState;
+  // Tab to focus in a layer card after a form completes (e.g. Statistics after adding a statistics source)
+  focusTab: { layerIndex: number; tab: string } | null;
 }
 
 // Action types for the reducer
