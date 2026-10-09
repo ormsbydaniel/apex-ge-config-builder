@@ -6,6 +6,12 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-10-09",
+    title:
+      "Release 2.10.0 - Comprehensive support for STAC data sources in configuration builder",
+    category: "Feature",
+  },
+  {
     date: "2026-10-08",
     title:
       "Release 2.9.0 - Addition of tutorials in load config UI. Check box in settings for Experimental features and addition of composite indices as one",
