@@ -1,8 +1,8 @@
 ---
-title: 9-3. Styling multi-spectral data
+title: 9-3. Styling multi-spectral data as natural colour
 ---
 
-# 9-3. Styling multi-spectral data
+# 9-3. Styling multi-spectral data as natural colour
 
 In this exercise we will work with an existing configuration. If you are following on from previous exercises you may want to **export your current config**, as we will load up a new one.
 
@@ -23,6 +23,11 @@ In this exercise we will work with an existing configuration. If you are followi
 
     **Indices** meanwhile, make per pixel calulations across multiple bands, ending up with a value typically between -1 and +1. These indices reveal interesting insights according to the formula used!
 
-4.  Select **Composites -> Natural colour**. You will see down the left that some _bands_ have already been selected for you. You will also see some _histograms_. We will go with these defaults for now. Save the visualisation, and then go to **Preview** to take a look at the lauer so far.
+4.  Select **Composites -> Natural colour**. You will see down the left that some _bands_ have already been selected for you. You will also see some _histograms_. We will go with these defaults for now. Save the visualisation, and then go to **Preview** to take a look at the layer so far, zooming in to take a look in more detail.
+
+    !!! info "You might thing the image looks a bit dark?"
+    The natural colour visualisation you selected by default stretches the red, green and blue channels between _2 and 98%_ - i.e. ignoring 2% of pixels that are either really dark or really bright, to remove some outliers. . However, you will have noticed that this scene, which is from January includes areas of white - snow on the hills. This therefore means that a lot of bright pixels are influencing the stretch on the scene.
+
+5.  Return to the layer card, and **edit the visualisation** again (via the pen icon next to multi-band visualiation)! This time, apply the **Mean +- standard deviations**. Click save, then **Preview** and see how this has impacted the colour balance of the image.
 
 ### Did you remember to export?
