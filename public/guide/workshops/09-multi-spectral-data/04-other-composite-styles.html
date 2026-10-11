@@ -1709,7 +1709,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Duplicate the layer and create a new visualisation method">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#composite-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Composite options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Composite options">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2004,7 +2013,16 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Duplicate the layer and create a new visualisation method">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#composite-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Composite options
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Composite options">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2053,7 +2071,7 @@
 <p>On the <strong>top row</strong> of the <em>Bristol Sentinel 2</em> layer card, select the <strong>duplicate layer</strong> icon - two overlapping blue squares, with a tooltip.</p>
 </li>
 <li>
-<p>On the <strong>Bristol Sentinel 2 (copy)</strong> layer, click the <strong>red trash can</strong> icon next to the RGB visualisations to clear the current settings, then click the <strong>pencil</strong> icon to set a new visualisation. Choose one of interest - you have options of <code>false colour infrared</code>, <code>agriculture</code>, <code>urban \ geology</code> or if you know your EO, try something <code>custom</code>.</p>
+<p>On the <strong>Bristol Sentinel 2 (copy)</strong> layer, click the <strong>red trash can</strong> icon next to the RGB visualisations to clear the current settings, then click the <strong>pencil</strong> icon to set a new visualisation. Choose one of interest - the <strong>Composite options</strong> table below explains each one.</p>
 </li>
 <li>
 <p>Now <strong>edit the layer names</strong> - change <em>Bristol Sentinel 2</em> to <em>Bristol Sentinel 2 natural colour</em> and <em>Bristol Sentinel 2 (copy)</em> to something meaningful.</p>
@@ -2065,6 +2083,48 @@
 <p><strong>Tweak</strong> your visualisation stretches. If you want, repeat the last few steps for different visualisation options.</p>
 </li>
 </ol>
+<h2 id="composite-options">Composite options<a class="headerlink" href="#composite-options" title="Permanent link">&para;</a></h2>
+<p>Each option asks a different question of the same scene. The bands are picked for you from the bands your dataset actually has.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Bands used</th>
+<th>What to look for around Bristol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Natural colour</strong></td>
+<td>Red, Green, Blue</td>
+<td>The scene as your eye would see it — the baseline for comparing everything else.</td>
+</tr>
+<tr>
+<td><strong>False colour infrared</strong></td>
+<td>NIR, Red, Green</td>
+<td>Healthy vegetation shows bright red, so <strong>Leigh Woods</strong> and the farmland to the south-east stand out against grey urban areas.</td>
+</tr>
+<tr>
+<td><strong>Agriculture</strong></td>
+<td>SWIR1, NIR, Blue</td>
+<td>Separates crops, bare soil and water — fields east of the city take on different hues depending on what is growing.</td>
+</tr>
+<tr>
+<td><strong>Urban / geology</strong></td>
+<td>SWIR2, SWIR1, Red</td>
+<td>Built-up areas come to the fore: the city centre, <strong>Avonmouth</strong> docks and the industrial estates along the river.</td>
+</tr>
+<tr>
+<td><strong>Custom</strong></td>
+<td>Any three you pick</td>
+<td>Build a combination of your own — swap the blue band for a shortwave infrared band and see what changes.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Different data, different bands</p>
+<p>The exact bands behind each option depend on the file you are looking at. A 10-band Sentinel-2 stack and a 3-band RGB image cannot offer the same views, so an option may be missing or resolve to different bands elsewhere.</p>
+</div>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
