@@ -60,5 +60,5 @@
 - [x] Fix the dialog resizing by opening it at a fixed size matching the COG metadata dialog's scrolled footprint.
 
 ## Tutorial proofreading
-- [ ] Review all tutorials and correct typos, spelling and grammar without changing instructions.
-- [ ] Rebuild the guide in strict mode.
+- [x] Review all tutorials and correct typos, spelling and grammar without changing instructions.
+- [x] Rebuild the guide in strict mode.
