@@ -35,7 +35,7 @@ title: 3-2. Key concepts
   store.
 
 - Data buckets are typically used for **file-based storage**, including raster
-  files such as COGs and vector files such as GeoJSON or FlatGeoBuf.
+  files such as COGs and vector files such as GeoJSON or FlatGeobuf.
 
 - When a bucket is publicly accessible, the Config Builder can **browse its
   folders and files**, acting as a file picker so that you can select data to

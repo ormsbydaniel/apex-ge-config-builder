@@ -55,15 +55,15 @@ again in later tutorials.
 
 ### 3. Browse the Solutions Gallery
 
-The APEx project has also created a showcase of various project implementations - not just of the *GE* but other APEX tools too.
+The APEx project has also created a showcase of various project implementations - not just of the *GE* but other APEx tools too.
 
-Head over to the **APEx Solutions Gallery**, filter on *"Geospatial Explorer* and have a play around with two or three examples that other teams have built.  These give you an idea of the sort of configurations you will learn to produce via these workshops.
+Head over to the **APEx Solutions Gallery**, filter on *"Geospatial Explorer"* and have a play around with two or three examples that other teams have built.  These give you an idea of the sort of configurations you will learn to produce via these workshops.
 
 !!! info "APEx Solutions Gallery"
     <https://apex.esa.int/resources/solutions-gallery>
 
 If you are wondering what the various acronyms are:
 
-- **SEF** refers to the [Stakeholder Engagement Facility](https://sef.apex.esa.int/en) - an ESA team focussed on outreach.  Their configurations tend to be broad showcases around a general thematic area, such as *energy*, or *biodivserity*.
-- **EO4** (*Earth Observation for ...*) and **EOBP** (*Earth Observation Best Practices*) are both ESA programs within the **EO 4 society** (https://eo4society.esa.int/).  These configurations have been used to showcase specific project outputs such as sample datasets and algorithms.
+- **SEF** refers to the [Stakeholder Engagement Facility](https://sef.apex.esa.int/en) - an ESA team focussed on outreach.  Their configurations tend to be broad showcases around a general thematic area, such as *energy*, or *biodiversity*.
+- **EO4** (*Earth Observation for ...*) and **EOBP** (*Earth Observation Best Practices*) are both ESA programmes within the **EO 4 society** (https://eo4society.esa.int/).  These configurations have been used to showcase specific project outputs such as sample datasets and algorithms.
 

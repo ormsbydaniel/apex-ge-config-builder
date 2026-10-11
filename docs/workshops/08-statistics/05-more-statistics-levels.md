@@ -29,7 +29,7 @@ in this order gives you levels `0`, `1`, `2` and `3`.
 
 4. View the result. Open the **Preview**, select the **Statistics** tab in the
    panel and click a **country** on the map. Now click on a **region** — as
-   the zoom increases the Explorer switches to the finer NUTS levels,at each level presented a new set of polygons at the tier below. Use the **breadcrumbs** on the statistics panel to navigate back up and down through the nhierarcy.
+   the zoom increases the Explorer switches to the finer NUTS levels, presenting a new set of polygons at the tier below at each level. Use the **breadcrumbs** on the statistics panel to navigate back up and down through the hierarchy.
 
    !!! tip "Fixing a level"
    If you add the files out of order, or delete one and re-add it, the levels

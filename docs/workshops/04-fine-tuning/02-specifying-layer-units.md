@@ -18,11 +18,11 @@ they appear in the Explorer.
 
 4. Select **Back to Config Builder** to return to the configuration.
 
-5. Open the **Above Ground Biomass** layer card and select the **pencil** icon next to **Units and Legend** field.  Enter the units as:
+5. Open the **Above Ground Biomass** layer card and select the **pencil** icon next to the **Units and Legend** field.  Enter the units as:
 
     ```
     tonnes / ha
     ```
-then **Save** the layer card.
+    Then **Save** the layer card.
 
-6. Open **Preview** again, toggle on **Above Ground Biomass** layer.  Check how the legend and the data values display now.  Both of them should include the **tonnes / ha** units.
+6. Open **Preview** again and toggle on the **Above Ground Biomass** layer.  Check how the legend and the data values display now.  Both of them should include the **tonnes / ha** units.

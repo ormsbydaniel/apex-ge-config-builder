@@ -6,7 +6,7 @@ title: 8-7. Histogram statistics
 
 ![Statistics panel showing a histogram bar chart of above ground biomass for FR › Normandie](../../assets/screenshots/statistics-histogram-bar-chart.png)
 
-In exercises 8-4 and 8-5, we added in statistics that had been created for categorical data. However the same structure of statistics file can also be used to present histograms. In this exercise, we also add statistics files in bulk.
+In exercises 8-4 and 8-5, we added in statistics that had been created for categorical data. However, the same structure of statistics file can also be used to present histograms. In this exercise, we also add statistics files in bulk.
 
 1.  Navigate to the `Above Ground Biomass` layer that you created in exercise 2. Select **+Add statistics** from the statistics tab.
 
@@ -19,7 +19,7 @@ The configuration builder is clever enough to parse the file names for _level01,
 
 2. Now go to **Preview**. From the statistics panel you can now navigate through the histogram charts.
 
-3. _Optional_: Add the level 00 statistics a data source to a _Temp 2_ layer, as you did in the last exercise and inspect its data values.
+3. _Optional_: Add the level 00 statistics as a data source to a _Temp 2_ layer, as you did in the last exercise, and inspect its data values.
 
 <!-- Content to be written -->
 

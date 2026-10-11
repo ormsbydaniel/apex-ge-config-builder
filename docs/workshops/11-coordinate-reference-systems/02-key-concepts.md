@@ -3,22 +3,22 @@ title: 11-2. Key concepts
 ---
 # 11-2. Key concepts
 
-- A **CRS** (Coordinate Reference System) is essentially a **map projection** —
-  the mathematical recipe for flattening the curved surface of the Earth onto a
-  flat map. Because there is no single "right" way to do this, many different
+- A **CRS** (Coordinate Reference System) defines how coordinates relate to locations on the Earth.
+  A projected CRS also defines how the curved surface of the Earth is represented
+  on a flat map. Because there is no single "right" way to do this, many different
   CRS exist, each suited to different regions, scales and purposes.
 - By default the Geospatial Explorer displays maps in **EPSG:3857**, also known
   as **Web Mercator**. This is the most common CRS for web mapping services
   worldwide — it is what tile services like OpenStreetMap and most commercial
   basemaps use — which is why it is the Explorer's default.
-- The Explorer can **reproject data between supported projections**. If a
+- The Explorer can **reproject data between supported Coordinate Reference Systems**. If a
   dataset is stored in a different CRS, it is transformed at runtime so that it
   lines up correctly with everything else on the map.
 
     ![Source data stored in EPSG:4326 is reprojected at runtime for a map displayed in EPSG:3413, while the source file stays unchanged](../../assets/crs-runtime-reprojection.svg)
 
 - This means you are not limited to data stored in Web Mercator: you can use
-  datasets kept in another projection, **and/or change the CRS used for
+  datasets kept in another CRS, **and/or change the CRS used for
   display** — for example a polar stereographic view when working with Arctic
   data (see [11-3](03-using-an-alternative-projection.md)).
 - A number of standard CRS are **included with the Explorer**:
@@ -36,7 +36,7 @@ title: 11-2. Key concepts
 - If the CRS you need is not in that list, **additional CRS can be defined in
   the Configuration Builder** (Settings → Custom CRS) by supplying a **PROJ.4
   definition** — the standard one-line definition of a CRS. A custom CRS can
-  be used in two ways: to **support datasets stored in that projection**, or as
+  be used in two ways: to **support datasets stored in that CRS**, or as
   the **default CRS** for the whole map.
 
 See [Settings](../../settings/overview.md#crs-coordinate-reference-system) for

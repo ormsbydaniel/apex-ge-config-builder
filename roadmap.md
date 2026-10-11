@@ -58,3 +58,7 @@
 ## STAC dataset metadata
 - [x] Add an (i) metadata action to STAC rows with Collection, Item, and Asset tabs plus file inspection.
 - [x] Fix the dialog resizing by opening it at a fixed size matching the COG metadata dialog's scrolled footprint.
+
+## Tutorial proofreading
+- [x] Review all tutorials and correct typos, spelling and grammar without changing instructions.
+- [x] Rebuild the guide in strict mode.

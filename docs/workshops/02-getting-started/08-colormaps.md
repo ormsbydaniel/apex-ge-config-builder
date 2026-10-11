@@ -18,7 +18,7 @@ values render as a colour ramp on the map.
 5. Click on the **Data values** tab and take a look at a few of the values returned. Check these are consistent with what you expect from the colormap.
 6. **Have you exported recently?** If not, now might be a good time before you lose your work.
 
-The colormap you have set up is the default for this dataset.  However user can actually change it themselves too.  If you click the **Gear** icon to the right of the legend in the overview panel, you will see a very similar UI to the one you just used to set the default up. 
+The colormap you have set up is the default for this dataset.  However, users can change it themselves too.  If you click the **Gear** icon to the right of the legend in the overview panel, you will see a very similar UI to the one you just used to set the default up. 
 
    
 !!! tip "One styling tool at a time"
