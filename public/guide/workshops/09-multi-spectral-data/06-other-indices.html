@@ -1736,11 +1736,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#suggested-indices-to-try" class="md-nav__link">
+    <span class="md-ellipsis">
+      Suggested indices to try
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-compare-indices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional: compare indices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional: compare indices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#did-you-remember-to-export" class="md-nav__link">
     <span class="md-ellipsis">
       Did you remember to export?
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1965,11 +1989,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#suggested-indices-to-try" class="md-nav__link">
+    <span class="md-ellipsis">
+      Suggested indices to try
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-compare-indices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional: compare indices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional: compare indices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#did-you-remember-to-export" class="md-nav__link">
     <span class="md-ellipsis">
       Did you remember to export?
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1989,6 +2037,56 @@
 
 
 <h1 id="9-6-other-indices">9-6. Other indices<a class="headerlink" href="#9-6-other-indices" title="Permanent link">&para;</a></h1>
+<p>Now you know how to style one index, try some of the others. For each one, follow the same steps as in 9-4 and 9-5:</p>
+<ol>
+<li><strong>Duplicate</strong> one of your Bristol Sentinel 2 layers.</li>
+<li><strong>Rename</strong> the copy to something meaningful, e.g. <em>Bristol Sentinel 2 NDVI</em>.</li>
+<li><strong>Clear</strong> the multi-band visualisation with the <strong>red trash can</strong>, then click the <strong>pencil</strong> to choose a new one from the <strong>Indices</strong> tab.</li>
+<li><strong>Save</strong>, then <strong>Preview</strong> and compare it with your other layers. Try the <strong>range presets</strong> too.</li>
+</ol>
+<h2 id="suggested-indices-to-try">Suggested indices to try<a class="headerlink" href="#suggested-indices-to-try" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Index</th>
+<th>Bands used</th>
+<th>What to look for around Bristol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vegetation (NDVI)</strong></td>
+<td>NIR, Red</td>
+<td>Fields, woodland such as <strong>Leigh Woods</strong> and parks show green; urban areas and water show low values.</td>
+</tr>
+<tr>
+<td><strong>Modified water (MNDWI)</strong></td>
+<td>Green, SWIR1</td>
+<td>Compare with your NDWI layer — water in the docks and <strong>Floating Harbour</strong> should be clearer, with fewer false positives from buildings.</td>
+</tr>
+<tr>
+<td><strong>Built-up (NDBI)</strong></td>
+<td>SWIR1, NIR</td>
+<td>The city centre, <strong>Avonmouth</strong> docks and industrial estates show red.</td>
+</tr>
+<tr>
+<td><strong>Red edge (NDRE)</strong></td>
+<td>NIR, Red edge</td>
+<td>Similar to NDVI but more sensitive in dense vegetation; compare the two over farmland.</td>
+</tr>
+<tr>
+<td><strong>Burn ratio (NBR)</strong></td>
+<td>NIR, SWIR2</td>
+<td>Mainly used for fire scars, so there is little to see here — a useful reminder that each index answers a specific question.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Choosing an index</p>
+<p>There are many more indices than are listed here. Before using one, check that it fits the question you are asking, and that your dataset has the bands it needs. If an index needs a band your data does not have, it cannot be calculated.</p>
+</div>
+<h2 id="optional-compare-indices">Optional: compare indices<a class="headerlink" href="#optional-compare-indices" title="Permanent link">&para;</a></h2>
+<p>If you added your layers to the <strong>bristol-s2</strong> exclusivity set in 9-4, switching one on in the <strong>Preview</strong> will turn the others off. Use this to flick between, for example, <strong>NDVI</strong>, <strong>NDWI</strong> and <strong>NDBI</strong> and see how vegetation, water and built-up areas complement each other.</p>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
