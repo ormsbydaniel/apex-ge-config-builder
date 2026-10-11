@@ -8,9 +8,9 @@ In this tutorial series, you will use the **Geospatial Explorer Configuration Bu
 
 Tutorials are divided into **"core"** and **"topic"** tutorials.
 
-**"Core"** tutorials introduce the _Geospatial Explorer_, the _Configuration Builder_ and get you started creating your first simple configuration. It is recommended that anybody working with the _Geospatial Explorer_ for the first time, follows these tutorials in the order they are listed.
+**"Core"** tutorials introduce the _Geospatial Explorer_ and the _Configuration Builder_ and get you started creating your first simple configuration. It is recommended that anybody working with the _Geospatial Explorer_ for the first time follows these tutorials in the order they are listed.
 
-**"Topic"** tutorials explore a specific area of functionality. You can dive straight into any topic of interest in any order. For example a _"Time series"_ tutorial could be done before a _"statistics"_ tutorial or vice versa. Topics with similar names and #1, #2 suffixes etc, would generally be done in sequence, but would be clarified in the pre-requisites of each topic.
+**"Topic"** tutorials explore a specific area of functionality. You can dive straight into any topic of interest in any order. For example, a _"Time series"_ tutorial could be done before a _"statistics"_ tutorial or vice versa. Topics with similar names and #1, #2 suffixes, etc., would generally be done in sequence; this would be clarified in the pre-requisites of each topic.
 
 ## What you need
 
@@ -20,11 +20,11 @@ Here is the best bit. The tutorials require:
 - **No** software development experience.
 - **No** pre-installed tools or environments on your machine.
 - **No** detailed technical knowledge.
-- The **only** requirement is a computer with web browser and internet access.
+- The **only** requirement is a computer with a web browser and internet access.
 
 The tutorials make use of a few key technologies and data formats, in particular:
 
-- **Cloud Optimised GeoTiff (COG)** files
+- **Cloud Optimised GeoTIFF (COG)** files
 - Mapping services, such as **WMS / WMTS** and **XYZ** tile services
 - Vector data in **GeoJSON** and **FlatGeobuf** format
 - **SpatioTemporal Asset Catalogs (STAC)**
@@ -48,7 +48,7 @@ with the **Geospatial Explorer Configuration Builder**.
 - **One monitor and phone.** If you want to avoid too much tab switching, you
   might find it easier to read the tutorial instructions on your phone and
   follow them on your monitor — then just switch tabs for things like copying
-  URLs to clipboard. Scan this QR code to open the Tutorials home page on your
+  URLs to the clipboard. Scan this QR code to open the Tutorials home page on your
   phone:
 
   ![QR code linking to the Tutorials home page](../assets/screenshots/tutorial-setup-qr-code.png){ width=245 }
@@ -87,8 +87,8 @@ everyone. If you get stuck on a step, flag it early rather than falling behind.
 
 ## BYO data
 
-The tutorials use **cloud hosted data sources** — such as **Cloud Optimised
-GeoTiff (COG)** files, **WMS / WMTS** services and more — so you can follow
+The tutorials use **cloud-hosted data sources** — such as **Cloud Optimised
+GeoTIFF (COG)** files, **WMS / WMTS** services and more — so you can follow
 along without preparing anything in advance.
 
 If you have your **own data at a publicly accessible URL**, you are welcome to
