@@ -64,4 +64,5 @@
 - [x] Rebuild the guide in strict mode.
 
 ## Tutorial icon shots
-- [ ] Create shared icon library shots for review (no tutorial pages edited yet)
+- [x] Create shared icon library shots for review
+- [ ] Add approved shots to tutorial pages (waiting on user review)
