@@ -34,7 +34,7 @@ in OSGB so it lines up natively with the National Grid.
     location** list.
 
 5. Open **Preview**. The map should now open on the UK in British National
-    Grid rather than Web Mercator. If you zoom out a few times you will notice how data for the rest of the world now looks very different. This is because this CRS is optimised for mimising reprojection distortion in the UK and isn't concerned with data elsewhere!
+    Grid rather than Web Mercator. If you zoom out a few times you will notice how data for the rest of the world now looks very different. This is because this CRS is optimised for minimising reprojection distortion in the UK and isn't concerned with data elsewhere!
 
 ## Adding data that uses the custom CRS (optional)
 
@@ -60,7 +60,7 @@ We will now add some source data in this projection. The following layer is stor
 
 3. Open the **Preview** and toggle the newly added layer on.
 
-4. _Optionally_, go to **Settings -> CRS -> Default Coordinate Reference System** and change back to EPSG:3857, then **Preview** again and **toggle** the layer on. You will notice that the data renders fine, although maybe slightly slower. This illustrates that this dataset is being reprojected on the fly from EPSG:27700 (our custom projection) to web mercator. If you deleted the Custom CRS defintion you would see that this data no longer renders.
+4. _Optionally_, go to **Settings -> CRS -> Default Coordinate Reference System** and change back to EPSG:3857, then **Preview** again and **toggle** the layer on. You will notice that the data renders fine, although maybe slightly slower. This illustrates that this dataset is being reprojected on the fly from EPSG:27700 (our custom projection) to Web Mercator. If you deleted the Custom CRS definition you would see that this data no longer renders.
 
 !!! tip
     PROJ.4 definitions for almost any CRS can be copied from

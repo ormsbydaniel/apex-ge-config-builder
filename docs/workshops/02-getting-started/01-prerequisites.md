@@ -3,7 +3,7 @@ title: 2-1. Pre-requisites
 ---
 # 2-1. Pre-requisites
 
-* Complete [1. Familiarisation](../01-familiarisation/index.md) for to get a general feel for the Geospatial Explorer and Configuration Builder.
+* Complete [1. Familiarisation](../01-familiarisation/index.md) to get a general feel for the Geospatial Explorer and Configuration Builder.
 
 ## Key links
 

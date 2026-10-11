@@ -36,4 +36,4 @@ hand-picked layers.
 
 ### Did you remember to export?
 
-If not now is a good time.
+If not, now is a good time.

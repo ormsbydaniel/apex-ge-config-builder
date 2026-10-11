@@ -18,7 +18,7 @@ interface group and a colour scheme.
 
     ![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-branding.png)
 
-4. Move to the **Settings** tab and scroll down to the **Branding Settings** section. Change some of the colours to a scheme of your choice. There is not an explicit _Save_ step here - the changes are applied directly to the config You could also change the logo to the URL of another logo if you want.
+4. Move to the **Settings** tab and scroll down to the **Branding Settings** section. Change some of the colours to a scheme of your choice. There is not an explicit _Save_ step here - the changes are applied directly to the config. You could also change the logo to the URL of another logo if you want.
 5. Select the **Preview** tab to see the changes applied to a live copy of
     the Geospatial Explorer.
 
@@ -27,4 +27,4 @@ interface group and a colour scheme.
     ![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-ge-1.png)
 
 !!! tip "No Forest Carbon interface group displayed?"
-You will notice that the interface group you renamed to ***Forest Carbon** in Step 3, is not displayed. Don't worry, this is expected behaviour. The Geospatial Explorer only builds the parts of the interface that have data to show, and we'll do that shortly.
+    You will notice that the interface group you renamed to **Forest Carbon** in Step 3 is not displayed. Don't worry, this is expected behaviour. The Geospatial Explorer only builds the parts of the interface that have data to show, and we'll do that shortly.

@@ -17,7 +17,7 @@ as the starting point for this exercise.
         World Cover 2021 with statistics
         ```
 
-    - update the layer **description** with the folliwng user guidance:
+    - update the layer **description** with the following user guidance:
 
         ```
 

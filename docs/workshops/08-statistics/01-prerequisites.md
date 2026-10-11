@@ -29,7 +29,7 @@ configuration you have been developing, or in a fresh configuration.
   files at four levels of administrative detail.
 
 !!! info
-The preparation of statistics layers themselves is beyond the scope of the tutorial. Please contact that APEX team for further support on the preparation of statistics datasets.
+The preparation of statistics layers themselves is beyond the scope of the tutorial. Please contact the APEx team for further support on the preparation of statistics datasets.
 
 !!! tip "Export often"
 Export your configuration after each step so you can recover if your

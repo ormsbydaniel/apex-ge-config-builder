@@ -5,7 +5,7 @@ title: 8-2. Key concepts
 # 8-2. Key concepts
 
 - A layer's **data** sources are what the user _sees_ on the map. Its
-  **statistics** sources are vector datasets (**FlatGeoBuf**, or **GeoJSON**) that contain precomputed statistics about the layer based for administrative boundaries defined in the vector layer.
+  **statistics** sources are vector datasets (**FlatGeoBuf**, or **GeoJSON**) that contain precomputed statistics about the layer for administrative boundaries defined in the vector layer.
 - In this tutorial the statistics sources are a measure of the area of each _World Cover_ classification within the administrative boundary.
 - Because the numbers are computed in advance, the Explorer does not have to
   process any raster on the fly. It simply loads the vector file for the

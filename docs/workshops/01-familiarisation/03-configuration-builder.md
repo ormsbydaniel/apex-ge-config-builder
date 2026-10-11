@@ -26,7 +26,7 @@ Save it as a bookmark in your browser as you will use this constantly throughout
 
 ### 2. Load the "Comprehensive Demo" example
 
-From the _Home_ tab select **Load** then **Examples** dialog
+From the _Home_ tab, select **Load**, then the **Examples** tab in the dialog
 and choose **Comprehensive Demo**. This will load a rich, pre-built
 configuration into the editor.
 ![Load Configuration dialog with the Examples tab selected, showing the Comprehensive demo and Full screen storymap demo entries](../../assets/screenshots/configuration-load-examples.png)
