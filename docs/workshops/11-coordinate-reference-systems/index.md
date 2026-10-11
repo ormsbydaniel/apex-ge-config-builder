@@ -27,5 +27,5 @@ By the end of this tutorial you will be able to:
 
 - [11-1. Pre-requisites](01-prerequisites.md)
 - [11-2. Key concepts](02-key-concepts.md)
-- [11-3. Using an alternative projection](03-using-an-alternative-projection.md)
+- [11-3. Using an alternative CRS](03-using-an-alternative-projection.md)
 - [11-4. Defining a custom CRS](04-defining-a-custom-crs.md)

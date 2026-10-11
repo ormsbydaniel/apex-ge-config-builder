@@ -1,11 +1,11 @@
 ---
-title: 11-3. Using an alternative projection
+title: 11-3. Using an alternative CRS
 ---
 
-# 11-3. Using an alternative projection
+# 11-3. Using an alternative CRS
 
 The Geospatial Explorer can render maps in a variety of Coordinate Reference
-Systems (CRS). In this tutorial you will switch the default projection to a
+Systems (CRS). In this tutorial you will switch the default CRS to a
 polar view centred on the North Pole.
 
 1. Using your own config from earlier exercises open the **Settings** tab. In the **Navigation** section, change the **Quick location** to **Custom (Manual Entry)** and enter in the following to set the location to the North Pole:
@@ -26,23 +26,23 @@ polar view centred on the North Pole.
 
 4. Open **Preview**. The map should now open looking down on the North Pole.
 
-5. If you are using a config from the core tutorials, toggle on the **Above Ground Biomass** layer. Note how the data reprojects on the fly in the polar projection.
+5. If you are using a config from the core tutorials, toggle on the **Above Ground Biomass** layer. Note how the data reprojects on the fly in the polar CRS.
 
 !!! tip
     Try returning to **Settings → Navigation** later and switching the CRS back
     to EPSG:3857 or EPSG:4326 to compare how the same start location and layer
-    look in a different projection.
+    look in a different CRS.
 
     If you want to continue with other tutorials, you may find it easier to
     switch back to the default **EPSG:3857** and a more familiar start location
     after exploring the polar view.
 
 !!! info
-    The Geospatial Explorer ships with the default projections shown in the
-    **Default Coordinate Reference System** dropdown. If you need a projection
+    The Geospatial Explorer ships with the default Coordinate Reference Systems shown in the
+    **Default Coordinate Reference System** dropdown. If you need a CRS
     that is not listed, you can add it under **Custom Projections** by entering
     the appropriate PROJ.4 definition.
 
-    Data is reprojected on the fly from its source projection to the display
-    projection, so custom projections can also be useful for supporting specific
+    Data is reprojected on the fly from its source CRS to the display
+    CRS, so custom Coordinate Reference Systems can also be useful for supporting specific
     datasets even when the display CRS is one of the built-in options.

@@ -205,7 +205,7 @@ nav:
           - Overview: workshops/11-coordinate-reference-systems/index.md
           - 11-1. Pre-requisites: workshops/11-coordinate-reference-systems/01-prerequisites.md
           - 11-2. Key concepts: workshops/11-coordinate-reference-systems/02-key-concepts.md
-          - 11-3. Using an alternative projection: workshops/11-coordinate-reference-systems/03-using-an-alternative-projection.md
+          - 11-3. Using an alternative CRS: workshops/11-coordinate-reference-systems/03-using-an-alternative-projection.md
           - 11-4. Defining a custom CRS: workshops/11-coordinate-reference-systems/04-defining-a-custom-crs.md
   - Reference:
       - Overview: reference/overview.md
