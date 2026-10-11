@@ -28,6 +28,6 @@ In this exercise we will work with an existing configuration. If you are followi
     !!! info "You might thing the image looks a bit dark?"
     The natural colour visualisation you selected by default stretches the red, green and blue channels between _2 and 98%_ - i.e. ignoring 2% of pixels that are either really dark or really bright, to remove some outliers. . However, you will have noticed that this scene, which is from January includes areas of white - snow on the hills. This therefore means that a lot of bright pixels are influencing the stretch on the scene.
 
-5.  Return to the layer card, and **edit the visualisation** again (via the pen icon next to multi-band visualiation)! This time, apply the **Mean +- standard deviations**. Click save, then **Preview** and see how this has impacted the colour balance of the image.
+5.  Return to the layer card, and **edit the visualisation** again (via the pen icon next to multi-band visualiation)! This time, apply the **Mean +- σ** (where σ is _standard deviation_). Click save, then **Preview** and see how this has impacted the colour balance of the image.
 
 ### Did you remember to export?
