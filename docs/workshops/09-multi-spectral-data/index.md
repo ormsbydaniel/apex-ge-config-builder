@@ -18,4 +18,4 @@ In this tutorial you will understand how the Geospatial Explorer handles multi-s
 
 - [9-1. Pre-requisites](01-prerequisites.md)
 - [9-2. Key concepts](02-key-concepts.md)
-- [9-3. Styling your data](03-styling-your-data.md)
+- [9-3. Styling a natural colour composite](03-styling-your-data.md)
