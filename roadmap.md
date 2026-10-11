@@ -62,3 +62,7 @@
 ## Tutorial proofreading
 - [x] Review all tutorials and correct typos, spelling and grammar without changing instructions.
 - [x] Rebuild the guide in strict mode.
+
+## Tutorial icon shots
+- [x] Create shared icon library shots for review
+- [ ] Add approved shots to tutorial pages (waiting on user review)
