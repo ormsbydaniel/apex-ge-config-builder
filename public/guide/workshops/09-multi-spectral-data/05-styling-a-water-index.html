@@ -1989,6 +1989,45 @@
 
 
 <h1 id="9-5-styling-a-water-index">9-5. Styling a water index<a class="headerlink" href="#9-5-styling-a-water-index" title="Permanent link">&para;</a></h1>
+<p>In this exercise we will copy one of the Bristol Sentinel 2 layers you have already styled and turn it into a <strong>water index</strong> layer, using the <strong>Normalised Difference Water Index (NDWI)</strong>.</p>
+<div class="admonition info">
+<p class="admonition-title">What is NDWI?</p>
+<p>NDWI compares the <strong>green</strong> and <strong>near-infrared (NIR)</strong> bands using the formula <code>(Green − NIR) / (Green + NIR)</code>. Water reflects green light but absorbs near-infrared strongly, so open water gives positive values, while vegetation and bare ground give negative values.</p>
+</div>
+<ol>
+<li>
+<p>On the <strong>top row</strong> of the <em>Bristol Sentinel 2 natural colour</em> layer card, select the <strong>duplicate layer</strong> icon (two overlapping blue squares).</p>
+</li>
+<li>
+<p>Rename the <strong>Bristol Sentinel 2 natural colour (copy)</strong> layer to <strong>Bristol Sentinel 2 NDWI</strong>. If you created the <strong>bristol-s2</strong> exclusivity set in 9-4, the copy will already belong to it.</p>
+</li>
+<li>
+<p>On the new layer card, click the <strong>red trash can</strong> icon next to the multi-band visualisation to clear the natural colour settings, then click the <strong>pencil</strong> icon to open the visualisation popup.</p>
+</li>
+<li>
+<p>This time, select the <strong>Indices</strong> tab, then choose <strong>Water (NDWI)</strong>. Note how the <em>green</em> and <em>NIR</em> bands have been selected for you, and that a blue-to-red colour palette has been applied.</p>
+<div class="admonition info">
+<p class="admonition-title">Check the bands</p>
+<p>The band choices are worked out from the band descriptions in the COG. If a band looks wrong, use the <strong>( i )</strong> metadata icon on the dataset row from 9-3 to check which band is which, and change it in the popup.</p>
+</div>
+</li>
+<li>
+<p>Save the visualisation, then go to <strong>Preview</strong>. Switch on the NDWI layer and zoom in on the <strong>River Severn</strong>, the <strong>Bristol Channel</strong> and any reservoirs such as <strong>Chew Valley Lake</strong>. Water should stand out in blue, with land in red and white.</p>
+</li>
+<li>
+<p>Return to the layer card and <strong>edit the visualisation</strong> again. Try the different <strong>range presets</strong>:</p>
+<ul>
+<li><strong>Full range</strong> stretches the colours across -1 to +1.</li>
+<li><strong>Balanced</strong> focuses on -0.5 to +0.5, which gives more contrast.</li>
+<li><strong>Open water</strong> hides everything below 0, so only water is shown and the layers underneath show through.</li>
+</ul>
+<p>Save and <strong>Preview</strong> after each change to compare the results.</p>
+<div class="admonition info">
+<p class="admonition-title">Snow and shadows</p>
+<p>Remember this scene is from January. Snow, cloud shadow and dark urban surfaces can sometimes give positive NDWI values too, so not everything that shows blue is water. The <strong>Modified water (MNDWI)</strong> index, which uses a short-wave infrared band instead of NIR, is better at separating water from built-up areas — we will look at it in 9-6.</p>
+</div>
+</li>
+</ol>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
