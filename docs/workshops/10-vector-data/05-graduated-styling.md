@@ -10,7 +10,7 @@ separate colour for every exact measurement.
 1. Open the **Oslo Downscaled Surface NO2** layer card. Under **Data
    Visualisation**, select the **Pen** next to **Vector Styling**.
 
-2. Remove the existing rule, then select the **Graduated** recipe.
+2. In the recipe gallery, select **Graduated**.
 
 3. Keep **Symbolise as** set to **Polygons — fill + outline** and select the
    `no2_ugm3` field. This is the estimated nitrogen dioxide concentration in

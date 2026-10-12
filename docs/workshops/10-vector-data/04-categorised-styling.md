@@ -9,7 +9,7 @@ It works best when the attribute has a manageable number of repeated values.
 1. Open the **HV Transmission Grid (Europe)** layer card. Under **Data
    Visualisation**, select the **Pen** next to **Vector Styling**.
 
-2. Remove the existing rules, then select the **Categorised** recipe.
+2. In the recipe gallery, select **Categorised**.
 
 3. The grid is line data, so check that **Symbolise as** is **Lines — stroke**.
    Select the `voltage` field. The recipe reads the source data and lists the
