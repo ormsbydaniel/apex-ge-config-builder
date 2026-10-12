@@ -66,4 +66,4 @@
 ## Tutorial icon shots
 - [x] Create and review exercise-context screenshots, including the replacement Export and Base Layers images.
 - [x] Add approved shots beside the relevant exercise steps in both screenshot locations.
-- [ ] Rebuild and verify the guide with contextual screenshots.
+- [x] Rebuild and verify the guide with contextual screenshots.
