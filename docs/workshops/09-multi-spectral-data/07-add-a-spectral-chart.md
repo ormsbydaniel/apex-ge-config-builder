@@ -20,7 +20,7 @@ Different surfaces reflect light differently at different wavelengths. Healthy v
 ## Optional: Customise the chart
 
 6. Give the chart a **title**, e.g. _Bristol spectral signature_, and optionally a subtitle, e.g. _Sentinel 2 surface reflectance_.
-7. Replace the generic band labels with meaningful names. For a typical Sentinel 2 band order these are:
+7. Replace the generic band labels with meaningful names. For a typical Sentinel 2 band order these are noted in the table below. Note the first band (B02) would be band 1 in the COG and so on.
 
    | Band | Suggested label | Wavelength (approx.) |
    | ---- | --------------- | -------------------- |
