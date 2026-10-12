@@ -72,4 +72,4 @@
 - [x] Write the overview, prerequisites and vector-data key concepts.
 - [x] Write simple, categorised and graduated styling exercises.
 - [x] Capture and add Tutorial 10 screenshots from the prerequisite configuration.
-- [ ] Rebuild and verify the guide in strict mode.
+- [x] Rebuild and verify the guide in strict mode.
