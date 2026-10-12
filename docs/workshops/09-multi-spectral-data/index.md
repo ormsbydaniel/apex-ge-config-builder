@@ -22,3 +22,5 @@ In this tutorial you will understand how the Geospatial Explorer handles multi-s
 - [9-4. Other composite styles](04-other-composite-styles.md)
 - [9-5. Styling a water index](05-styling-a-water-index.md)
 - [9-6. Other indices](06-other-indices.md)
+- [9-7. Add a spectral chart](07-add-a-spectral-chart.md)
+- [9-8. Multi-spectral time series](08-multi-spectral-time-series.md)
