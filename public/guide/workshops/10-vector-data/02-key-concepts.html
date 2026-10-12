@@ -1590,6 +1590,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1670,6 +1674,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    10-2. Key concepts
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="02-key-concepts.html" class="md-nav__link md-nav__link--active">
         
   
@@ -1679,6 +1694,34 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#geojson-and-flatgeobuf" class="md-nav__link">
+    <span class="md-ellipsis">
+      GeoJSON and FlatGeoBuf
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1696,7 +1739,49 @@
         
   
   <span class="md-ellipsis">
-    10-3. Styling your data
+    10-3. Simple styling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-categorised-styling.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    10-4. Categorised styling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-graduated-styling.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    10-5. Graduated styling
   </span>
   
 
@@ -1856,6 +1941,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#geojson-and-flatgeobuf" class="md-nav__link">
+    <span class="md-ellipsis">
+      GeoJSON and FlatGeoBuf
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1870,7 +1972,52 @@
 
 
 <h1 id="10-2-key-concepts">10-2. Key concepts<a class="headerlink" href="#10-2-key-concepts" title="Permanent link">&para;</a></h1>
-<p><em>Content to follow.</em></p>
+<p>Much of the Geospatial Explorer focuses on Earth Observation imagery. Sometimes,
+however, vector data is useful contextual information: country boundaries,
+roads, power networks or survey areas can help people interpret what they see
+in an image. Some outputs from Earth Observation projects also end up as vector
+data, for example detected field boundaries or polygons showing areas of
+change.</p>
+<p>Unlike raster data, which stores values in a grid of pixels, vector data stores
+individual features as geometries:</p>
+<ul>
+<li><strong>Points</strong> represent individual locations.</li>
+<li><strong>Lines</strong> represent routes or networks.</li>
+<li><strong>Polygons</strong> represent areas and boundaries.</li>
+</ul>
+<p>Each feature can also carry attributes. A country polygon might have a name and
+an ISO code; a power line might have a voltage; an air-quality polygon might
+have a measured concentration. Vector styling uses these attributes to label
+features or vary their colour and appearance.</p>
+<h2 id="geojson-and-flatgeobuf">GeoJSON and FlatGeoBuf<a class="headerlink" href="#geojson-and-flatgeobuf" title="Permanent link">&para;</a></h2>
+<p>The exercises use two common vector file formats:</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>What it is</th>
+<th>When to use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GeoJSON</strong></td>
+<td>A widely supported, human-readable text format based on JSON.</td>
+<td>Small to medium datasets that are straightforward to inspect and exchange.</td>
+</tr>
+<tr>
+<td><strong>FlatGeoBuf</strong></td>
+<td>A compact binary format with a spatial index, designed for efficient streaming.</td>
+<td>Large datasets where loading an entire GeoJSON file would be slow or impractical.</td>
+</tr>
+</tbody>
+</table>
+<p>FlatGeoBuf is much more scalable at large volumes because the Explorer can
+request only the parts needed for the current map view. This is particularly
+important for the Ukraine field-boundary dataset used in the next exercise,
+which contains hundreds of thousands of polygons.</p>
+<p>For more detail, see <a href="../../data-sources/geojson-flatgeobuf.html">GeoJSON / FlatGeoBuf</a>
+and <a href="../../layers/vector-styling.html">Vector styling</a>.</p>
 
 
 
@@ -1928,13 +2075,13 @@
         
         
           
-          <a href="03-styling-your-data.html" class="md-footer__link md-footer__link--next" aria-label="Next: 10-3. Styling your data">
+          <a href="03-styling-your-data.html" class="md-footer__link md-footer__link--next" aria-label="Next: 10-3. Simple styling">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                10-3. Styling your data
+                10-3. Simple styling
               </div>
             </div>
             <div class="md-footer__button md-icon">

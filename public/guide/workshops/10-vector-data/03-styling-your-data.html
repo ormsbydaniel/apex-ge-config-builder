@@ -16,7 +16,7 @@
         <link rel="prev" href="02-key-concepts.html">
       
       
-        <link rel="next" href="../11-coordinate-reference-systems/index.html">
+        <link rel="next" href="04-categorised-styling.html">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>10-3. Styling your data - APEx Geospatial Explorer — Config Builder Guide</title>
+        <title>10-3. Simple styling - APEx Geospatial Explorer — Config Builder Guide</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#10-3-styling-your-data" class="md-skip">
+        <a href="#10-3-simple-styling" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              10-3. Styling your data
+              10-3. Simple styling
             
           </span>
         </div>
@@ -1590,6 +1590,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1695,7 +1699,7 @@
           
   
   <span class="md-ellipsis">
-    10-3. Styling your data
+    10-3. Simple styling
   </span>
   
 
@@ -1706,7 +1710,7 @@
         
   
   <span class="md-ellipsis">
-    10-3. Styling your data
+    10-3. Simple styling
   </span>
   
 
@@ -1728,6 +1732,25 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#outline-and-label-the-countries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outline and label the countries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-hatch-the-field-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cross-hatch the field boundaries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-hatch the field boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#did-you-remember-to-export" class="md-nav__link">
     <span class="md-ellipsis">
       Did you remember to export?
@@ -1735,11 +1758,58 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="04-categorised-styling.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    10-4. Categorised styling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="05-graduated-styling.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    10-5. Graduated styling
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1902,11 +1972,35 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#outline-and-label-the-countries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Outline and label the countries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-hatch-the-field-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cross-hatch the field boundaries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-hatch the field boundaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#did-you-remember-to-export" class="md-nav__link">
     <span class="md-ellipsis">
       Did you remember to export?
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1925,8 +2019,63 @@
                   
 
 
-<h1 id="10-3-styling-your-data">10-3. Styling your data<a class="headerlink" href="#10-3-styling-your-data" title="Permanent link">&para;</a></h1>
-<p><em>Content to follow.</em></p>
+<h1 id="10-3-simple-styling">10-3. Simple styling<a class="headerlink" href="#10-3-simple-styling" title="Permanent link">&para;</a></h1>
+<p>Simple styling gives every feature the same appearance. We will first outline
+and label the countries, then use a cross-hatched fill for a much larger field
+boundary dataset.</p>
+<h2 id="outline-and-label-the-countries">Outline and label the countries<a class="headerlink" href="#outline-and-label-the-countries" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p>Open the <strong>Countries</strong> layer card. Under <strong>Data Visualisation</strong>, select the
+   <strong>Pen</strong> next to <strong>Vector Styling</strong>.</p>
+</li>
+<li>
+<p>The starting file contains example rules. Remove both existing rules with
+   their red bin buttons so that the recipe gallery appears, then select
+   <strong>Simple uniform</strong>.</p>
+</li>
+<li>
+<p>Keep <strong>Symbolise as</strong> set to <strong>Polygons — fill + outline</strong>, choose the colours
+   you want, keep <strong>Fill style</strong> as <strong>Solid</strong>, and select <strong>Create rule</strong>.</p>
+</li>
+<li>
+<p>In the rule editor select the <strong>Fill</strong> tab, then select <strong>Remove fill from
+   this rule</strong>. This leaves a simple outline. Under <strong>Add another rule</strong>, select
+   <strong>Feature labels</strong>, choose the <code>name</code> field, and select <strong>Create rule</strong>.</p>
+</li>
+</ol>
+<p><img alt="Countries vector styling rules with an outline and labels from the name field" src="../../assets/screenshots/tutorial-10-03-countries-outline-labels.png" width="100%" /></p>
+<ol start="5">
+<li>Select <strong>Save</strong>, then open <strong>Preview</strong> and turn on <strong>Countries</strong>. Check that
+   each country has an outline and a name.</li>
+</ol>
+<p><img alt="Preview of outlined and labelled country polygons" src="../../assets/screenshots/tutorial-10-03-countries-preview.png" width="100%" /></p>
+<h2 id="cross-hatch-the-field-boundaries">Cross-hatch the field boundaries<a class="headerlink" href="#cross-hatch-the-field-boundaries" title="Permanent link">&para;</a></h2>
+<ol start="6">
+<li>
+<p>Return to the Configuration Builder and open <strong>Ukraine Field Boundaries</strong>.
+   Select the <strong>Pen</strong> next to <strong>Vector Styling</strong>, then select <strong>Simple uniform</strong>.</p>
+</li>
+<li>
+<p>Keep <strong>Symbolise as</strong> set to <strong>Polygons — fill + outline</strong>. Set <strong>Fill style</strong>
+   to <strong>Cross hatch</strong>, choose contrasting fill and outline colours, then select
+   <strong>Create rule</strong> and <strong>Save</strong>.</p>
+</li>
+</ol>
+<p><img alt="Simple uniform recipe configured with a cross-hatched polygon fill" src="../../assets/screenshots/tutorial-10-03-field-boundaries-cross-hatch.png" width="100%" /></p>
+<ol start="8">
+<li>Open <strong>Preview</strong>, navigate to Ukraine, turn on <strong>Ukraine Field Boundaries</strong>
+   and zoom in until the individual fields appear.</li>
+</ol>
+<p><img alt="Preview of cross-hatched field boundaries in Ukraine" src="../../assets/screenshots/tutorial-10-03-field-boundaries-preview.png" width="100%" /></p>
+<div class="admonition info">
+<p class="admonition-title">Why do the fields only appear when you zoom in?</p>
+<p>The dataset has a <code>minZoom</code> value of <code>10</code> in the underlying configuration
+JSON. It contains hundreds of thousands of field polygons. Drawing all of
+them across Ukraine at a scale where they would not be legible would add a
+great deal of unnecessary rendering work, so the Explorer waits until the
+map is sufficiently zoomed in.</p>
+</div>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 
@@ -1985,13 +2134,13 @@
         
         
           
-          <a href="../11-coordinate-reference-systems/index.html" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
+          <a href="04-categorised-styling.html" class="md-footer__link md-footer__link--next" aria-label="Next: 10-4. Categorised styling">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Overview
+                10-4. Categorised styling
               </div>
             </div>
             <div class="md-footer__button md-icon">
