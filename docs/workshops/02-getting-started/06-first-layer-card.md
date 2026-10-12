@@ -8,7 +8,7 @@ attach content — descriptions, data sources, statistics, constraints and so on
 
 1. On the **Layers** tab, expand your *Forest Carbon* interface group and select **+ Add layer** followed by **Add layer card**. Leave the **default** layer type and layout style.
 
-    ![Add Layer button highlighted in the Forest Carbon group](../../assets/screenshots/tutorial-02-06-add-layer-forest-carbon.png){ width="420" }
+    ![Add Layer button highlighted in the Forest Carbon group](../../assets/screenshots/tutorial-02-06-add-layer-forest-carbon.png){ width="100%" }
 
 2. Fill in the layer details:
 
