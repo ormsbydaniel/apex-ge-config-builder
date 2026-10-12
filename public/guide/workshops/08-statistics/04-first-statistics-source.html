@@ -964,6 +964,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1468,6 +1472,8 @@
       
         
       
+        
+      
     
     
       
@@ -1693,11 +1699,32 @@
   
   
     <li class="md-nav__item">
-      <a href="07-preview-and-review.html" class="md-nav__link">
+      <a href="07-histogram-statistics.html" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    8-7. Preview and review
+    8-7. Histogram statistics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="08-preview-and-review.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    8-8. Preview and review
   </span>
   
 
@@ -1709,6 +1736,126 @@
             
           </ul>
         </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../09-multi-spectral-data/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    9. Multi-spectral data
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../10-vector-data/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    10. Vector data
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
       
     </li>
   
@@ -1752,11 +1899,11 @@
         
   
   
-    <a href="../09-coordinate-reference-systems/index.html" class="md-nav__link">
+    <a href="../11-coordinate-reference-systems/index.html" class="md-nav__link">
       
   
   <span class="md-ellipsis">
-    9. Coordinate reference systems
+    11. Coordinate reference systems
   </span>
   
 
@@ -1894,47 +2041,48 @@ data.</p>
 <li>
 <p>On the <code>World Cover 2021 with statistics</code> layer card, open
    <strong>Data Sources</strong> and select the <strong>Statistics</strong> tab.</p>
-<p><img alt="Statistics tab in the Data Sources section of the layer card" src="../../assets/screenshots/data-sources-statistics-tab.png" /></p>
+<p><img alt="Statistics tab highlighted in the layer Data Sources section" src="../../assets/screenshots/tutorial-08-04-statistics-tab-world-cover-2021.png" width="100%" /></p>
 </li>
 <li>
-<p>Click <strong>Add source</strong>, choose <strong>FlatGeoBuf</strong>, and enter the NUTS level 0 (country) source details:</p>
-<div class="admonition note">
-<p class="admonition-title">Supported formats</p>
-<p>Statistics sources must be <strong>FlatGeoBuf</strong> or <strong>GeoJSON</strong>. FlatGeoBuf is
-preferred: it is indexed, so the Explorer only downloads the features
-in view.</p>
-</div>
+<p>Click <strong>Add statistics source</strong>, choose <strong>FlatGeoBuf</strong>, and enter the NUTS level 0 (country) source details:</p>
+<p><img alt="Add Statistics Source button highlighted on the empty Statistics tab" src="../../assets/screenshots/tutorial-08-04-add-statistics-source.png" width="100%" /></p>
+</li>
+</ol>
+<p>!!! note "Supported formats"
+   Statistics sources must be <strong>FlatGeoBuf</strong> or <strong>GeoJSON</strong>. FlatGeoBuf is
+   preferred: it is indexed, so the Explorer only downloads the features
+   in view.</p>
 <ul>
-<li><strong>File URL:</strong></li>
-</ul>
+<li>
+<p><strong>File URL:</strong></p>
 <div class="highlight"><pre><span></span><code>https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
 </code></pre></div>
-<ul>
-<li><strong>level:</strong> Leave it at the pre-filled <code>0</code> — this is the first statistics source on the layer, with the coarsest boundaries.</li>
+</li>
+<li>
+<p><strong>level:</strong> Leave it at the pre-filled <code>0</code> — this is the first statistics source on the layer, with the coarsest boundaries.</p>
+</li>
 <li><strong>zIndex:</strong> Leave it at <code>100</code>, above the display data so the clickable boundaries sit on top of the raster.</li>
 </ul>
-</li>
+<ol start="3">
 <li>
 <p><strong>Save</strong> the source. It now appears under <strong>Statistics</strong>, separately from the
    WMS source on the <strong>Data</strong> tab.</p>
 </li>
 <li>
 <p>View the result. Open the <strong>Preview</strong>, turn the layer on, then:</p>
+</li>
+</ol>
 <ul>
 <li>Select the <strong>Statistics</strong> tab in the info panel.</li>
 <li>Click on a <strong>country</strong> on the map.</li>
 </ul>
-<p>You should see the land cover breakdown for that whole country:</p>
+<p>You should see the land cover breakdown for that whole country. If you want to view statistics for another country, select the red <strong>Clear</strong> link on the statistics panel (top right) and click on another.</p>
 <p><img alt="Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0" src="../../assets/screenshots/statistics-nuts-level0-result.png" /></p>
-</li>
-</ol>
-<div class="admonition warning">
-<p class="admonition-title">Coordinate reference system</p>
-<p>These files are published in EPSG:4326, matching the <code>epsg4326</code> in the file
-name. Statistics features must be in a CRS the Explorer can reproject to the
-map — a mismatch shows as boundaries in the wrong place, or no clickable
-features at all.</p>
-</div>
+<p>By the way, if you click on <em>France</em> and notice it zooming out to the world, that's not an error. The polygon for France includes its overseas territories, such as <em>French Guiana</em> just north of Brazil - home of <a href="https://www.esa.int/Enabling_Support/Space_Transportation/Europe_s_Spaceport/Europe_s_Spaceport2">Europe's Spaceport</a></p>
+<div class="highlight"><pre><span></span><code>!!! warning "Coordinate reference system"
+
+These files are published in EPSG:4326, matching the `epsg4326` in the file name. Statistics features must be in a CRS the Explorer can reproject to the map — a mismatch shows as boundaries in the wrong place, or no clickable features at all. If you are working with statistics files in future that are in different Coordinate Reference Systems, then you may need to add them as custom statistics. See Tutorial 11.
+</code></pre></div>
 <h3 id="did-you-remember-to-export">Did you remember to export?<a class="headerlink" href="#did-you-remember-to-export" title="Permanent link">&para;</a></h3>
 
 

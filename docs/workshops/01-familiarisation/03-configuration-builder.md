@@ -26,7 +26,7 @@ Save it as a bookmark in your browser as you will use this constantly throughout
 
 ### 2. Load the "Comprehensive Demo" example
 
-From the _Home_ tab select **Load** then **Examples** dialog
+From the _Home_ tab, select **Load**, then the **Examples** tab in the dialog
 and choose **Comprehensive Demo**. This will load a rich, pre-built
 configuration into the editor.
 ![Load Configuration dialog with the Examples tab selected, showing the Comprehensive demo and Full screen storymap demo entries](../../assets/screenshots/configuration-load-examples.png)
@@ -39,6 +39,8 @@ Click **Preview** to launch the Geospatial Explorer against the demo
 configuration you just loaded. This is exactly the same Explorer
 application you looked at in the previous step, but now driven by the
 demo config rather than the reference deployment.
+
+![Preview tab highlighted in the Configuration Builder navigation](../../assets/screenshots/tutorial-01-03-open-preview.png){ width="100%" }
 
 Have a quick click around to confirm it behaves as an end user would
 expect.

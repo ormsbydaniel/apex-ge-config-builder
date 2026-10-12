@@ -93,6 +93,9 @@ const LayersTabContainer = (props: LayersTabContainerProps) => {
     onUpdateChart: layersLogic.updateChart,
     onStartChartForm: layersLogic.handleStartChartFormWithExpansion,
     onEditChartSource: layersLogic.handleEditChartSource,
+    // Tab focus after a form completes (e.g. Statistics after adding a statistics source)
+    focusTabAfterForm: layersLogic.focusTabAfterForm ?? null,
+    onClearFocusTabAfterForm: layersLogic.clearFocusTabAfterForm,
   };
 
   return (

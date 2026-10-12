@@ -1,6 +1,7 @@
 ---
 title: 8-4. Add the first statistics source
 ---
+
 # 8-4. Add the first statistics source
 
 Statistics sources are added from their own tab, not alongside the display
@@ -9,40 +10,42 @@ data.
 1. On the `World Cover 2021 with statistics` layer card, open
    **Data Sources** and select the **Statistics** tab.
 
-    ![Statistics tab in the Data Sources section of the layer card](../../assets/screenshots/data-sources-statistics-tab.png)
+    ![Statistics tab highlighted in the layer Data Sources section](../../assets/screenshots/tutorial-08-04-statistics-tab-world-cover-2021.png){ width="100%" }
 
-2. Click **Add source**, choose **FlatGeoBuf**, and enter the NUTS level 0 (country) source details:
+2. Click **Add statistics source**, choose **FlatGeoBuf**, and enter the NUTS level 0 (country) source details:
 
-    !!! note "Supported formats"
-        Statistics sources must be **FlatGeoBuf** or **GeoJSON**. FlatGeoBuf is
-        preferred: it is indexed, so the Explorer only downloads the features
-        in view.
+    ![Add Statistics Source button highlighted on the empty Statistics tab](../../assets/screenshots/tutorial-08-04-add-statistics-source.png){ width="100%" }
 
-    - **File URL:**
+   !!! note "Supported formats"
+   Statistics sources must be **FlatGeoBuf** or **GeoJSON**. FlatGeoBuf is
+   preferred: it is indexed, so the Explorer only downloads the features
+   in view.
 
-      ```text
-      https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
-      ```
+   - **File URL:**
 
-    - **level:** Leave it at the pre-filled `0` — this is the first statistics source on the layer, with the coarsest boundaries.
-    - **zIndex:** Leave it at `100`, above the display data so the clickable boundaries sit on top of the raster.
+     ```text
+     https://esa-apex.s3.eu-west-1.amazonaws.com/APEX-example-data/HI-RES-NUTS/stats.esa_worldcover_2021.nuts_2024.epsg4326.level00.fgb
+     ```
+
+   - **level:** Leave it at the pre-filled `0` — this is the first statistics source on the layer, with the coarsest boundaries.
+   - **zIndex:** Leave it at `100`, above the display data so the clickable boundaries sit on top of the raster.
 
 3. **Save** the source. It now appears under **Statistics**, separately from the
    WMS source on the **Data** tab.
 
 4. View the result. Open the **Preview**, turn the layer on, then:
 
-    - Select the **Statistics** tab in the info panel.
-    - Click on a **country** on the map.
+   - Select the **Statistics** tab in the info panel.
+   - Click on a **country** on the map.
 
-    You should see the land cover breakdown for that whole country:
+   You should see the land cover breakdown for that whole country. If you want to view statistics for another country, select the red **Clear** link on the statistics panel (top right) and click on another.
 
-    ![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
+   ![Statistics tab showing the World Cover class breakdown for Italy at NUTS level 0](../../assets/screenshots/statistics-nuts-level0-result.png)
 
-!!! warning "Coordinate reference system"
-    These files are published in EPSG:4326, matching the `epsg4326` in the file
-    name. Statistics features must be in a CRS the Explorer can reproject to the
-    map — a mismatch shows as boundaries in the wrong place, or no clickable
-    features at all.
+By the way, if you click on _France_ and notice it zooming out to the world, that's not an error. The polygon for France includes its overseas territories, such as _French Guiana_ just north of Brazil - home of [Europe's Spaceport](https://www.esa.int/Enabling_Support/Space_Transportation/Europe_s_Spaceport/Europe_s_Spaceport2)
+
+    !!! warning "Coordinate reference system"
+
+    These files are published in EPSG:4326, matching the `epsg4326` in the file name. Statistics features must be in a CRS the Explorer can reproject to the map — a mismatch shows as boundaries in the wrong place, or no clickable features at all. If you are working with statistics files in future that are in different Coordinate Reference Systems, then you may need to add them as custom statistics. See Tutorial 11.
 
 ### Did you remember to export?

@@ -11,12 +11,12 @@ title: 2-4. Exporting and reloading config
     - The **Export** button at the top right of the builder, or
     - **Home → Export → Quick Export**
 
-    ![Export button at the top right of the Configuration Builder](../../assets/screenshots/home-export-button-top.png)
+    ![Export button highlighted at the top right of the Configuration Builder](../../assets/screenshots/tutorial-02-04-export.png){ width="100%" }
 
     A file called `config_YYYYMMDD_HHMM.json` will download to your machine, into whichever folder is set as your default **Downloads** location.
 
 2. Select **New Config**. Your current config will be replaced with an empty configuration, returning the Configuration Builder to the same empty state as the very start of your session.
-3. Now lets get your modified config back.  Select **Load Config** and pick the `config_XX.json` which will have been saved in whatever the default download directory is on your machine.  Your previous configuration will now be restored.
+3. Now let's get your modified config back.  Select **Load Config** and pick the `config_XX.json` which will have been saved in whatever the default download directory is on your machine.  Your previous configuration will now be restored.
 
 4. OPTIONAL: You can also set a custom name for your config files, which is really useful if you are working on several different configs as each will be named differently in your downloads folder. Go to **Settings** and change the *Export filename prefix* from *config* to a name of your choice.
 

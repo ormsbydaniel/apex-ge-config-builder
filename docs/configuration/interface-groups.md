@@ -71,7 +71,7 @@ ungrouped layers to move into it. Once created, layer cards can be dragged
 in or out of the sub-group, and the sub-group will appear as a folder
 under its parent interface group in the deployed Explorer.
 
-For the conceptual model see [Layers overview → How the tab is laid out](../layers/index.md#how-the-tab-is-laid-out).
+For the conceptual model see [Layers overview → How the tab is laid out](../layers/overview.md#how-the-tab-is-laid-out).
 
 ## Tips
 

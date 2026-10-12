@@ -27,4 +27,5 @@ By the end of this tutorial you will be able to:
 - [8-4. Add the first statistics source](04-first-statistics-source.md)
 - [8-5. Add the remaining NUTS levels](05-more-statistics-levels.md)
 - [8-6. Understanding the statistics files](06-panel-and-controls.md)
-- [8-7. Preview and review](07-preview-and-review.md)
+- [8-7. Histogram statistics](07-histogram-statistics.md)
+- [8-8. Preview and review](08-preview-and-review.md)

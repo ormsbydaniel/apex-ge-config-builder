@@ -964,6 +964,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1700,6 +1704,8 @@
       
         
       
+        
+      
     
     
       
@@ -1757,6 +1763,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1773,11 +1783,127 @@
         
   
   
-    <a href="../09-coordinate-reference-systems/index.html" class="md-nav__link">
+    <a href="../09-multi-spectral-data/index.html" class="md-nav__link">
       
   
   <span class="md-ellipsis">
-    9. Coordinate reference systems
+    9. Multi-spectral data
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../10-vector-data/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    10. Vector data
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../11-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    11. Coordinate reference systems
   </span>
   
 
@@ -1913,7 +2039,7 @@
 <li><strong>Constraints</strong> only apply to COG data. They are not applicable to WMS or WMTS services.</li>
 <li>A constraint is a <strong>filter</strong> applied to what data is visible. Pixels that fall outside the
   constraint are masked out at render time.</li>
-<li>You may have encoutered the <strong>Constraint</strong> toggle if you did exercise <strong>4-3</strong> where it was used to filter the layer on its own pixel values.</li>
+<li>You may have encountered the <strong>Constraint</strong> toggle if you did exercise <strong>4-3</strong> where it was used to filter the layer on its own pixel values.</li>
 <li>Constraints can also come from <strong>secondary layers</strong> — for example land use,
   elevation, or "distance to" derived layers. Each constraint reads a
   <em>separate</em> COG and masks the primary layer where the constraint is not met.</li>
@@ -1922,8 +2048,8 @@
   compatible constraint layers in advance. This preparation is outside the scope of this tutorial, but can be readily undertaken using GIS tools like QGIS.</li>
 <li>Multiple constraints are applied <strong>together</strong> — a pixel is only drawn where
   every active constraint is satisfied.</li>
-<li>Constraints can be <strong>interactive</strong> where the user is able to change the constraint criteria, (e.g. elevation between values on a slider) or <strong>static</strong> where by the constraint is defined in the config (e.g. elevation above 1000m).</li>
-<li>Each constraint is assigned a <strong>band index</strong> automatically,in the order the
+<li>Constraints can be <strong>interactive</strong> where the user is able to change the constraint criteria (e.g. elevation between values on a slider) or <strong>static</strong> whereby the constraint is defined in the config (e.g. elevation above 1000m).</li>
+<li>Each constraint is assigned a <strong>band index</strong> automatically, in the order the
   constraints appear in the UI.</li>
 <li>Constraint controls only appear in the viewer when the layer card control
   <strong>Constraint slider</strong> is enabled.</li>

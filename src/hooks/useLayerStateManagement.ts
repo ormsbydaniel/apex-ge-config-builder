@@ -28,6 +28,8 @@ interface DataSourceFormState {
 interface LayerStateManagementState {
   expansion: LayerExpansionState;
   dataSourceForm: DataSourceFormState;
+  // Tab to focus in a layer card after a form completes (e.g. Statistics after adding a statistics source)
+  focusTab: { layerIndex: number; tab: string } | null;
 }
 
 // Action types for the reducer
@@ -48,6 +50,8 @@ type LayerStateAction =
   | { type: 'COMPLETE_DATA_SOURCE_FORM' }
   | { type: 'CLEAR_DATA_SOURCE_FORM' }
   | { type: 'CLEAR_CANCELED_LAYER_INDEX' }
+  | { type: 'SET_FOCUS_TAB'; layerIndex: number; tab: string }
+  | { type: 'CLEAR_FOCUS_TAB' }
   | { type: 'START_CONSTRAINT_FORM'; layerIndex: number; isAddingConstraint?: boolean }
   | { type: 'CANCEL_CONSTRAINT_FORM'; selectedLayerIndex: number | null }
   | { type: 'COMPLETE_CONSTRAINT_FORM' }
@@ -84,6 +88,7 @@ const initialState: LayerStateManagementState = {
     editingChartIndex: null,
     editingChartLayerIndex: null,
   },
+  focusTab: null,
 };
 
 // Reducer function
@@ -229,9 +234,14 @@ function layerStateReducer(
         },
       };
 
-    case 'COMPLETE_DATA_SOURCE_FORM':
+    case 'COMPLETE_DATA_SOURCE_FORM': {
+      // When a statistics source was added, focus the layer card's Statistics tab afterwards
+      const focusTab = state.dataSourceForm.isAddingStatistics && state.dataSourceForm.selectedLayerIndex !== null
+        ? { layerIndex: state.dataSourceForm.selectedLayerIndex, tab: 'statistics' }
+        : state.focusTab;
       return {
         ...state,
+        focusTab,
         dataSourceForm: {
           ...state.dataSourceForm,
           showDataSourceForm: false,
@@ -241,6 +251,7 @@ function layerStateReducer(
           editingDataSourceLayerIndex: null,
         },
       };
+    }
 
     case 'CLEAR_DATA_SOURCE_FORM':
       return {
@@ -270,6 +281,19 @@ function layerStateReducer(
           canceledLayerIndex: null,
         },
       };
+
+    case 'SET_FOCUS_TAB':
+      return {
+        ...state,
+        focusTab: { layerIndex: action.layerIndex, tab: action.tab },
+      };
+
+    case 'CLEAR_FOCUS_TAB':
+      return {
+        ...state,
+        focusTab: null,
+      };
+
 
     case 'START_CONSTRAINT_FORM':
       return {
@@ -514,6 +538,10 @@ export const useLayerStateManagement = () => {
     dispatch({ type: 'CLEAR_CANCELED_LAYER_INDEX' });
   }, []);
 
+  const clearFocusTabAfterForm = useCallback(() => {
+    dispatch({ type: 'CLEAR_FOCUS_TAB' });
+  }, []);
+
   // Constraint form actions
   const handleStartConstraintForm = useCallback((layerIndex: number, layerCardId?: string, isAddingConstraint = false) => {
     dispatch({ type: 'START_CONSTRAINT_FORM', layerIndex, isAddingConstraint });
@@ -623,6 +651,10 @@ export const useLayerStateManagement = () => {
     handleDataSourceComplete,
     clearDataSourceForm,
     clearCanceledLayerIndex,
+
+    // Tab focus after a form completes (e.g. Statistics after adding a statistics source)
+    focusTabAfterForm: state.focusTab,
+    clearFocusTabAfterForm,
 
     // Constraint form state
     showConstraintForm: state.dataSourceForm.showConstraintForm,

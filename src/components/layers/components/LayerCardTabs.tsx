@@ -34,6 +34,7 @@ interface LayerCardTabsProps {
   onEditChart: (layerIndex: number, chartIndex: number) => void;
   onStartChartForm?: (layerIndex: number) => void;
   onEditChartSource?: (layerIndex: number, chartIndex: number) => void;
+  initialTab?: string;
 }
 
 export function LayerCardTabs({
@@ -62,9 +63,10 @@ export function LayerCardTabs({
   onRemoveChart,
   onEditChart,
   onStartChartForm,
-  onEditChartSource
+  onEditChartSource,
+  initialTab
 }: LayerCardTabsProps) {
-  const [activeTab, setActiveTab] = useState('data');
+  const [activeTab, setActiveTab] = useState(initialTab || 'data');
 
   const dataCount = source.data?.length || 0;
   const statsCount = source.statistics?.length || 0;

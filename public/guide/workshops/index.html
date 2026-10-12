@@ -964,6 +964,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1466,6 +1470,8 @@
       
         
       
+        
+      
     
     
       
@@ -1523,6 +1529,10 @@
       
         
       
+        
+      
+        
+      
     
     
       
@@ -1539,11 +1549,127 @@
         
   
   
-    <a href="09-coordinate-reference-systems/index.html" class="md-nav__link">
+    <a href="09-multi-spectral-data/index.html" class="md-nav__link">
       
   
   <span class="md-ellipsis">
-    9. Coordinate reference systems
+    9. Multi-spectral data
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="10-vector-data/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    10. Vector data
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="11-coordinate-reference-systems/index.html" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    11. Coordinate reference systems
   </span>
   
 
@@ -1722,8 +1848,8 @@
 <h1 id="welcome-to-the-geospatial-explorer-tutorials">Welcome to the Geospatial Explorer tutorials<a class="headerlink" href="#welcome-to-the-geospatial-explorer-tutorials" title="Permanent link">&para;</a></h1>
 <p>In this tutorial series, you will use the <strong>Geospatial Explorer Configuration Builder</strong> to create your own Geospatial Explorer solution.</p>
 <p>Tutorials are divided into <strong>"core"</strong> and <strong>"topic"</strong> tutorials.</p>
-<p><strong>"Core"</strong> tutorials introduce the <em>Geospatial Explorer</em>, the <em>Configuration Builder</em> and get you started creating your first simple configuration. It is recommended that anybody working with the <em>Geospatial Explorer</em> for the first time, follows these tutorials in the order they are listed.</p>
-<p><strong>"Topic"</strong> tutorials explore a specific area of functionality. You can dive straight into any topic of interest in any order. For example a <em>"Time series"</em> tutorial could be done before a <em>"statistics"</em> tutorial or vice versa. Topics with similar names and #1, #2 suffixes etc, would generally be done in sequence, but would be clarified in the pre-requisites of each topic.</p>
+<p><strong>"Core"</strong> tutorials introduce the <em>Geospatial Explorer</em> and the <em>Configuration Builder</em> and get you started creating your first simple configuration. It is recommended that anybody working with the <em>Geospatial Explorer</em> for the first time follows these tutorials in the order they are listed.</p>
+<p><strong>"Topic"</strong> tutorials explore a specific area of functionality. You can dive straight into any topic of interest in any order. For example, a <em>"Time series"</em> tutorial could be done before a <em>"statistics"</em> tutorial or vice versa. Topics with similar names and #1, #2 suffixes, etc., would generally be done in sequence; this would be clarified in the pre-requisites of each topic.</p>
 <h2 id="what-you-need">What you need<a class="headerlink" href="#what-you-need" title="Permanent link">&para;</a></h2>
 <p>Here is the best bit. The tutorials require:</p>
 <ul>
@@ -1731,11 +1857,11 @@
 <li><strong>No</strong> software development experience.</li>
 <li><strong>No</strong> pre-installed tools or environments on your machine.</li>
 <li><strong>No</strong> detailed technical knowledge.</li>
-<li>The <strong>only</strong> requirement is a computer with web browser and internet access.</li>
+<li>The <strong>only</strong> requirement is a computer with a web browser and internet access.</li>
 </ul>
 <p>The tutorials make use of a few key technologies and data formats, in particular:</p>
 <ul>
-<li><strong>Cloud Optimised GeoTiff (COG)</strong> files</li>
+<li><strong>Cloud Optimised GeoTIFF (COG)</strong> files</li>
 <li>Mapping services, such as <strong>WMS / WMTS</strong> and <strong>XYZ</strong> tile services</li>
 <li>Vector data in <strong>GeoJSON</strong> and <strong>FlatGeobuf</strong> format</li>
 <li><strong>SpatioTemporal Asset Catalogs (STAC)</strong></li>
@@ -1757,7 +1883,7 @@ with the <strong>Geospatial Explorer Configuration Builder</strong>.</p>
 <li><strong>One monitor and phone.</strong> If you want to avoid too much tab switching, you
   might find it easier to read the tutorial instructions on your phone and
   follow them on your monitor — then just switch tabs for things like copying
-  URLs to clipboard. Scan this QR code to open the Tutorials home page on your
+  URLs to the clipboard. Scan this QR code to open the Tutorials home page on your
   phone:</li>
 </ul>
 <p><img alt="QR code linking to the Tutorials home page" src="../assets/screenshots/tutorial-setup-qr-code.png" width="245" /></p>
@@ -1785,8 +1911,8 @@ facilitator-led demonstrations and self-paced learning exercises.</p>
 <p>Interrupt the facilitator at any time — questions are welcome and usually help
 everyone. If you get stuck on a step, flag it early rather than falling behind.</p>
 <h2 id="byo-data">BYO data<a class="headerlink" href="#byo-data" title="Permanent link">&para;</a></h2>
-<p>The tutorials use <strong>cloud hosted data sources</strong> — such as <strong>Cloud Optimised
-GeoTiff (COG)</strong> files, <strong>WMS / WMTS</strong> services and more — so you can follow
+<p>The tutorials use <strong>cloud-hosted data sources</strong> — such as <strong>Cloud Optimised
+GeoTIFF (COG)</strong> files, <strong>WMS / WMTS</strong> services and more — so you can follow
 along without preparing anything in advance.</p>
 <p>If you have your <strong>own data at a publicly accessible URL</strong>, you are welcome to
 try substituting it in the tutorials. If you are doing this in a workshop

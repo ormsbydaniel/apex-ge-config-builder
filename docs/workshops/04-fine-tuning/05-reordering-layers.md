@@ -20,6 +20,8 @@ Re-ordering them into related sets makes the group easier to scan and use.
     - Drag the layer by its **drag handle** and drop it in the required
       position.
 
+    ![Move arrows highlighted beside World Cover 2020 in the Land Cover group](../../assets/screenshots/tutorial-04-05-move-layer-land-cover.png){ width="720" }
+
 4. Check that the **Land Cover** group now shows related layers together and
    that the World Cover layers are in chronological order.
 

@@ -126,7 +126,7 @@ version below — or paste it in wholesale if you want to skip ahead.
     }
   ],
   "meta": {
-    "description": "The wind power density (w m 2) is a measure of the available wind resource at 100 meters height. Higher wind power density indicates greater wind power potential. Constraints allow the data to be filtered by multiple criteria.",
+    "description": "The wind power density (w m 2) is a measure of the available wind resource at a height of 100 metres. Higher wind power density indicates greater wind power potential. Constraints allow the data to be filtered by multiple criteria.",
     "attribution": {
       "text": "ESA GTIF",
       "url": "https://gtif.esa.int/"

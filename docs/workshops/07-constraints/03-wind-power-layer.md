@@ -37,15 +37,15 @@ a single COG layer showing wind power density at 100 m over Austria.
 
     !!! warning "Constraint slider"
         Without the **Constraint slider** control the constraints you add in
-        the rest ot this tutorial steps will be saved to the configuration but will never
+        the remaining steps of this tutorial will be saved to the configuration but will never
         appear in the viewer.
 
-5. To avoid you having to constantly zoom for the rest of this tutorial,go to **Settings → Navigation** and pick **Austria** from the quick location list.
+5. To avoid you having to constantly zoom for the rest of this tutorial, go to **Settings → Navigation** and pick **Austria** from the quick location list.
 
 6. Open **Preview** and toggle the layer on. You should see a jet colour ramp
-    over Austria with a gradient legend,and a **Filter** icon in the layer card, which looks like a _funnel._
+    over Austria with a gradient legend, and a **Filter** icon in the layer card, which looks like a _funnel._
 
-7. Click on the filter, then **drag the slider** values. See how this effects the display of the wind power layer.
+7. Click on the filter, then **drag the slider** values. See how this affects the display of the wind power layer.
 
     ![Austria Wind Power Density layer preview with the layer panel open, showing the jet colour ramp legend and layer description](../../assets/screenshots/wind-power-layer-result.png)
 

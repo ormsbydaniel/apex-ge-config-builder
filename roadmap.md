@@ -58,3 +58,18 @@
 ## STAC dataset metadata
 - [x] Add an (i) metadata action to STAC rows with Collection, Item, and Asset tabs plus file inspection.
 - [x] Fix the dialog resizing by opening it at a fixed size matching the COG metadata dialog's scrolled footprint.
+
+## Tutorial proofreading
+- [x] Review all tutorials and correct typos, spelling and grammar without changing instructions.
+- [x] Rebuild the guide in strict mode.
+
+## Tutorial icon shots
+- [x] Create and review exercise-context screenshots, including the replacement Export and Base Layers images.
+- [x] Add approved shots beside the relevant exercise steps in both screenshot locations.
+- [x] Rebuild and verify the guide with contextual screenshots.
+
+## Tutorial 10
+- [x] Write the overview, prerequisites and vector-data key concepts.
+- [x] Write simple, categorised and graduated styling exercises.
+- [x] Capture and add Tutorial 10 screenshots from the prerequisite configuration.
+- [x] Rebuild and verify the guide in strict mode.

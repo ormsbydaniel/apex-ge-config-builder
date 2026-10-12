@@ -18,11 +18,11 @@ The category system determines how COGs are rendered when their values represent
 
     ![COG metadata dialog showing categorical statistics and the embedded colour palette](../../assets/screenshots/cog-categories-metadata.png)
 
-4. Scroll down until you see the colour palette display, Click **Copy embedded colormap to config categories**. This takes both the class values (10, 30, 40 etc) and colours (green, yellow, red) from the colourmap in the COG and copies them into our layer definition. Then **close** the metadata dialog.
+4. Scroll down until you see the colour palette display. Click **Copy embedded colormap to config categories**. This takes both the class values (10, 30, 40 etc) and colours (green, yellow, red) from the colormap in the COG and copies them into our layer definition. Then **close** the metadata dialog.
 
-    - Although this COG has an emebedded colormap, that is not always the case. The option to **Copy unique values to config categories** is used when there is no colormap but will still transfer our unique values.
+    - Although this COG has an embedded colormap, that is not always the case. The option to **Copy unique values to config categories** is used when there is no colormap but will still transfer our unique values.
 
-5. Now select the **pen** icon, next to **Categeories** in the **Data Visualisation** section of the layer card. Edit a couple of the category labels to align to the World Cover class
+5. Now select the **pen** icon, next to **Categories** in the **Data Visualisation** section of the layer card. Edit a couple of the category labels to align to the World Cover class
     names (e.g. `10 → Tree cover`, `30 → Grassland`). See the
     [WorldCover class lookup](#worldcover-class-lookup) below for the full list
     of values, colours and names.
@@ -38,7 +38,7 @@ The category system determines how COGs are rendered when their values represent
     files. You can do this now by downloading
     [`world-cover-classes.csv`](../../assets/world-cover-classes.csv) (<- click on the link to download). Then select **Import CSV** and load up the file you just downloaded.
 
-7. Select **Save Categories** to exit the dialog and then **Preview**, toggle on the layer and view the reesults. The COG is now rendered with the labels and colours you defined.
+7. Select **Save Categories** to exit the dialog and then **Preview**, toggle on the layer and view the results. The COG is now rendered with the labels and colours you defined.
 
 8. _(Optional)_ Go back to **Data Visualisation → Categories → Edit** and change
     the colour of one class — for example, make **Tree cover** a light green.

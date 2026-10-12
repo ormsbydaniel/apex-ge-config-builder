@@ -6,7 +6,7 @@ title: 2-5. Add recommended base maps
 1. On the **Layers** tab, scroll down to the **Base Layers** section and
    select **Add Recommended Base Layers**.
 
-    ![Layers tab showing the Base Layers section](../../assets/screenshots/workshops-getting-started-layers-tab.png)
+    ![Add Recommended Base Layers button highlighted in the Base Layers group](../../assets/screenshots/tutorial-02-05-add-recommended-base-layers-highlighted.png){ width="560" }
 
 2. Look at the base map cards that appear — attribution and layer metadata are
    populated automatically.

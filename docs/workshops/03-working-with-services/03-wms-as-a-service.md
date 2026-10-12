@@ -11,6 +11,8 @@ once and its layers can be browsed whenever you add a dataset.
 
 1. On the **Services** tab, select **Add Service** (top right). Leave **Service Type** set to **WMS** and paste the following into the **Service URL**:
 
+    ![Add Service button highlighted above Configured Services](../../assets/screenshots/tutorial-03-03-add-service.png){ width="720" }
+
    ```
    https://mapproxy.terrascope.be/mapproxy/service
    ```
@@ -48,7 +50,7 @@ Add some more WMS layers.
 3. Edit the layer card and rename it from `temp` to something meaningful for
    the data you picked. Adjust attribution and controls as needed.
 
-**Note**: once you have added the recommended services in the next tutorial, you might want to add some other layers from the additional WMS services available. You may also know of a specific WMS service that you want to experiement with. Try returning to the start of the tutorial but using a WMS URL of your own choice.
+**Note**: once you have added the recommended services in the next tutorial, you might want to add some other layers from the additional WMS services available. You may also know of a specific WMS service that you want to experiment with. Try returning to the start of the tutorial but using a WMS URL of your own choice.
 
 !!! tip "Direct connection vs service"
 
@@ -58,7 +60,7 @@ Add some more WMS layers.
 
 !!! warning "No WMS layer showing?"
 
-    When the Geospatial Explorer loads it makes a runtime call to the *GetCapabilities* endpoint of the WMS service to fetch necessary metadata about the layer.  The GE has a default timeout of 2500 milliseconds (2.5 s),for each layer load, and if it hasn't had a response in that time it assumes the layer is not available and won't even include it in the layer list.  If you have a working WMS but it is just a bit slow you can overide this timout.  Simply go to **Settings -> More settings -> Layer Fetch timeout** (bottom of page) and increase the timeout for a longer wait.
+    When the Geospatial Explorer loads it makes a runtime call to the *GetCapabilities* endpoint of the WMS service to fetch necessary metadata about the layer.  The GE has a default timeout of 2500 milliseconds (2.5 s) for each layer load, and if it hasn't had a response in that time it assumes the layer is not available and won't even include it in the layer list.  If you have a working WMS but it is just a bit slow you can override this timeout.  Simply go to **Settings -> More settings -> Layer Fetch timeout** (bottom of page) and increase the timeout for a longer wait.
 
 See [Adding services](../../services/adding-services.md) and
 [WMS / WMTS / WFS](../../data-sources/wms-wmts-wfs.md) for the full reference.
