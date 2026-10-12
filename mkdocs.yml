@@ -203,6 +203,7 @@ nav:
           - 10-3. Simple styling: workshops/10-vector-data/03-styling-your-data.md
           - 10-4. Categorised styling: workshops/10-vector-data/04-categorised-styling.md
           - 10-5. Graduated styling: workshops/10-vector-data/05-graduated-styling.md
+          - 10-6. Customising vector field values: workshops/10-vector-data/06-customising-field-values.md
       - 11. Coordinate reference systems:
           - Overview: workshops/11-coordinate-reference-systems/index.md
           - 11-1. Pre-requisites: workshops/11-coordinate-reference-systems/01-prerequisites.md
