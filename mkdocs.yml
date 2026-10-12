@@ -196,6 +196,8 @@ nav:
           - 9-4. Other composite styles: workshops/09-multi-spectral-data/04-other-composite-styles.md
           - 9-5. Styling a water index: workshops/09-multi-spectral-data/05-styling-a-water-index.md
           - 9-6. Other indices: workshops/09-multi-spectral-data/06-other-indices.md
+          - 9-7. Add a spectral chart: workshops/09-multi-spectral-data/07-add-a-spectral-chart.md
+          - 9-8. Multi-spectral time series: workshops/09-multi-spectral-data/08-multi-spectral-time-series.md
       - 10. Vector data:
           - Overview: workshops/10-vector-data/index.md
           - 10-1. Pre-requisites: workshops/10-vector-data/01-prerequisites.md
