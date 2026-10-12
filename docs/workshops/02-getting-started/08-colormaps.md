@@ -8,7 +8,7 @@ values render as a colour ramp on the map.
 
 1. In your *Above Ground Biomass* layer card, click on the **pencil** icon next to **Colormaps** in the **Data visualisation** section. The colormap editor opens.
 
-    ![Colormaps pencil highlighted in Data Visualisation](../../assets/screenshots/tutorial-02-08-edit-colormap.png){ width="420" }
+    ![Colormaps pencil highlighted in Data Visualisation](../../assets/screenshots/tutorial-02-08-edit-colormap.png){ width="100%" }
 
 2. Pick a colour ramp of your choice — for example *Viridis* for biomass — and enter the **min** and **max** values you noted from the COG metadata in the [previous step](07-add-cog-data.md). This is the range over which the colormap will be rendered.
 3. Click **Add colormap** then **Save changes** to return to the layer card.

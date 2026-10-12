@@ -12,7 +12,7 @@ interface group and a colour scheme.
 2. On the **Home** tab, edit the **Application Title** (by clicking on the pen icon) and rename the configuration to something of
     your choice — for example, `<your name>'s first config`.
 
-    ![Application Title pen highlighted on the Home tab](../../assets/screenshots/tutorial-02-03-edit-application-title.png){ width="420" }
+    ![Application Title pen highlighted on the Home tab](../../assets/screenshots/tutorial-02-03-edit-application-title.png){ width="640" }
 
 3. Move to the **Layers** tab.
 
