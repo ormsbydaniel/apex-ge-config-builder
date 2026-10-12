@@ -12,9 +12,7 @@ boundary dataset.
 1. Open the **Countries** layer card. Under **Data Visualisation**, select the
    **Pen** next to **Vector Styling**.
 
-2. The starting file contains example rules. Remove both existing rules with
-   their red bin buttons so that the recipe gallery appears, then select
-   **Simple uniform**.
+2. In the recipe gallery, select **Simple uniform**.
 
 3. Keep **Symbolise as** set to **Polygons — fill + outline**, choose the colours
    you want, keep **Fill style** as **Solid**, and select **Create rule**.

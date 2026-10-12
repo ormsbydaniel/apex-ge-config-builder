@@ -196,6 +196,8 @@ nav:
           - 9-4. Other composite styles: workshops/09-multi-spectral-data/04-other-composite-styles.md
           - 9-5. Styling a water index: workshops/09-multi-spectral-data/05-styling-a-water-index.md
           - 9-6. Other indices: workshops/09-multi-spectral-data/06-other-indices.md
+          - 9-7. Add a spectral chart: workshops/09-multi-spectral-data/07-add-a-spectral-chart.md
+          - 9-8. Multi-spectral time series: workshops/09-multi-spectral-data/08-multi-spectral-time-series.md
       - 10. Vector data:
           - Overview: workshops/10-vector-data/index.md
           - 10-1. Pre-requisites: workshops/10-vector-data/01-prerequisites.md
@@ -203,6 +205,7 @@ nav:
           - 10-3. Simple styling: workshops/10-vector-data/03-styling-your-data.md
           - 10-4. Categorised styling: workshops/10-vector-data/04-categorised-styling.md
           - 10-5. Graduated styling: workshops/10-vector-data/05-graduated-styling.md
+          - 10-6. Customising vector field values: workshops/10-vector-data/06-customising-field-values.md
       - 11. Coordinate reference systems:
           - Overview: workshops/11-coordinate-reference-systems/index.md
           - 11-1. Pre-requisites: workshops/11-coordinate-reference-systems/01-prerequisites.md
