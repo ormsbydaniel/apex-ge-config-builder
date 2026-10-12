@@ -6,6 +6,11 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-10-12",
+    title: "Release 2.11.0 - Additional tutorials",
+    category: "Feature",
+  },
+  {
     date: "2026-10-09",
     title:
       "Release 2.10.0 - Comprehensive support for STAC data sources in configuration builder",
