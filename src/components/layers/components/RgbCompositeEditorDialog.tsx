@@ -259,7 +259,10 @@ export function RgbCompositeEditorDialog({
   const firstCogUrl = inspectionUrls[scopedItem && isCog(scopedItem) ? scope : firstIdx];
 
   const inFlightRef = React.useRef<Set<number>>(new Set());
-  const metadataReadyUrlRef = React.useRef<string | undefined>(undefined);
+  // Which file's header details are loaded (state, so histogram loading re-runs when it changes).
+  const [metadataReadyUrl, setMetadataReadyUrl] = useState<string | undefined>(undefined);
+  // Bumped whenever histograms are reset, so late results from a previous dataset are ignored.
+  const histogramGenRef = React.useRef(0);
   const selectedBandsRef = React.useRef(selectedBands);
   selectedBandsRef.current = selectedBands;
 
@@ -282,6 +285,7 @@ export function RgbCompositeEditorDialog({
     setSelectedBands(bands);
     setStretchError(null);
     inFlightRef.current = new Set();
+    histogramGenRef.current += 1;
     setHistogramCache({});
     setHistogramLoading({});
     setHistogramError({});
@@ -343,7 +347,7 @@ export function RgbCompositeEditorDialog({
   useEffect(() => {
     if (!open || !firstCogUrl) return;
     let cancelled = false;
-    metadataReadyUrlRef.current = undefined;
+    setMetadataReadyUrl(undefined);
     setLoading(true);
     fetchCogHeaderMetadata(firstCogUrl)
       .then((meta) => {
@@ -355,7 +359,7 @@ export function RgbCompositeEditorDialog({
       .catch(() => {})
       .finally(() => {
         if (!cancelled) {
-          metadataReadyUrlRef.current = firstCogUrl;
+          setMetadataReadyUrl(firstCogUrl);
           setLoading(false);
         }
       });
@@ -652,28 +656,32 @@ export function RgbCompositeEditorDialog({
 
   // Load histograms for every assigned band (stacked view shows all three)
   useEffect(() => {
-    if (!open || loading || !firstCogUrl || metadataReadyUrlRef.current !== firstCogUrl || mode !== 'rgb') return;
+    if (!open || loading || !firstCogUrl || metadataReadyUrl !== firstCogUrl || mode !== 'rgb') return;
+    const gen = histogramGenRef.current;
+    const inFlight = inFlightRef.current;
+    const isCurrent = () => histogramGenRef.current === gen;
     selectedBands.forEach((band) => {
       if (band == null || histogramCache[band] || inFlightRef.current.has(band)) return;
-      inFlightRef.current.add(band);
+      inFlight.add(band);
       setHistogramLoading((prev) => ({ ...prev, [band]: true }));
       setHistogramError((prev) => ({ ...prev, [band]: null }));
       getHistogram(firstCogUrl, band - 1, noDataValue)
         .then((result) => {
-          setHistogramCache((prev) => ({ ...prev, [band]: result }));
+          if (isCurrent()) setHistogramCache((prev) => ({ ...prev, [band]: result }));
         })
         .catch((err) => {
+          if (!isCurrent()) return;
           setHistogramError((prev) => ({
             ...prev,
             [band]: err instanceof Error ? err.message : 'Failed to load histogram',
           }));
         })
         .finally(() => {
-          inFlightRef.current.delete(band);
-          setHistogramLoading((prev) => ({ ...prev, [band]: false }));
+          inFlight.delete(band);
+          if (isCurrent()) setHistogramLoading((prev) => ({ ...prev, [band]: false }));
         });
     });
-  }, [open, loading, firstCogUrl, noDataValue, selectedBands, histogramCache, mode]);
+  }, [open, loading, firstCogUrl, metadataReadyUrl, noDataValue, selectedBands, histogramCache, mode]);
 
   // Apply the active stretch to queued channels as soon as their histogram is available.
   useEffect(() => {
@@ -710,6 +718,7 @@ export function RgbCompositeEditorDialog({
       setHistogramLoading({});
       setHistogramError({});
       inFlightRef.current = new Set();
+      histogramGenRef.current += 1;
       setPendingStretch([]);
       setChannelMethods([null, null, null]);
       return;
@@ -1254,7 +1263,9 @@ export function RgbCompositeEditorDialog({
                     </p>
                     {stretchError && <p className="text-[11px] text-destructive">{stretchError}</p>}
                   </div>
-                  {!firstCogUrl ? (
+                  {!firstCogUrl && inspectionResolving ? (
+                    <p className="text-sm text-muted-foreground py-6 text-center">Finding dataset file…</p>
+                  ) : !firstCogUrl ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">No COG source to read pixel values from.</p>
                   ) : selectedBands.every((b) => b == null) ? (
                     <p className="text-sm text-muted-foreground py-6 text-center">Assign a band to a channel to see its histogram.</p>
@@ -1268,7 +1279,7 @@ export function RgbCompositeEditorDialog({
                           <div key={cfg.label} className="flex flex-col">
                             <BandHistogram
                               data={hist?.bins ?? null}
-                              loading={histogramLoading[band] ?? !hist}
+                              loading={!!histogramLoading[band] || (!hist && !histogramError[band] && metadataReadyUrl !== firstCogUrl)}
                               error={histogramError[band] ?? null}
                               channelColor={cfg.color}
                               channelLabel={RGB_LABELS[i]}
