@@ -2,9 +2,11 @@
 
 ## What I found (from reading the code; not yet reproduced)
 
+This affects ordinary COGs as well as STAC datasets — all of the code below is shared by both.
+
 When you pick another dataset in the multi-band window, the window clears its histograms and waits for that dataset's file details before loading new ones. A few things in this hand-over can leave a channel showing "Loading histogram…" forever:
 
-1. **No file address for the chosen dataset.** For STAC datasets the real file link is looked up in the background. If that lookup hasn't finished, or failed for that dataset, nothing starts loading — but the channel still shows "Loading" because "no histogram yet" is treated as "loading". There's no error and no retry.
+1. **No file address for the chosen dataset.** Every COG's file link (plain or STAC) goes through a background lookup. If that lookup hasn't finished, or failed for that dataset, nothing starts loading — but the channel still shows "Loading" because "no histogram yet" is treated as "loading". There's no error and no retry.
 2. **Leftover requests from the previous dataset.** Requests already running for the old dataset aren't cancelled. When they finish they can drop the old dataset's histograms into the new view, or mark a band as finished while the new dataset's request is still running — so the screen and the requests get out of step.
 3. **"Ready" is tracked in a way the screen doesn't react to.** The "file details ready" signal doesn't trigger a redraw, so the histogram step only starts if something else happens to change at the same moment. Switching quickly between datasets can miss it.
 
