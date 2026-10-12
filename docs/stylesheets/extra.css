@@ -54,3 +54,14 @@
 .md-content__inner .tutorial-eyebrow + h1 {
   margin-top: 0;
 }
+
+/* Wrap long single-line code blocks (URLs, pasted descriptions) instead of
+ * horizontal scrolling. Material only applies pre-wrap in print mode, so the
+ * browser's default white-space:pre rules on screen. Copying is unaffected:
+ * the copy button reads the text via innerText, so soft wraps are never
+ * included in the clipboard. */
+.md-typeset pre,
+.md-typeset pre > code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
