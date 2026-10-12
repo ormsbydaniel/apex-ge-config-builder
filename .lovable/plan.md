@@ -8,6 +8,13 @@ In the tutorials, fenced text blocks containing long single lines — layer desc
 
 Material for MkDocs applies `white-space: pre-wrap` to code blocks only inside `@media print`. On screen, `pre` keeps the browser default (`white-space: pre`), so long lines overflow and `pre > code`'s `overflow: auto` produces the horizontal scroll bar. This is the stock behaviour of mkdocs-material 9.5.x — not something the pages are doing wrong.
 
+## Does wrapping affect the copy button? No (verified)
+
+- The copy button in this theme reads the code text with JavaScript (`innerText`), not from the visual layout, so CSS wrapping cannot alter what is copied.
+- `innerText` is computed from the DOM text and visibility — line breaks come from actual DOM nodes, never from CSS soft wraps. Soft-wrapped display lines copy as the single original line.
+- The planned rule changes only `white-space` and `word-break`; it changes no visibility, display, or content, so the copied text is byte-identical.
+- This matches Material's own behaviour: the theme already applies the same wrapping rules in print mode, and the copy button works unchanged there.
+
 ## Fix
 
 Add a rule to `docs/stylesheets/extra.css` (the guide's custom stylesheet, already wired through `extra_css` in mkdocs.yml) so all code blocks wrap on screen, matching Material's own print behaviour:
