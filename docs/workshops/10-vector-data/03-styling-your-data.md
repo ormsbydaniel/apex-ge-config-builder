@@ -33,8 +33,7 @@ boundary dataset.
 ## Cross-hatch the field boundaries
 
 6. Return to the Configuration Builder and open **Ukraine Field Boundaries**.
-   Select the **Pen** next to **Vector Styling**, remove the existing rule, and
-   select **Simple uniform**.
+   Select the **Pen** next to **Vector Styling**, then select **Simple uniform**.
 
 7. Keep **Symbolise as** set to **Polygons — fill + outline**. Set **Fill style**
    to **Cross hatch**, choose contrasting fill and outline colours, then select
