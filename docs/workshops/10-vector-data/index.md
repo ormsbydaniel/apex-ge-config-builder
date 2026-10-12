@@ -18,6 +18,7 @@ By the end of this tutorial you will be able to:
 - Use a cross-hatched fill for a dense polygon dataset.
 - Colour distinct attribute values with categorised styling.
 - Show variation in numeric data with graduated styling.
+- Make feature values readable with labels, units, rounding and hidden fields.
 
 ## Steps
 
@@ -26,3 +27,4 @@ By the end of this tutorial you will be able to:
 - [10-3. Simple styling](03-styling-your-data.md)
 - [10-4. Categorised styling](04-categorised-styling.md)
 - [10-5. Graduated styling](05-graduated-styling.md)
+- [10-6. Customising vector field values](06-customising-field-values.md)
