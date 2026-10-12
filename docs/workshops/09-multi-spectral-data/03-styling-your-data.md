@@ -20,7 +20,7 @@ In this exercise we will work with an existing configuration. If you are followi
 
 3.  Now let's add some styling. On the main layer card select the **Pen** icon next to the **multi-band visualisations** option. This will open a popup with two tabs, one called **Composites** and another called **Indices**. Take a brief look at what is in each.
 
-    ![Multi-band visualisations pencil highlighted on the Bristol layer card](../../assets/screenshots/tutorial-09-03-edit-multiband-bristol.png){ width="420" }
+    ![Multi-band visualisations pencil highlighted on the Bristol layer card](../../assets/screenshots/tutorial-09-03-edit-multiband-bristol.png){ width="100%" }
 
     !!! info "Composites vs indices. What's the difference?"
         **Composites** take three bands and visualise them in the _red_, _green_ and _blue_ channels of the output. If the input bands are also red, green and blue wavelengths, then this will look like a natural colour image. However, if they are other wavelengths then they will reveal patterns not visible to the naked eye.
