@@ -67,3 +67,9 @@
 - [x] Create and review exercise-context screenshots, including the replacement Export and Base Layers images.
 - [x] Add approved shots beside the relevant exercise steps in both screenshot locations.
 - [x] Rebuild and verify the guide with contextual screenshots.
+
+## Tutorial 10
+- [x] Write the overview, prerequisites and vector-data key concepts.
+- [x] Write simple, categorised and graduated styling exercises.
+- [ ] Capture and add Tutorial 10 screenshots from the prerequisite configuration.
+- [ ] Rebuild and verify the guide in strict mode.
