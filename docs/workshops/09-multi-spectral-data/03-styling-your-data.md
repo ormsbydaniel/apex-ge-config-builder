@@ -16,7 +16,7 @@ In this exercise we will work with an existing configuration. If you are followi
     - Note how the row in the _Datasets_ tab tells us it has 10 bands, but they are "undefined".
     - Now click on the **( i )** icon on that row to inspect the COG metadata. Note how it has a dropdown of bands and you can inspect the statistics of each individually.
 
-    ![COG metadata info icon highlighted on the 10-band Bristol Sentinel 2 dataset](../../assets/screenshots/tutorial-09-03-open-cog-metadata-bristol.png){ width="420" }
+    ![COG metadata info icon highlighted on the 10-band Bristol Sentinel 2 dataset](../../assets/screenshots/tutorial-09-03-open-cog-metadata-bristol.png){ width="100%" }
 
 3.  Now let's add some styling. On the main layer card select the **Pen** icon next to the **multi-band visualisations** option. This will open a popup with two tabs, one called **Composites** and another called **Indices**. Take a brief look at what is in each.
 

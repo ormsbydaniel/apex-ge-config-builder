@@ -18,7 +18,7 @@ We are going to be copying the Bristol Sentinel 2 layer a few times now as we wo
 
 1. On the **top row** of the _Bristol Sentinel 2_ layer card, select the **duplicate layer** icon - two overlapping blue squares, with a tooltip.
 
-    ![Duplicate layer icon highlighted on the Bristol Sentinel 2 layer card](../../assets/screenshots/tutorial-09-04-duplicate-bristol-layer.png){ width="420" }
+    ![Duplicate layer icon highlighted on the Bristol Sentinel 2 layer card](../../assets/screenshots/tutorial-09-04-duplicate-bristol-layer.png){ width="100%" }
 
 2. On the **Bristol Sentinel 2 (copy)** layer, click the **red trash can** icon next to the RGB visualisations to clear the current settings, then click the **pencil** icon to set a new visualisation. Choose one of interest - the **Composite options** table below explains each one.
 
