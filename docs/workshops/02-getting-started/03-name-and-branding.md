@@ -18,7 +18,7 @@ interface group and a colour scheme.
 
     - Edit _Interface group 1_ (by clicking on the pen icon) and rename it to `Forest Carbon`.
 
-    ![Rename pen highlighted on Interface group 1](../../assets/screenshots/tutorial-02-03-rename-interface-group.png){ width="420" }
+    ![Rename pen highlighted on Interface group 1](../../assets/screenshots/tutorial-02-03-rename-interface-group.png){ width="100%" }
 
     - Delete the other default interface groups so only _Forest Carbon_ remains.
 

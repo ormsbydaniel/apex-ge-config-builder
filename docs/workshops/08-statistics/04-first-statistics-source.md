@@ -10,7 +10,7 @@ data.
 1. On the `World Cover 2021 with statistics` layer card, open
    **Data Sources** and select the **Statistics** tab.
 
-    ![Statistics tab highlighted in the layer Data Sources section](../../assets/screenshots/tutorial-08-04-statistics-tab-world-cover-2021.png){ width="420" }
+    ![Statistics tab highlighted in the layer Data Sources section](../../assets/screenshots/tutorial-08-04-statistics-tab-world-cover-2021.png){ width="100%" }
 
 2. Click **Add statistics source**, choose **FlatGeoBuf**, and enter the NUTS level 0 (country) source details:
 

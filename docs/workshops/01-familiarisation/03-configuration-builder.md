@@ -40,7 +40,7 @@ configuration you just loaded. This is exactly the same Explorer
 application you looked at in the previous step, but now driven by the
 demo config rather than the reference deployment.
 
-![Preview tab highlighted in the Configuration Builder navigation](../../assets/screenshots/tutorial-01-03-open-preview.png){ width="640" }
+![Preview tab highlighted in the Configuration Builder navigation](../../assets/screenshots/tutorial-01-03-open-preview.png){ width="100%" }
 
 Have a quick click around to confirm it behaves as an end user would
 expect.
