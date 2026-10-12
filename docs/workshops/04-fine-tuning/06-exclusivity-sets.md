@@ -13,6 +13,8 @@ user switches on one layer in the set, the others are switched off.
    **Exclusivity Sets** section. Enter `landcover` as the set name and select
    the **+** button to add it.
 
+    ![Add button highlighted in Exclusivity Sets](../../assets/screenshots/tutorial-04-06-add-exclusivity-set.png){ width="420" }
+
 2. Scroll back to the **Land Cover** group. On the first World Cover layer,
    select the **edit** (pen) icon from the bank of icons at the top right of
    the layer card.

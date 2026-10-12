@@ -64,5 +64,6 @@
 - [x] Rebuild the guide in strict mode.
 
 ## Tutorial icon shots
-- [x] Create shared icon library shots for review
-- [ ] Add approved shots to tutorial pages (waiting on user review)
+- [x] Create and review exercise-context screenshots, including the replacement Export and Base Layers images.
+- [x] Add approved shots beside the relevant exercise steps in both screenshot locations.
+- [ ] Rebuild and verify the guide with contextual screenshots.

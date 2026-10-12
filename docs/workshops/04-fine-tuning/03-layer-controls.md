@@ -8,6 +8,8 @@ controls the Explorer shows for that layer. Open your *Above Ground Biomass*
 layer card, find the **Controls** section, and click the pencil icon to open
 **Edit Controls**.
 
+![Controls pencil highlighted on the Above Ground Biomass layer card](../../assets/screenshots/tutorial-04-03-edit-controls-above-ground-biomass.png){ width="420" }
+
 After each change, **Save** the layer card and open **Preview** to see the
 effect in the Explorer.
 

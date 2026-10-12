@@ -58,7 +58,7 @@ editor.
     the JSON editor, then click **Enable editing** to switch from the
     read-only view to edit mode.
 
-    ![The {JSON} icon on the layer card](../../assets/screenshots/layer-json-editor-icon.png)
+    ![JSON editor icon highlighted on the World Cover 2020 layer card](../../assets/screenshots/tutorial-05-05-edit-json-world-cover-2020.png){ width="420" }
 
     _The **{JSON}** icon on the layer card._
 
