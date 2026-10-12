@@ -18,6 +18,8 @@ in OSGB so it lines up natively with the National Grid.
 2. Open the **Settings** tab and scroll to the **CRS** section. Under
    **Custom CRS**, select **+ Add CRS** and complete the dialog:
 
+    ![Add CRS button highlighted beneath the custom CRS list](../../assets/screenshots/tutorial-11-04-add-crs.png){ width="560" }
+
     - **Name:** `British National Grid`
     - **CRS Code:** `EPSG:27700`
     - **PROJ.4 Definition:**

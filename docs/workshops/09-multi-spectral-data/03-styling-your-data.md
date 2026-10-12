@@ -13,10 +13,14 @@ In this exercise we will work with an existing configuration. If you are followi
 
 2. Take a look at the **Bristol Sentinel 2 scene** layer in the Sentinel 2 interface group. Right now this is just a normal layer, with a COG added, as you have done before.
 
-- Note how the row in the _Datasets_ tab tells us it has 10 bands, but they are "undefined".
-- Now click on the **( i )** icon on that row to inspect the COG metadata. Note how it has a dropdown of bands and you can inspect the statistics of each individually.
+    - Note how the row in the _Datasets_ tab tells us it has 10 bands, but they are "undefined".
+    - Now click on the **( i )** icon on that row to inspect the COG metadata. Note how it has a dropdown of bands and you can inspect the statistics of each individually.
+
+    ![COG metadata info icon highlighted on the 10-band Bristol Sentinel 2 dataset](../../assets/screenshots/tutorial-09-03-open-cog-metadata-bristol.png){ width="420" }
 
 3.  Now let's add some styling. On the main layer card select the **Pen** icon next to the **multi-band visualisations** option. This will open a popup with two tabs, one called **Composites** and another called **Indices**. Take a brief look at what is in each.
+
+    ![Multi-band visualisations pencil highlighted on the Bristol layer card](../../assets/screenshots/tutorial-09-03-edit-multiband-bristol.png){ width="420" }
 
     !!! info "Composites vs indices. What's the difference?"
         **Composites** take three bands and visualise them in the _red_, _green_ and _blue_ channels of the output. If the input bands are also red, green and blue wavelengths, then this will look like a natural colour image. However, if they are other wavelengths then they will reveal patterns not visible to the naked eye.

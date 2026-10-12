@@ -11,9 +11,15 @@ interface group and a colour scheme.
     <https://ge-config-builder.apex.esa.int/>.
 2. On the **Home** tab, edit the **Application Title** (by clicking on the pen icon) and rename the configuration to something of
     your choice — for example, `<your name>'s first config`.
+
+    ![Application Title pen highlighted on the Home tab](../../assets/screenshots/tutorial-02-03-edit-application-title.png){ width="420" }
+
 3. Move to the **Layers** tab.
 
     - Edit _Interface group 1_ (by clicking on the pen icon) and rename it to `Forest Carbon`.
+
+    ![Rename pen highlighted on Interface group 1](../../assets/screenshots/tutorial-02-03-rename-interface-group.png){ width="420" }
+
     - Delete the other default interface groups so only _Forest Carbon_ remains.
 
     ![Config Builder home tab with title and Forest Carbon interface group](../../assets/screenshots/workshops-getting-started-branding.png)

@@ -11,6 +11,8 @@ once and its layers can be browsed whenever you add a dataset.
 
 1. On the **Services** tab, select **Add Service** (top right). Leave **Service Type** set to **WMS** and paste the following into the **Service URL**:
 
+    ![Add Service button highlighted above Configured Services](../../assets/screenshots/tutorial-03-03-add-service.png){ width="420" }
+
    ```
    https://mapproxy.terrascope.be/mapproxy/service
    ```
