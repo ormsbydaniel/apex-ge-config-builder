@@ -75,6 +75,7 @@
 - [x] Write simple, categorised and graduated styling exercises.
 - [x] Capture and add Tutorial 10 screenshots from the prerequisite configuration.
 - [x] Rebuild and verify the guide in strict mode.
+- [x] Add the transmission-network hero image to the Tutorial 10 index page; rebuild the guide.
 
 # Tutorial 12: STAC as a data source
 

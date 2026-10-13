@@ -5,6 +5,8 @@ title: 10. Vector data
 
 ## Tutorial Objectives
 
+![Dark map of north-western and central Europe with a high-voltage transmission network drawn as coloured lines](../../assets/screenshots/tutorial-10-hero.png)
+
 Vector data can add useful context to Earth Observation imagery and can also be
 an output from Earth Observation projects. In this tutorial you will use four
 prepared vector layers to explore the main styling approaches available in the
