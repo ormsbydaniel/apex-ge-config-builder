@@ -10,6 +10,12 @@ layers render and respond.
 ## Preview the configuration
 
 1. Click **Preview** to open the configuration in the Geospatial Explorer.
+
+    !!! warning "The first load can take a minute"
+        This configuration asks every STAC collection it uses up front, so the
+        preview can take up to a minute or so to appear. Leave the page open
+        until the layers show up rather than reloading.
+
 2. Turn the STAC layers on and off from the layer menu. Each one renders like
    a directly-added COG or FlatGeoBuf — the Explorer resolves the real file
    addresses from the catalogue behind the scenes.
