@@ -83,3 +83,4 @@
 - [x] Write 12-3 Inspecting STAC data sources (config load is step 1) and 12-4 STAC in the preview.
 - [x] Register pages in mkdocs.yml and nav-groups.js; strict rebuild.
 - [ ] Add contextual screenshots in a later pass.
+- [x] Warn in 12-4 that the first preview load can take up to a minute; rebuild the guide.
