@@ -9,6 +9,8 @@
 - [x] Draft 9-4 Defining a custom CRS (EPSG:27700 walkthrough) and rebuild the guide.
 - [x] Review tutorial Markdown for nested-list and numbered-step indentation; rebuild the guide.
 - [x] Correct remaining nested lists in 9-4 and 3-5; audit all tutorials and rebuild the guide.
+- [x] Add the swipe-comparison hero image to the Tutorial 9 index page; rebuild the guide.
+
 
 # Tutorial numbering
 
