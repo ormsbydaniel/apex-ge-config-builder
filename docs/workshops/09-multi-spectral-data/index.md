@@ -6,6 +6,10 @@ title: 9. Multi-spectral data
 
 ## Tutorial Objectives
 
+![Swipe comparison over an estuary: natural colour on the left, a false-colour water index on the right](../../assets/screenshots/tutorial-09-hero.png)
+
+
+
 In this tutorial you will understand how the Geospatial Explorer handles multi-spectral data and learn to build a configuration that can:
 
 - Display multi-spectral data as **colour composites**
