@@ -218,7 +218,7 @@ nav:
           - 12-2. Key concepts: workshops/12-stac-data/02-key-concepts.md
           - 12-3. Inspecting STAC data sources: workshops/12-stac-data/03-inspecting-stac-data-sources.md
           - 12-4. STAC in the preview: workshops/12-stac-data/04-stac-in-the-preview.md
-   - Reference:
+  - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
       - JSON schema reference: reference/json-schema.md
