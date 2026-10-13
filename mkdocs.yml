@@ -212,7 +212,13 @@ nav:
           - 11-2. Key concepts: workshops/11-coordinate-reference-systems/02-key-concepts.md
           - 11-3. Using an alternative CRS: workshops/11-coordinate-reference-systems/03-using-an-alternative-projection.md
           - 11-4. Defining a custom CRS: workshops/11-coordinate-reference-systems/04-defining-a-custom-crs.md
-  - Reference:
+       - 12. STAC as a data source:
+           - Overview: workshops/12-stac-data/index.md
+           - 12-1. Pre-requisites: workshops/12-stac-data/01-prerequisites.md
+           - 12-2. Key concepts: workshops/12-stac-data/02-key-concepts.md
+           - 12-3. Inspecting STAC data sources: workshops/12-stac-data/03-inspecting-stac-data-sources.md
+           - 12-4. STAC in the preview: workshops/12-stac-data/04-stac-in-the-preview.md
+   - Reference:
       - Overview: reference/overview.md
       - URL parameters: reference/url-parameters.md
       - JSON schema reference: reference/json-schema.md
