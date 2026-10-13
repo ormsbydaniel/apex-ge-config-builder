@@ -73,3 +73,10 @@
 - [x] Write simple, categorised and graduated styling exercises.
 - [x] Capture and add Tutorial 10 screenshots from the prerequisite configuration.
 - [x] Rebuild and verify the guide in strict mode.
+
+# Tutorial 12: STAC as a data source
+
+- [x] Write index, 12-1 prerequisites, 12-2 key concepts (two STAC usage modes: discovery catalogue vs direct data source).
+- [x] Write 12-3 Inspecting STAC data sources (config load is step 1) and 12-4 STAC in the preview.
+- [x] Register pages in mkdocs.yml and nav-groups.js; strict rebuild.
+- [ ] Add contextual screenshots in a later pass.
