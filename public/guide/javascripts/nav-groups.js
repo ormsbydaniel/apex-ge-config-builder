@@ -30,6 +30,7 @@
         "09-multi-spectral-data",
         "10-vector-data",
         "11-coordinate-reference-systems",
+        "12-stac-data",
       ],
     },
   ];
@@ -95,6 +96,7 @@
     "09-multi-spectral-data": "9. Multi-spectral data",
     "10-vector-data": "10. Vector data",
     "11-coordinate-reference-systems": "11. Coordinate reference systems",
+    "12-stac-data": "12. STAC as a data source",
   };
 
   function currentStepTutorial() {
