@@ -9,62 +9,146 @@ Explorer. No layer building — inspection and understanding only.
 New folder `docs/workshops/12-stac-data/`:
 
 - `index.md` — "12. STAC as a data source" with objectives and step list
-- `01-prerequisites.md` — core links (Tutorials 1–3), load via
-  **Load → Examples → Test & development → STAC datasets**, export reminder
-- `02-key-concepts.md` — what STAC is; catalogue → collection → item → asset;
-  the config stores only the items/search URL plus asset name and format;
-  items vs search endpoints; filters (bbox, datetime, limit, property filters)
-  live in the URL
+- `01-prerequisites.md` — core links, load instructions, export reminder
+- `02-key-concepts.md` — STAC concepts
 - `03-inspecting-stac-data-sources.md` — the main exercise
 - `04-stac-in-the-preview.md` — behaviour exercise
 
-## Exercise 12-3: Inspecting STAC data sources
+## Draft: index.md
 
-Using the loaded STAC datasets config:
+```markdown
+---
+title: 12. STAC as a data source
+---
+# 12. STAC as a data source
 
-- Recognise STAC rows on a layer card: the `stac` format badge and the
-  right-aligned asset badge (e.g. `data (flatgeobuf)`, `asset (cog)`).
-- Open the **(i) STAC metadata** dialog on a row and tour its tabs:
-  - **Collection** — title, description, licence, extents.
-  - **Item** — the single item, or first item matching the filters, with date,
-    extent and properties.
-  - **Asset** — details for the selected asset, with the button that opens the
-    COG or FlatGeoBuf file inspector.
-  - **Queryables** — the properties the collection allows filtering on.
-- Compare the layer types in the config: a whole collection (STAC Tillage
-  simple), a single item (Austria LST STAC item), an item list with a datetime
-  filter (Africa January 2023), a bounded query (Morocco time series), and a
-  search-endpoint query with a property filter (Sentinel 2 STAC Query —
-  June 2026, `cloud_cover < 10`).
-- Open the query editor on one layer to see how AOI, TOI, limit and property
-  filters appear as badges, and how the **Items / Search** query-method choice
-  and **Test** button work (including that some servers only evaluate property
-  filters on the search endpoint).
+## Tutorial Objectives
 
-## Exercise 12-4: STAC in the preview
+Many Earth Observation projects publish their results through a STAC
+(SpatioTemporal Asset Catalog) catalogue. The Geospatial Explorer can use a
+STAC collection, item or query directly as a data source, without downloading
+files by hand. In this tutorial you will load a prepared configuration of STAC
+layers and inspect how they are defined and how they behave.
 
-- Preview the config and observe how STAC layers render like any other layer.
-- Use the time slider on a STAC time series (e.g. Austria LST items, or the
-  East Belgium CHIME series) — each item's own datetime drives the timeline.
-- Try the swipe comparison on the "Swipe test" layer (two dated Africa
-  datasets).
-- Note that multi-band styling and vector styling work on STAC assets exactly
-  as on direct COG/FlatGeoBuf files (link back to Tutorials 9 and 10).
+By the end of this tutorial you will be able to:
+
+- Explain what STAC is and how catalogues, collections, items and assets relate.
+- Recognise a STAC data source on a layer card.
+- Inspect STAC collection, item, asset and queryable metadata.
+- Understand how area, date and property filters become part of a STAC query.
+- Describe how STAC layers behave in the preview, including time series.
+
+## Steps
+
+- [12-1. Pre-requisites](01-prerequisites.md)
+- [12-2. Key concepts](02-key-concepts.md)
+- [12-3. Inspecting STAC data sources](03-inspecting-stac-data-sources.md)
+- [12-4. STAC in the preview](04-stac-in-the-preview.md)
+```
+
+## Draft: 01-prerequisites.md
+
+```markdown
+---
+title: 12-1. Pre-requisites
+---
+
+# 12-1. Pre-requisites
+
+Completion of all core tutorials or existing familiarity with the configuration
+builder:
+
+- [1. Familiarisation](../01-familiarisation/index.md)
+- [2. My first config](../02-getting-started/index.md)
+- [3. Working with Services](../03-working-with-services/index.md)
+
+## Load the starting configuration
+
+1. Click **Load** in the Configuration Builder.
+2. Open the **Examples** tab.
+3. Under **Test & development**, select **STAC datasets**.
+
+This starting configuration contains a set of layers whose data comes straight
+from STAC catalogues: a whole collection, single items, filtered item lists,
+time series and a search query with a cloud-cover filter.
+
+!!! tip "Export often"
+    Export your configuration after each exercise so you can recover your work
+    if your browser tab closes.
+```
+
+## Draft: 02-key-concepts.md
+
+```markdown
+---
+title: 12-2. Key concepts
+---
+# 12-2. Key concepts
+
+STAC (SpatioTemporal Asset Catalog) is a standard way of describing collections
+of geospatial data so that software can discover and use them. Many Earth
+Observation projects and data portals publish their results as STAC
+catalogues.
+
+A STAC catalogue is organised in levels:
+
+- A **catalogue** groups related **collections**.
+- A **collection** is a dataset family, for example land surface temperature
+  over Austria or a Sentinel 2 archive.
+- An **item** is one entry in a collection, usually one scene or one time step,
+  with a date, a footprint and some properties (such as cloud cover).
+- An **asset** is an actual file belonging to an item — the COG, GeoJSON or
+  FlatGeoBuf the Explorer will display.
+
+## STAC as a data source
+
+When you add STAC to a layer, the configuration stores only:
+
+- the **URL** of the collection, item, item list or search query, and
+- the **asset name** and its **format** (for example `data (flatgeobuf)`).
+
+Any filters — area of interest, date range, result limit or property filters
+such as `cloud_cover < 10` — are part of that URL. The Explorer resolves the
+real file addresses when the layer is used; temporary or signed links are never
+saved.
+
+## Items and search endpoints
+
+A STAC service offers two ways to ask for items:
+
+| Endpoint | Shape | Notes |
+|---|---|---|
+| **Items** | `.../collections/{id}/items?...` | The default. Serves a single collection. |
+| **Search** | `.../search?collections={id}&...` | Can span several collections. Some services only evaluate property filters here. |
+
+The query editor lets you switch between the two while keeping your filters,
+and its **Test** button shows how many items each endpoint returns, so you can
+see whether a server honours your filters.
+
+For more detail, see [STAC browser](../../data-sources/stac-browser.md).
+```
+
+## Exercises 12-3 and 12-4 (outline, drafted after you approve the above)
+
+- **12-3 Inspecting STAC data sources**: recognise the `stac` badge and asset
+  badge on a layer card; tour the **(i) STAC metadata** dialog (Collection,
+  Item, Asset, Queryables tabs); compare the config's layer types (whole
+  collection, single item, datetime-filtered list, bbox query, search query
+  with `cloud_cover < 10`); open the query editor to see filter badges and the
+  Items/Search test.
+- **12-4 STAC in the preview**: preview the config; use the time slider on a
+  STAC time series; try the swipe comparison layer; note that multi-band and
+  vector styling work on STAC assets as on direct files (links back to
+  Tutorials 9 and 10).
 
 ## Housekeeping
 
-- Register the four pages in `mkdocs.yml` and keep
-  `docs/javascripts/nav-groups.js` in sync.
-- Screenshots: a small set of contextual shots (STAC badges on a layer card,
-  the metadata dialog tabs, the query editor) taken in first-encounter order,
-  added via `scripts/add-screenshot.sh` to both screenshot locations, sized by
-  aspect ratio per the established convention.
-- Rebuild the guide with `mkdocs build --strict`. Not published until asked.
+- Register the four pages in `mkdocs.yml`; keep `docs/javascripts/nav-groups.js` in sync.
+- Contextual screenshots in first-encounter order via `scripts/add-screenshot.sh`, sized by aspect ratio.
+- Rebuild with `mkdocs build --strict`. Not published until asked.
 
-## Notes
+## Note
 
-- The STAC datasets config currently lives in the **Test & development** group
-  of the Examples tab; the prerequisite instructions will say so. If you'd
-  rather promote it to the main Examples list, that's a one-line manifest
-  change in the configs repo (separate, optional).
-- Content will be drafted for your review before any screenshots are taken.
+The STAC datasets config currently sits in the **Test & development** group of
+the Examples tab; 12-1 says so. Promoting it to the main Examples list is a
+one-line manifest change in the configs repo (optional, separate).
