@@ -9,6 +9,8 @@
 - [x] Draft 9-4 Defining a custom CRS (EPSG:27700 walkthrough) and rebuild the guide.
 - [x] Review tutorial Markdown for nested-list and numbered-step indentation; rebuild the guide.
 - [x] Correct remaining nested lists in 9-4 and 3-5; audit all tutorials and rebuild the guide.
+- [x] Add the swipe-comparison hero image to the Tutorial 9 index page; rebuild the guide.
+
 
 # Tutorial numbering
 
@@ -73,3 +75,12 @@
 - [x] Write simple, categorised and graduated styling exercises.
 - [x] Capture and add Tutorial 10 screenshots from the prerequisite configuration.
 - [x] Rebuild and verify the guide in strict mode.
+- [x] Add the transmission-network hero image to the Tutorial 10 index page; rebuild the guide.
+
+# Tutorial 12: STAC as a data source
+
+- [x] Write index, 12-1 prerequisites, 12-2 key concepts (two STAC usage modes: discovery catalogue vs direct data source).
+- [x] Write 12-3 Inspecting STAC data sources (config load is step 1) and 12-4 STAC in the preview.
+- [x] Register pages in mkdocs.yml and nav-groups.js; strict rebuild.
+- [ ] Add contextual screenshots in a later pass.
+- [x] Warn in 12-4 that the first preview load can take up to a minute; rebuild the guide.
