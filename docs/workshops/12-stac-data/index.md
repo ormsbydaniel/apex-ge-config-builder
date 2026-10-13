@@ -5,6 +5,8 @@ title: 12. STAC as a data source
 
 ## Tutorial Objectives
 
+![Satellite basemap of Europe, North Africa and the Middle East with colour-styled STAC item footprints scattered across it](../../assets/screenshots/tutorial-12-hero.png)
+
 Many Earth Observation projects publish their results through a STAC
 (SpatioTemporal Asset Catalog) catalogue. As well as browsing a STAC catalogue
 to discover data, the Geospatial Explorer can use a STAC collection, item or
