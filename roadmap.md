@@ -84,3 +84,4 @@
 - [x] Register pages in mkdocs.yml and nav-groups.js; strict rebuild.
 - [ ] Add contextual screenshots in a later pass.
 - [x] Warn in 12-4 that the first preview load can take up to a minute; rebuild the guide.
+- [x] JSON Style Editor in Data Visualisation (standard + swipe layers, statistics excluded)
