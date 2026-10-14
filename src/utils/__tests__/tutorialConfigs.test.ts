@@ -4,7 +4,7 @@ import { parseTutorialListing } from '../tutorialConfigs';
 describe('parseTutorialListing', () => {
   it('labels, filters and sorts tutorial files', () => {
     const out = parseTutorialListing([
-      { name: 'tutorial-10-completion.json', type: 'file', download_url: 'https://x/10c' },
+      { name: 'tutorial-5-completion.json', type: 'file', download_url: 'https://x/5c' },
       { name: 'README.md', type: 'file' },
       { name: 'tutorial-3-completion.json', type: 'file' },
       { name: 'tutorial-3-prerequisite.json', type: 'file' },
@@ -13,9 +13,9 @@ describe('parseTutorialListing', () => {
     expect(out.map((e) => e.name)).toEqual([
       'Tutorial 3 prerequisite',
       'Tutorial 3 completion',
-      'Tutorial 10 completion',
+      'Tutorial 5 completion',
     ]);
-    expect(out[2].url).toBe('https://x/10c');
+    expect(out[2].url).toBe('https://x/5c');
     expect(out[0].url).toContain('/tutorials/tutorial-3-prerequisite.json');
   });
 
@@ -41,6 +41,30 @@ describe('parseTutorialListing', () => {
       updatedAt: '2026-10-07T15:58:00.000Z',
     });
     expect(out[1].description).toContain('Last updated 7 Oct 2026, 15:58 UTC');
+  });
+
+  it('names known tutorials with their topic title', () => {
+    const out = parseTutorialListing([
+      { name: 'tutorial-10-prerequisite_20261012_0832.json', type: 'file' },
+      { name: 'tutorial-10-completion_20261012_0832.json', type: 'file' },
+      { name: 'tutorial-12-completion.json', type: 'file' },
+    ]);
+
+    expect(out.map((e) => e.name)).toEqual([
+      'Tutorial 10 – Vector data (prerequisite)',
+      'Tutorial 10 – Vector data (completion)',
+      'Tutorial 12 – STAC as a data source (completion)',
+    ]);
+    expect(out[0].description).toContain('Starting point for Tutorial 10 – Vector data');
+  });
+
+  it('falls back to a plain label for tutorials without a title', () => {
+    const out = parseTutorialListing([
+      { name: 'tutorial-13-completion.json', type: 'file' },
+    ]);
+
+    expect(out[0].name).toBe('Tutorial 13 completion');
+    expect(out[0].description).toBe('Finished result of Tutorial 13');
   });
 
   it('falls back to undated files and ignores invalid timestamps', () => {

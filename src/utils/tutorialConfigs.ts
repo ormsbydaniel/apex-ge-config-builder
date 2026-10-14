@@ -14,6 +14,19 @@ export const TUTORIALS_FOLDER_URL = `https://github.com/${TUTORIALS_REPO}/tree/$
 
 export type TutorialKind = 'prerequisite' | 'completion';
 
+/**
+ * Topic titles for each tutorial, shown in the Tutorials load tab.
+ * Add one line here when a new tutorial is published; unknown numbers
+ * fall back to a plain "Tutorial N" label.
+ */
+export const TUTORIAL_TITLES: Record<number, string> = {
+  8: 'Statistics',
+  9: 'Multi-spectral data',
+  10: 'Vector data',
+  11: 'Coordinate reference systems',
+  12: 'STAC as a data source',
+};
+
 export interface TutorialConfigEntry extends ExampleConfigEntry {
   tutorial: number;
   kind: TutorialKind;
@@ -82,14 +95,16 @@ export function parseTutorialListing(
     const url = typeof e.download_url === 'string' && e.download_url
       ? e.download_url
       : `https://raw.githubusercontent.com/${TUTORIALS_REPO}/${TUTORIALS_BRANCH}/${TUTORIALS_DIR}/${e.name}`;
+    const title = TUTORIAL_TITLES[tutorial];
+    const label = title ? `Tutorial ${tutorial} – ${title}` : `Tutorial ${tutorial}`;
     const baseDescription = kind === 'prerequisite'
-      ? `Starting point for Tutorial ${tutorial}`
-      : `Finished result of Tutorial ${tutorial}`;
+      ? `Starting point for ${label}`
+      : `Finished result of ${label}`;
     const entry: TutorialConfigEntry = {
       id: `tutorial-${tutorial}-${kind}`,
       tutorial,
       kind,
-      name: `Tutorial ${tutorial} ${kind}`,
+      name: title ? `${label} (${kind})` : `Tutorial ${tutorial} ${kind}`,
       description: updatedAt
         ? `${baseDescription} · Last updated ${formatUpdatedAt(updatedAt)}`
         : baseDescription,
