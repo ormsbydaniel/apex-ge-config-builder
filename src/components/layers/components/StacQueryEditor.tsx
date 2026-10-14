@@ -80,7 +80,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiRootKey]);
-  const filterStyle = getStacFilterStyleFromUrl(url) ?? filterSupport?.style ?? 'cql2';
+  const filterStyle = (filterSupport?.advertised ? filterSupport.style : undefined) ?? getStacFilterStyleFromUrl(url) ?? filterSupport?.style ?? 'cql2';
 
   useEffect(() => {
     if (limitOpen) {
