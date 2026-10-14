@@ -43,6 +43,30 @@ describe('parseTutorialListing', () => {
     expect(out[1].description).toContain('Last updated 7 Oct 2026, 15:58 UTC');
   });
 
+  it('names known tutorials with their topic title', () => {
+    const out = parseTutorialListing([
+      { name: 'tutorial-10-prerequisite_20261012_0832.json', type: 'file' },
+      { name: 'tutorial-10-completion_20261012_0832.json', type: 'file' },
+      { name: 'tutorial-12-completion.json', type: 'file' },
+    ]);
+
+    expect(out.map((e) => e.name)).toEqual([
+      'Tutorial 10 – Vector data (prerequisite)',
+      'Tutorial 10 – Vector data (completion)',
+      'Tutorial 12 – STAC as a data source (completion)',
+    ]);
+    expect(out[0].description).toContain('Starting point for Tutorial 10 – Vector data');
+  });
+
+  it('falls back to a plain label for tutorials without a title', () => {
+    const out = parseTutorialListing([
+      { name: 'tutorial-13-completion.json', type: 'file' },
+    ]);
+
+    expect(out[0].name).toBe('Tutorial 13 completion');
+    expect(out[0].description).toBe('Finished result of Tutorial 13');
+  });
+
   it('falls back to undated files and ignores invalid timestamps', () => {
     const out = parseTutorialListing([
       { name: 'tutorial-4-completion.json', type: 'file' },
