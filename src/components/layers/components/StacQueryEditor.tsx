@@ -157,7 +157,9 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     const hasFilter = Boolean(f);
     setMethodTest({ loading: true, hasFilter });
     try {
-      const result = await compareStacFilterEndpoints(url, filter, undefined, filterStyle);
+      // Raw text cannot be translated, so test it in the style it is written in.
+      const testStyle = f && 'raw' in f ? getStacFilterStyleFromUrl(url) ?? filterStyle : filterStyle;
+      const result = await compareStacFilterEndpoints(url, filter, undefined, testStyle);
       setMethodTest({ result, hasFilter });
     } catch (error) {
       setMethodTest({ hasFilter, error: error instanceof Error ? error.message : String(error) });
