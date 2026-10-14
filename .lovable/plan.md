@@ -28,7 +28,7 @@ Unlike the other tools, it is not mutually exclusive — it is an "expert view" 
 - **All datasets** (default) — editor shows one object; on Apply it is written to every dataset in the layer.
 - **Selected datasets** — checklist of datasets (index, filename, format badge); same single-object editing applied to the ticked ones.
 - **One dataset** — pick one; shows exactly its values (no merge ambiguity).
-- Option for **Statistics** datasets as a separate scope group when the layer has them.
+- Statistics datasets are excluded entirely.
 - When the in-scope datasets disagree, editor shows the first dataset's values plus a warning listing the differing keys; Apply then makes them identical (confirm prompt).
 
 ### Fields shown
@@ -54,6 +54,5 @@ Add a "JSON Style Editor" section to `docs/layers/data-visualisation.md` (non-ex
 - New pure util `src/utils/styleJson/styleJsonScope.ts`: `STYLE_KEY_GROUPS`, `extractStyleFields(items, groups)`, `diffKeys(items)`, `applyStyleFields(items, indices, edited, groups)` — with Vitest tests.
 - Row added in `LayerDataVisualisationSection.tsx` after Vector Styling; no schema changes (all fields already exist in `DataSourceItem`/Zod).
 
-## Open questions
-1. Should Apply to "All" also include statistics datasets, or keep them a separate scope? (Proposed: separate.)
-2. Should the editor be available on base layers / swipe layers too, or standard layers only?
+## Availability
+Standard and swipe layers only; not shown on base layers.
