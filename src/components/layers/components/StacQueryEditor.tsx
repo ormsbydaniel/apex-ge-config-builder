@@ -82,6 +82,20 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   }, [apiRootKey]);
   const filterStyle = (filterSupport?.advertised ? filterSupport.style : undefined) ?? getStacFilterStyleFromUrl(url) ?? filterSupport?.style ?? 'cql2';
 
+  // Keep the saved address in the style the catalogue supports, so Test and the viewer query the same thing.
+  useEffect(() => {
+    if (!filterSupport?.advertised) return;
+    const urlStyle = getStacFilterStyleFromUrl(url);
+    if (!urlStyle || urlStyle === filterSupport.style) return;
+    const f = parseStacCql2Filter(url);
+    if (!f || !('rules' in f)) return; // raw filters cannot be translated safely
+    try {
+      const next = updateStacCql2Filter(url, f.rules, filterSupport.style);
+      if (next !== url) onChange(next);
+    } catch { /* invalid URL */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterSupport, url]);
+
   useEffect(() => {
     if (limitOpen) {
       const parsed = parseStacCoreQuery(url);
@@ -143,7 +157,9 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     const hasFilter = Boolean(f);
     setMethodTest({ loading: true, hasFilter });
     try {
-      const result = await compareStacFilterEndpoints(url, filter, undefined, filterStyle);
+      // Raw text cannot be translated, so test it in the style it is written in.
+      const testStyle = f && 'raw' in f ? getStacFilterStyleFromUrl(url) ?? filterStyle : filterStyle;
+      const result = await compareStacFilterEndpoints(url, filter, undefined, testStyle);
       setMethodTest({ result, hasFilter });
     } catch (error) {
       setMethodTest({ hasFilter, error: error instanceof Error ? error.message : String(error) });
