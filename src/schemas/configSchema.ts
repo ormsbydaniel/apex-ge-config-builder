@@ -268,6 +268,8 @@ export const DataSourceItemSchema = z.object({
   timestamps: z.array(z.number()).optional(),
   // Opacity support (0-1 range)  
   opacity: z.number().min(0).max(1).optional(),
+  // Layer blend mode applied by the viewer
+  blendMode: z.enum(['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'difference', 'exclusion']).optional(),
   // Custom URL parameters (WMS only) — values may be strings, numbers, or booleans in real configs
   parameters: z.record(z.string(), z.unknown()).optional(),
 }).passthrough() // Allow arbitrary additional properties (e.g., env, styles, time, transparent)
