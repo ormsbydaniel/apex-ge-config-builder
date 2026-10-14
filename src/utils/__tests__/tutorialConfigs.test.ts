@@ -11,9 +11,9 @@ describe('parseTutorialListing', () => {
       { name: 'tutorial-4-prerequisite.json', type: 'dir' },
     ]);
     expect(out.map((e) => e.name)).toEqual([
-      'Tutorial 3 prerequisite',
-      'Tutorial 3 completion',
-      'Tutorial 5 completion',
+      'Tutorial 3 – Working with Services (prerequisite)',
+      'Tutorial 3 – Working with Services (completion)',
+      'Tutorial 5 – Categorical Data (completion)',
     ]);
     expect(out[2].url).toBe('https://x/5c');
     expect(out[0].url).toContain('/tutorials/tutorial-3-prerequisite.json');
@@ -29,13 +29,13 @@ describe('parseTutorialListing', () => {
 
     expect(out).toHaveLength(2);
     expect(out[0]).toMatchObject({
-      name: 'Tutorial 3 prerequisite',
+      name: 'Tutorial 3 – Working with Services (prerequisite)',
       url: 'https://x/prerequisite',
       fileName: 'tutorial-3-prerequisite_20261007_1600.json',
       updatedAt: '2026-10-07T16:00:00.000Z',
     });
     expect(out[1]).toMatchObject({
-      name: 'Tutorial 3 completion',
+      name: 'Tutorial 3 – Working with Services (completion)',
       url: 'https://x/latest',
       fileName: 'tutorial-3-completion_20261007_1558.json',
       updatedAt: '2026-10-07T15:58:00.000Z',
@@ -58,6 +58,22 @@ describe('parseTutorialListing', () => {
     expect(out[0].description).toContain('Starting point for Tutorial 10 – Vector data');
   });
 
+  it('names tutorials 1–7 using their documentation headings', () => {
+    const out = parseTutorialListing(
+      Array.from({ length: 7 }, (_, i) => ({ name: `tutorial-${i + 1}-completion.json`, type: 'file' })),
+    );
+
+    expect(out.map((e) => e.name)).toEqual([
+      'Tutorial 1 – Familiarisation (completion)',
+      'Tutorial 2 – My first config (completion)',
+      'Tutorial 3 – Working with Services (completion)',
+      'Tutorial 4 – Fine tuning my config (completion)',
+      'Tutorial 5 – Categorical Data (completion)',
+      'Tutorial 6 – Time Series (completion)',
+      'Tutorial 7 – Constraints (completion)',
+    ]);
+  });
+
   it('falls back to a plain label for tutorials without a title', () => {
     const out = parseTutorialListing([
       { name: 'tutorial-13-completion.json', type: 'file' },
@@ -76,7 +92,7 @@ describe('parseTutorialListing', () => {
 
     expect(out).toHaveLength(1);
     expect(out[0].fileName).toBe('tutorial-4-completion.json');
-    expect(out[0].description).toBe('Finished result of Tutorial 4');
+    expect(out[0].description).toBe('Finished result of Tutorial 4 – Fine tuning my config');
     expect(out[0].updatedAt).toBeUndefined();
   });
 });
