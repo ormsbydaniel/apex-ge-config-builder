@@ -104,7 +104,7 @@ export function parseTutorialListing(
       id: `tutorial-${tutorial}-${kind}`,
       tutorial,
       kind,
-      name: `${label} (${kind})`,
+      name: title ? `${label} (${kind})` : `Tutorial ${tutorial} ${kind}`,
       description: updatedAt
         ? `${baseDescription} · Last updated ${formatUpdatedAt(updatedAt)}`
         : baseDescription,
