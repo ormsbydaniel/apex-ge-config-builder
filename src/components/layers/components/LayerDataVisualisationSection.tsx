@@ -1,6 +1,6 @@
 import { createGradientCSS } from '@/utils/colormapUtils';
 import React, { useState } from 'react';
-import { Eye, Tags, Palette, Layers, Blend, PenTool } from 'lucide-react';
+import { Eye, Tags, Palette, Layers, Blend, PenTool, Braces } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -16,6 +16,7 @@ import ColormapEditorDialog from '@/components/form/ColormapEditorDialog';
 import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
+import JsonStyleEditorDialog from '@/components/layers/components/JsonStyleEditorDialog';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
 import { countOwn, isCog, stripVisualisation } from '@/utils/rgbComposite/perDataset';
 
@@ -30,6 +31,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const [vectorStylingDialogOpen, setVectorStylingDialogOpen] = useState(false);
+  const [jsonStyleDialogOpen, setJsonStyleDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   
@@ -398,6 +400,25 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             onUpdateDataSources={onUpdateDataSources}
           />
         </div>
+
+        {/* JSON Style Editor sub-section (not shown for base layers) */}
+        {!source.isBaseLayer && (source.data || []).length > 0 && (
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Braces className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">JSON Style Editor</span>
+              <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setJsonStyleDialogOpen(true)} aria-label="Open JSON Style Editor">
+                <Pencil className="h-2.5 w-2.5" />
+              </Button>
+            </div>
+            <JsonStyleEditorDialog
+              open={jsonStyleDialogOpen}
+              onOpenChange={setJsonStyleDialogOpen}
+              source={source}
+              onUpdateDataSources={onUpdateDataSources}
+            />
+          </div>
+        )}
 
       </div>
     </div>

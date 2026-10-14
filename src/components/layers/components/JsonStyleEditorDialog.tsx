@@ -39,8 +39,7 @@ const JsonStyleEditorDialog = ({ open, onOpenChange, source, onUpdateDataSources
   const [groups, setGroups] = useState<StyleKeyGroup[]>(DEFAULT_GROUPS);
   const [text, setText] = useState('');
   const [initialText, setInitialText] = useState('');
-  let theme: 'vs' | 'vs-dark' = 'vs-dark';
-  try { theme = (useEditorTheme() as any)?.theme ?? 'vs-dark'; } catch { /* default */ }
+  const { editorTheme: theme } = useEditorTheme();
 
   const indices = useMemo(() => (
     scope === 'all' ? data.map((_, i) => i) : scope === 'one' ? [one] : selected
