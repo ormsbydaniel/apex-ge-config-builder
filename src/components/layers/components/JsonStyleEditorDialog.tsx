@@ -55,12 +55,18 @@ const JsonStyleEditorDialog = ({ open, onOpenChange, source, onUpdateDataSources
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Reload editor content when scope/groups change
+  // Reload editor content only when the actual scoped content changes (not on
+  // every parent re-render, which would wipe in-progress edits).
+  const sourceText = useMemo(
+    () => JSON.stringify(extractStyleFields(scoped[0], groups), null, 2),
+    [scoped, groups],
+  );
+  const reloadKey = `${open}|${indices.join(',')}|${groups.join(',')}|${sourceText}`;
   useEffect(() => {
     if (!open) return;
-    const t = JSON.stringify(extractStyleFields(scoped[0], groups), null, 2);
-    setText(t); setInitialText(t);
-  }, [open, scoped, groups]);
+    setText(sourceText); setInitialText(sourceText);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reloadKey]);
 
   const dirty = text !== initialText;
   const parsed = useMemo(() => { try { return { value: JSON.parse(text) }; } catch (e) { return { error: (e as Error).message }; } }, [text]);
