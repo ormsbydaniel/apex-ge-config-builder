@@ -20,6 +20,13 @@ export type TutorialKind = 'prerequisite' | 'completion';
  * fall back to a plain "Tutorial N" label.
  */
 export const TUTORIAL_TITLES: Record<number, string> = {
+  1: 'Familiarisation',
+  2: 'My first config',
+  3: 'Working with Services',
+  4: 'Fine tuning my config',
+  5: 'Categorical Data',
+  6: 'Time Series',
+  7: 'Constraints',
   8: 'Statistics',
   9: 'Multi-spectral data',
   10: 'Vector data',
