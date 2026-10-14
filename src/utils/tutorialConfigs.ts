@@ -14,6 +14,19 @@ export const TUTORIALS_FOLDER_URL = `https://github.com/${TUTORIALS_REPO}/tree/$
 
 export type TutorialKind = 'prerequisite' | 'completion';
 
+/**
+ * Topic titles for each tutorial, shown in the Tutorials load tab.
+ * Add one line here when a new tutorial is published; unknown numbers
+ * fall back to a plain "Tutorial N" label.
+ */
+export const TUTORIAL_TITLES: Record<number, string> = {
+  8: 'Statistics',
+  9: 'Multi-spectral data',
+  10: 'Vector data',
+  11: 'Coordinate reference systems',
+  12: 'STAC as a data source',
+};
+
 export interface TutorialConfigEntry extends ExampleConfigEntry {
   tutorial: number;
   kind: TutorialKind;
