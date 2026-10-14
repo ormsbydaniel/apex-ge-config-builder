@@ -173,14 +173,14 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
           <DialogTitle>{rawMode ? 'Custom filter' : 'Property filter'}</DialogTitle>
           <DialogDescription>
             {rawMode
-              ? 'This filter cannot be broken into simple rules. It will be kept exactly as entered (${filterStyle === 'query' ? 'Query extension JSON' : 'CQL2 text'}).'
+              ? `This filter cannot be broken into simple rules. It will be kept exactly as entered (${filterStyle === 'query' ? 'Query extension JSON' : 'CQL2 text'}).`
               : 'Filter items by a property the collection publishes. Rules are combined with AND.'}
           </DialogDescription>
         </DialogHeader>
 
         {rawMode ? (
           <div className="space-y-2">
-            <Label htmlFor="stac-cql2-raw">CQL2 expression</Label>
+            <Label htmlFor="stac-cql2-raw">{filterStyle === 'query' ? 'Query extension JSON' : 'CQL2 expression'}</Label>
             <Textarea id="stac-cql2-raw" rows={4} className="font-mono text-xs" value={raw} onChange={(e) => setRaw(e.target.value)} />
           </div>
         ) : (
