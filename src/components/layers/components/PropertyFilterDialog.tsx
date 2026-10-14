@@ -173,7 +173,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
           <DialogTitle>{rawMode ? 'Custom filter' : 'Property filter'}</DialogTitle>
           <DialogDescription>
             {rawMode
-              ? 'This filter cannot be broken into simple rules. It will be kept exactly as entered (CQL2 text).'
+              ? 'This filter cannot be broken into simple rules. It will be kept exactly as entered (${filterStyle === 'query' ? 'Query extension JSON' : 'CQL2 text'}).'
               : 'Filter items by a property the collection publishes. Rules are combined with AND.'}
           </DialogDescription>
         </DialogHeader>
