@@ -4,7 +4,7 @@ import { parseTutorialListing } from '../tutorialConfigs';
 describe('parseTutorialListing', () => {
   it('labels, filters and sorts tutorial files', () => {
     const out = parseTutorialListing([
-      { name: 'tutorial-10-completion.json', type: 'file', download_url: 'https://x/10c' },
+      { name: 'tutorial-5-completion.json', type: 'file', download_url: 'https://x/5c' },
       { name: 'README.md', type: 'file' },
       { name: 'tutorial-3-completion.json', type: 'file' },
       { name: 'tutorial-3-prerequisite.json', type: 'file' },
@@ -13,9 +13,9 @@ describe('parseTutorialListing', () => {
     expect(out.map((e) => e.name)).toEqual([
       'Tutorial 3 prerequisite',
       'Tutorial 3 completion',
-      'Tutorial 10 completion',
+      'Tutorial 5 completion',
     ]);
-    expect(out[2].url).toBe('https://x/10c');
+    expect(out[2].url).toBe('https://x/5c');
     expect(out[0].url).toContain('/tutorials/tutorial-3-prerequisite.json');
   });
 
