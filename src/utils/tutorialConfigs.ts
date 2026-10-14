@@ -95,14 +95,16 @@ export function parseTutorialListing(
     const url = typeof e.download_url === 'string' && e.download_url
       ? e.download_url
       : `https://raw.githubusercontent.com/${TUTORIALS_REPO}/${TUTORIALS_BRANCH}/${TUTORIALS_DIR}/${e.name}`;
+    const title = TUTORIAL_TITLES[tutorial];
+    const label = title ? `Tutorial ${tutorial} – ${title}` : `Tutorial ${tutorial}`;
     const baseDescription = kind === 'prerequisite'
-      ? `Starting point for Tutorial ${tutorial}`
-      : `Finished result of Tutorial ${tutorial}`;
+      ? `Starting point for ${label}`
+      : `Finished result of ${label}`;
     const entry: TutorialConfigEntry = {
       id: `tutorial-${tutorial}-${kind}`,
       tutorial,
       kind,
-      name: `Tutorial ${tutorial} ${kind}`,
+      name: `${label} (${kind})`,
       description: updatedAt
         ? `${baseDescription} · Last updated ${formatUpdatedAt(updatedAt)}`
         : baseDescription,
