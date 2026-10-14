@@ -317,21 +317,39 @@ export type StacCql2Filter = { rules: StacPropertyRule[] } | { raw: string };
 /** Returns guided rules when every top-level AND clause is supported, otherwise the raw text. */
 export const parseStacCql2Filter = (url: string): StacCql2Filter | undefined => {
   let filter: string | null = null;
-  try { filter = new URL(url).searchParams.get('filter'); } catch { return undefined; }
+  let query: string | null = null;
+  try { const p = new URL(url).searchParams; filter = p.get('filter'); query = p.get('query'); } catch { return undefined; }
+  if (query?.trim()) {
+    const rules = parseStacQueryExtension(query);
+    return rules ? { rules } : { raw: query };
+  }
   if (!filter?.trim()) return undefined;
   const rules = splitTopLevelAnd(filter.trim()).map(parseClause);
   return rules.every(Boolean) ? { rules: rules as StacPropertyRule[] } : { raw: filter };
 };
 
-export const updateStacCql2Filter = (url: string, filter: StacPropertyRule[] | string | undefined): string => {
+/**
+ * Writes property filters into the URL. `style` defaults to the style the URL already uses,
+ * then CQL2. The other style's parameters are always removed.
+ */
+export const updateStacCql2Filter = (
+  url: string,
+  filter: StacPropertyRule[] | string | undefined,
+  style?: StacFilterStyle,
+): string => {
   const parsed = new URL(url);
-  const text = typeof filter === 'string' ? filter.trim() : filter?.length ? serialiseCql2Rules(filter) : '';
-  if (text) {
-    parsed.searchParams.set('filter', text);
-    parsed.searchParams.set('filter-lang', 'cql2-text');
+  const chosen = style ?? getStacFilterStyleFromUrl(url) ?? 'cql2';
+  ['filter', 'filter-lang', 'query'].forEach((k) => parsed.searchParams.delete(k));
+  const hasRules = Array.isArray(filter) && filter.length > 0;
+  if (chosen === 'query') {
+    const text = typeof filter === 'string' ? filter.trim() : hasRules ? serialiseStacQueryExtension(filter as StacPropertyRule[]) : '';
+    if (text) parsed.searchParams.set('query', text);
   } else {
-    parsed.searchParams.delete('filter');
-    parsed.searchParams.delete('filter-lang');
+    const text = typeof filter === 'string' ? filter.trim() : hasRules ? serialiseCql2Rules(filter as StacPropertyRule[]) : '';
+    if (text) {
+      parsed.searchParams.set('filter', text);
+      parsed.searchParams.set('filter-lang', 'cql2-text');
+    }
   }
   return parsed.toString();
 };
@@ -365,3 +383,115 @@ export const operatorsForType = (type: StacPropertyType): StacPropertyOperator[]
 
 /** Keys handled by dedicated controls and never offered as property filters. */
 export const isDedicatedStacQueryable = (key: string) => ['datetime', 'geometry', 'bbox'].includes(key);
+
+// ---------------------------------------------------------------------------
+// STAC Query extension (`query={"prop":{"lt":5}}`), used by servers such as
+// Element 84 Earth Search that do not implement CQL2 filtering.
+// ---------------------------------------------------------------------------
+
+export type StacFilterStyle = 'cql2' | 'query';
+
+const QUERY_OPS: Partial<Record<StacPropertyOperator, string>> = {
+  eq: 'eq', neq: 'neq', lt: 'lt', lte: 'lte', gt: 'gt', gte: 'gte', like: 'contains', in: 'in',
+};
+
+const typedValue = (type: StacPropertyType, value: string): unknown => {
+  if (type === 'number') return Number(value);
+  if (type === 'boolean') return value === 'true';
+  return value;
+};
+
+export const serialiseStacQueryExtension = (rules: StacPropertyRule[]): string => {
+  const out: Record<string, Record<string, unknown>> = {};
+  for (const rule of rules) {
+    const target = (out[rule.property] ??= {});
+    if (rule.operator === 'between') {
+      target.gte = typedValue(rule.type, rule.values[0]);
+      target.lte = typedValue(rule.type, rule.values[1]);
+    } else if (rule.operator === 'in') {
+      target.in = rule.values.map((v) => typedValue(rule.type, v));
+    } else {
+      target[QUERY_OPS[rule.operator]!] = typedValue(rule.type, rule.values[0]);
+    }
+  }
+  return JSON.stringify(out);
+};
+
+const typeOfValue = (value: unknown): StacPropertyType | undefined => {
+  if (typeof value === 'number') return 'number';
+  if (typeof value === 'boolean') return 'boolean';
+  if (typeof value === 'string') return /^\d{4}-\d{2}-\d{2}T/.test(value) ? 'datetime' : 'string';
+  return undefined;
+};
+
+/** Parses a Query-extension JSON object into rules; undefined when any part is unsupported. */
+export const parseStacQueryExtension = (text: string): StacPropertyRule[] | undefined => {
+  let data: unknown;
+  try { data = JSON.parse(text); } catch { return undefined; }
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return undefined;
+  const rules: StacPropertyRule[] = [];
+  for (const [property, ops] of Object.entries(data as Record<string, unknown>)) {
+    if (!ops || typeof ops !== 'object' || Array.isArray(ops)) return undefined;
+    const entries = { ...(ops as Record<string, unknown>) };
+    if ('gte' in entries && 'lte' in entries && typeOfValue(entries.gte) && typeOfValue(entries.gte) === typeOfValue(entries.lte)) {
+      rules.push({ property, type: typeOfValue(entries.gte)!, operator: 'between', values: [String(entries.gte), String(entries.lte)] });
+      delete entries.gte; delete entries.lte;
+    }
+    for (const [op, value] of Object.entries(entries)) {
+      if (op === 'in') {
+        if (!Array.isArray(value) || !value.length) return undefined;
+        const type = typeOfValue(value[0]);
+        if (!type || value.some((v) => typeOfValue(v) !== type)) return undefined;
+        rules.push({ property, type, operator: 'in', values: value.map(String) });
+        continue;
+      }
+      const operator = (Object.entries(QUERY_OPS).find(([, q]) => q === op)?.[0]) as StacPropertyOperator | undefined;
+      const type = typeOfValue(value);
+      if (!operator || !type) return undefined;
+      rules.push({ property, type: operator === 'like' ? 'string' : type, operator, values: [String(value)] });
+    }
+  }
+  return rules;
+};
+
+/** Filter style already used by a URL, if any. */
+export const getStacFilterStyleFromUrl = (url: string): StacFilterStyle | undefined => {
+  try {
+    const params = new URL(url).searchParams;
+    if (params.get('query')?.trim()) return 'query';
+    if (params.get('filter')?.trim()) return 'cql2';
+  } catch { /* ignore */ }
+  return undefined;
+};
+
+export interface StacFilterSupport { style: StacFilterStyle; advertised: boolean }
+const filterSupportCache = new Map<string, Promise<StacFilterSupport>>();
+
+/** Catalogue root of an items/search/collection URL. */
+export const getStacApiRoot = (url: string): string => {
+  const base = getStacUrlBase(url);
+  const m = base.match(/^(.*?)\/(?:collections|search)(?:\/|$)/);
+  return (m ? m[1] : base).replace(/\/$/, '') + '/';
+};
+
+/** Reads the catalogue's `conformsTo` and picks CQL2 filter or the Query extension. Cached per root. */
+export const detectStacFilterSupport = (
+  url: string,
+  fetcher: FetchLike = fetch as unknown as FetchLike,
+): Promise<StacFilterSupport> => {
+  const root = getStacApiRoot(url);
+  const cached = filterSupportCache.get(root);
+  if (cached) return cached;
+  const promise = (async (): Promise<StacFilterSupport> => {
+    try {
+      const response = await fetcher(root, { headers: { Accept: 'application/json' } });
+      const data = response.ok ? await response.json() : null;
+      const conforms: string[] = Array.isArray(data?.conformsTo) ? data.conformsTo : [];
+      if (conforms.some((c) => /filter|cql2/i.test(c))) return { style: 'cql2', advertised: true };
+      if (conforms.some((c) => /#query$/.test(c))) return { style: 'query', advertised: true };
+    } catch { /* fall through */ }
+    return { style: 'cql2', advertised: false };
+  })();
+  filterSupportCache.set(root, promise);
+  return promise;
+};
