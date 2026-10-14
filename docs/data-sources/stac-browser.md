@@ -97,6 +97,8 @@ For STAC items endpoints, **+ Add property filter** lists the properties the col
 
 Filters are saved only in the data source URL as `filter=<CQL2 text>&filter-lang=cql2-text`. If a collection does not publish queryables, enter the property name and type manually. Filters the editor cannot split into simple rules (for example ones using OR) are shown as a single **Custom filter** that you can edit as raw text.
 
+Not every catalogue understands CQL2. The editor reads the catalogue's conformance list and, when it only supports the older STAC **Query extension** (for example Element 84 Earth Search), writes the same rules as `query={"eo:cloud_cover":{"lt":5}}` instead. A small **CQL2** or **Query extension** badge beside the filters shows which style is in use. If a catalogue advertises neither, the Test result warns that filters may be ignored.
+
 ## Query method: items or search
 
 The query editor offers a **Query method** choice between the **Items endpoint** (`.../collections/{id}/items?…`, the default) and the **Search endpoint** (`.../search?collections={id}&…`). Switching rewrites the address and keeps every filter — bbox, datetime, limit and property filters — intact. Some servers only evaluate property filters on the search endpoint, so if a filter has no effect on the result set, switch to **Search endpoint** and use **Test filter** to confirm. A pasted `/search?collections=…` address is recognised directly. Searches spanning several collections (`collections=a,b`) are recognised but cannot be switched back to the items endpoint, which serves a single collection.
