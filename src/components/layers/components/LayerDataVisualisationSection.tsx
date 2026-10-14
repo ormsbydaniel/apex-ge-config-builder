@@ -17,6 +17,9 @@ import GradientEditorDialog from '@/components/form/GradientEditorDialog';
 import { RgbCompositeEditorDialog } from '@/components/layers/components/RgbCompositeEditorDialog';
 import VectorStylingDialog from '@/components/layers/components/VectorStylingDialog';
 import JsonStyleEditorDialog from '@/components/layers/components/JsonStyleEditorDialog';
+import DisplaySettingsDialog from '@/components/layers/components/DisplaySettingsDialog';
+import { SlidersHorizontal } from 'lucide-react';
+import { clearDisplaySettings, extractDisplaySettings, summariseDisplay } from '@/utils/displaySettings';
 import VectorStyleSummary from '@/components/layers/components/VectorStyleSummary';
 import { countOwn, isCog, stripVisualisation } from '@/utils/rgbComposite/perDataset';
 
@@ -32,6 +35,7 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
   const [gradientDialogOpen, setGradientDialogOpen] = useState(false);
   const [vectorStylingDialogOpen, setVectorStylingDialogOpen] = useState(false);
   const [jsonStyleDialogOpen, setJsonStyleDialogOpen] = useState(false);
+  const [displayDialogOpen, setDisplayDialogOpen] = useState(false);
   const categories = source.meta?.categories || [];
   const colormaps = source.meta?.colormaps || [];
   
@@ -400,6 +404,31 @@ const LayerDataVisualisationSection = ({ source, onUpdateMeta, onUpdateDataSourc
             onUpdateDataSources={onUpdateDataSources}
           />
         </div>
+
+        {/* Display Settings sub-section (not shown for base layers) */}
+        {!source.isBaseLayer && (source.data || []).length > 0 && (() => {
+          const summary = summariseDisplay(extractDisplaySettings(source.data[0]));
+          return (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide min-w-[175px]">
+                  Display Settings <span className="normal-case tracking-normal font-normal italic">({summary ?? 'Default'})</span>
+                </span>
+                <Button variant="ghost" size="icon" className="h-4 w-4 p-0" onClick={() => setDisplayDialogOpen(true)} aria-label="Open Display Settings">
+                  <Pencil className="h-2.5 w-2.5" />
+                </Button>
+                {source.data.some(d => summariseDisplay(extractDisplaySettings(d))) && (
+                  <Button variant="ghost" size="icon" className="h-4 w-4 p-0 text-destructive hover:text-destructive/80" aria-label="Reset display settings"
+                    onClick={() => onUpdateDataSources(source.data.map(clearDisplaySettings))}>
+                    <Trash2 className="h-2.5 w-2.5" />
+                  </Button>
+                )}
+              </div>
+              <DisplaySettingsDialog open={displayDialogOpen} onOpenChange={setDisplayDialogOpen} source={source} onUpdateDataSources={onUpdateDataSources} />
+            </div>
+          );
+        })()}
 
         {/* JSON Style Editor sub-section (not shown for base layers) */}
         {!source.isBaseLayer && (source.data || []).length > 0 && (
