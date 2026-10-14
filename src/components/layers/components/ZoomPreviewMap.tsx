@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
@@ -17,15 +17,24 @@ interface ZoomPreviewMapProps {
 /** Keeps the map zoom in step with the value and reports user zooming back. */
 const ZoomSync: React.FC<{ zoom: number; open: boolean; onZoom: (z: number) => void }> = ({ zoom, open, onZoom }) => {
   const map = useMap();
+  const programmatic = useRef(false);
   useEffect(() => {
     if (!open) return;
     const t = setTimeout(() => map.invalidateSize(), 150);
     return () => clearTimeout(t);
   }, [open, map]);
   useEffect(() => {
-    if (map.getZoom() !== zoom) map.setZoom(zoom, { animate: false });
+    if (map.getZoom() !== zoom) {
+      programmatic.current = true;
+      map.setZoom(zoom, { animate: false });
+    }
   }, [zoom, map]);
-  useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
+  useMapEvents({
+    zoomend: () => {
+      if (programmatic.current) { programmatic.current = false; return; }
+      onZoom(map.getZoom());
+    },
+  });
   return null;
 };
 
