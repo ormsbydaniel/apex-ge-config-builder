@@ -203,3 +203,40 @@ describe('STAC collection identifiers', () => {
     expect(getStacCollectionIds('not a url')).toEqual([]);
   });
 });
+
+import {
+  detectStacFilterSupport as detectSupport,
+  parseStacCql2Filter as parseFilter,
+  updateStacCql2Filter as updateFilter,
+  getStacApiRoot,
+} from '../stacQuery';
+
+describe('STAC Query extension', () => {
+  const base = 'https://earth-search.aws.element84.com/v1/search?collections=s2&limit=10';
+  it('writes and parses query= round trips', () => {
+    const url = updateFilter(base, [
+      { property: 'eo:cloud_cover', type: 'number', operator: 'lt', values: ['5'] },
+      { property: 'platform', type: 'string', operator: 'in', values: ['sentinel-2a', 'sentinel-2b'] },
+    ], 'query');
+    const params = new URL(url).searchParams;
+    expect(JSON.parse(params.get('query')!)).toEqual({ 'eo:cloud_cover': { lt: 5 }, platform: { in: ['sentinel-2a', 'sentinel-2b'] } });
+    expect(params.get('filter')).toBeNull();
+    expect(params.get('limit')).toBe('10');
+    const parsed = parseFilter(url);
+    expect(parsed && 'rules' in parsed && parsed.rules.length).toBe(2);
+  });
+  it('keeps the existing style and clears both params on removal', () => {
+    const url = updateFilter(base, [{ property: 'x', type: 'number', operator: 'between', values: ['1', '3'] }], 'query');
+    const again = updateFilter(url, [{ property: 'x', type: 'number', operator: 'gt', values: ['2'] }]);
+    expect(new URL(again).searchParams.get('query')).toBe('{"x":{"gt":2}}');
+    const cleared = updateFilter(again, undefined);
+    expect(new URL(cleared).searchParams.has('query')).toBe(false);
+  });
+  it('picks the style from conformance', async () => {
+    expect(getStacApiRoot('https://a.org/v1/collections/c/items?x=1')).toBe('https://a.org/v1/');
+    const f = (conforms: string[]) => async () => ({ ok: true, json: async () => ({ conformsTo: conforms }) });
+    expect(await detectSupport('https://q.org/v1/search', f(['https://api.stacspec.org/v1.0.0/item-search#query']))).toEqual({ style: 'query', advertised: true });
+    expect(await detectSupport('https://c.org/v1/search', f(['http://www.opengis.net/spec/cql2/1.0/conf/cql2-text']))).toEqual({ style: 'cql2', advertised: true });
+    expect(await detectSupport('https://n.org/v1/search', f([]))).toEqual({ style: 'cql2', advertised: false });
+  });
+});

@@ -17,6 +17,7 @@ import {
   propertyTypeForQueryable,
   serialiseCql2Rule,
   updateStacCql2Filter,
+  type StacFilterStyle,
   type StacPropertyOperator,
   type StacPropertyRule,
   type StacPropertyType,
@@ -34,6 +35,8 @@ interface PropertyFilterDialogProps {
   /** When set, the dialog edits a raw CQL2 expression instead of a guided rule. */
   initialRaw?: string;
   onSave: (value: StacPropertyRule | string) => void;
+  /** Encoding used for property filters (CQL2 text or the Query extension). */
+  filterStyle?: StacFilterStyle;
   /** Offered when the test shows only the search endpoint honours the filter. */
   onSwitchToSearch?: () => void;
 }
@@ -48,7 +51,7 @@ const VERDICT_CLASS: Record<FilterVerdict, string> = {
 const MANUAL = '__manual__';
 const TYPES: StacPropertyType[] = ['string', 'number', 'datetime', 'boolean'];
 
-const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpenChange, itemsUrl, otherRules, initialRule, initialRaw, onSave, onSwitchToSearch }) => {
+const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpenChange, itemsUrl, otherRules, initialRule, initialRaw, onSave, onSwitchToSearch, filterStyle }) => {
   const rawMode = initialRaw !== undefined;
   const [queryables, setQueryables] = useState<StacQueryable[]>([]);
   const [loadState, setLoadState] = useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
@@ -125,7 +128,7 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
     setTestResult({ loading: true });
     setComparison(undefined);
     try {
-      const result = await compareStacFilterEndpoints(itemsUrl, filter);
+      const result = await compareStacFilterEndpoints(itemsUrl, filter, undefined, filterStyle);
       setComparison(result);
       setTestResult({});
     } catch (error) {
@@ -170,14 +173,14 @@ const PropertyFilterDialog: React.FC<PropertyFilterDialogProps> = ({ open, onOpe
           <DialogTitle>{rawMode ? 'Custom filter' : 'Property filter'}</DialogTitle>
           <DialogDescription>
             {rawMode
-              ? 'This filter cannot be broken into simple rules. It will be kept exactly as entered (CQL2 text).'
+              ? `This filter cannot be broken into simple rules. It will be kept exactly as entered (${filterStyle === 'query' ? 'Query extension JSON' : 'CQL2 text'}).`
               : 'Filter items by a property the collection publishes. Rules are combined with AND.'}
           </DialogDescription>
         </DialogHeader>
 
         {rawMode ? (
           <div className="space-y-2">
-            <Label htmlFor="stac-cql2-raw">CQL2 expression</Label>
+            <Label htmlFor="stac-cql2-raw">{filterStyle === 'query' ? 'Query extension JSON' : 'CQL2 expression'}</Label>
             <Textarea id="stac-cql2-raw" rows={4} className="font-mono text-xs" value={raw} onChange={(e) => setRaw(e.target.value)} />
           </div>
         ) : (

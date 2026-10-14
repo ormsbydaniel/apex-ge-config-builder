@@ -32,6 +32,9 @@ import {
   toStacDateTime,
   updateStacCoreQuery,
   updateStacCql2Filter,
+  detectStacFilterSupport,
+  getStacFilterStyleFromUrl,
+  type StacFilterSupport,
   validateBbox,
   type StacPropertyRule,
   type StacQueryTarget,
@@ -67,6 +70,17 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const [methodTest, setMethodTest] = useState<{ loading?: boolean; hasFilter: boolean; result?: FilterComparison; error?: string }>();
 
   const parsedQuery = parseStacCoreQuery(url);
+  const [filterSupport, setFilterSupport] = useState<StacFilterSupport>();
+  const queryableTarget = target?.kind === 'items' || target?.kind === 'search';
+  const apiRootKey = queryableTarget ? url.split(/\/(?:collections|search)(?:[/?#]|$)/)[0] : '';
+  useEffect(() => {
+    if (!apiRootKey) { setFilterSupport(undefined); return; }
+    let cancelled = false;
+    void detectStacFilterSupport(url).then((s) => { if (!cancelled) setFilterSupport(s); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiRootKey]);
+  const filterStyle = (filterSupport?.advertised ? filterSupport.style : undefined) ?? getStacFilterStyleFromUrl(url) ?? filterSupport?.style ?? 'cql2';
 
   useEffect(() => {
     if (limitOpen) {
@@ -129,7 +143,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
     const hasFilter = Boolean(f);
     setMethodTest({ loading: true, hasFilter });
     try {
-      const result = await compareStacFilterEndpoints(url, filter);
+      const result = await compareStacFilterEndpoints(url, filter, undefined, filterStyle);
       setMethodTest({ result, hasFilter });
     } catch (error) {
       setMethodTest({ hasFilter, error: error instanceof Error ? error.message : String(error) });
@@ -172,7 +186,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
   const rules = cql2 && 'rules' in cql2 ? cql2.rules : [];
   const openPropertyDialog = (edit: { index?: number; raw?: string }) => setPropertyEdit(edit);
   const saveFilter = (filter: StacPropertyRule[] | string | undefined) => {
-    try { onChange(updateStacCql2Filter(url, filter)); } catch { /* invalid URL */ }
+    try { onChange(updateStacCql2Filter(url, filter, filterStyle)); } catch { /* invalid URL */ }
   };
 
   const dateSummary = parsedQuery.datetimeStart || parsedQuery.datetimeEnd
@@ -259,6 +273,12 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
             </Button>
           </Badge>
         ))}
+        {queryable && filterSupport && (
+          <Badge variant="outline" className="py-1 px-2 text-xs font-normal text-muted-foreground"
+            title={filterStyle === 'query' ? 'Property filters are written as the STAC Query extension (query=…), the style this catalogue supports.' : 'Property filters are written as CQL2 text (filter=…).'}>
+            {filterStyle === 'query' ? 'Query extension' : 'CQL2'}
+          </Badge>
+        )}
         {!(cql2 && 'raw' in cql2) && (
           <Button type="button" variant="outline" size="sm" disabled={!queryable} onClick={() => openPropertyDialog({})}>+ Add property filter</Button>
         )}
@@ -316,6 +336,12 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
               </p>
             ) : null;
           })()}
+          {filterSupport && !filterSupport.advertised && methodTest?.hasFilter && (
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+              This catalogue does not advertise support for property filters (CQL2 or the Query extension), so they may be ignored.
+            </p>
+          )}
           <p className="text-xs text-muted-foreground">The test runs the query exactly as configured — area, date range, limit and property filters — fetching the first page only. Some servers only apply property filters on the search endpoint.</p>
         </div>
       )}
@@ -325,6 +351,7 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
           open={propertyEdit !== null}
           onOpenChange={(open) => { if (!open) setPropertyEdit(null); }}
           itemsUrl={target.kind === 'items' ? target.itemsUrl : target.searchUrl}
+          filterStyle={filterStyle}
           otherRules={rules.filter((_, i) => i !== propertyEdit?.index)}
           initialRule={propertyEdit?.index !== undefined ? rules[propertyEdit.index] : undefined}
           initialRaw={propertyEdit?.raw}

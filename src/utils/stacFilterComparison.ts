@@ -2,6 +2,7 @@ import {
   itemsUrlToSearchUrl,
   searchUrlToItemsUrl,
   updateStacCql2Filter,
+  type StacFilterStyle,
   type StacPropertyRule,
 } from '@/utils/stacQuery';
 
@@ -136,6 +137,7 @@ export async function compareStacFilterEndpoints(
   url: string,
   filter: StacPropertyRule[] | string,
   fetcher: FetchLike = fetch as unknown as FetchLike,
+  style?: StacFilterStyle,
 ): Promise<FilterComparison> {
   const isSearch = /\/search\/?(\?|$)/.test(url.split('#')[0]);
   const itemsBase = isSearch ? searchUrlToItemsUrl(url) : url;
@@ -146,10 +148,10 @@ export async function compareStacFilterEndpoints(
   const tasks: Promise<EndpointProbe>[] = [];
   if (itemsBase) {
     tasks.push(probe(fetcher, 'items-baseline', 'Items, no property filter', updateStacCql2Filter(itemsBase, undefined)));
-    tasks.push(probe(fetcher, 'items-filtered', 'Items + property filter', updateStacCql2Filter(itemsBase, filter), rules));
+    tasks.push(probe(fetcher, 'items-filtered', 'Items + property filter', updateStacCql2Filter(itemsBase, filter, style), rules));
   }
   if (searchBase) {
-    tasks.push(probe(fetcher, 'search-filtered', 'Search + property filter', updateStacCql2Filter(searchBase, filter), rules));
+    tasks.push(probe(fetcher, 'search-filtered', 'Search + property filter', updateStacCql2Filter(searchBase, filter, style), rules));
   }
   const probes = await Promise.all(tasks);
   const baseline = probes.find((p) => p.key === 'items-baseline');

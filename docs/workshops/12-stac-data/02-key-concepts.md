@@ -57,4 +57,9 @@ The query editor lets you switch between the two while keeping your filters,
 and its **Test** button shows how many items each endpoint returns, so you can
 see whether a server honours your filters.
 
+Property filters are written in one of two styles, depending on what the
+catalogue supports: CQL2 (`filter=...`) or the older Query extension
+(`query=...`, used by Element 84 Earth Search). The editor picks the right one
+automatically.
+
 For more detail, see [STAC browser](../../data-sources/stac-browser.md).
