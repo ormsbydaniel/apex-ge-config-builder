@@ -35,3 +35,8 @@ title: 2-5. Add recommended base maps
     [ESA-APEx configs manifest](https://github.com/ESA-APEx/apex_geospatial_explorer_configs).
     New base maps added to the manifest become available in the CB without a
     redeploy. See [Base layers](../../layers/base-layers.md) for details.
+
+!!! tip "Want more choice?"
+    **Browse Basemap Gallery**, next to **Add Recommended Base Layers**, lists
+    hundreds of free background maps you can add with one click. See
+    [Base layers](../../layers/base-layers.md#basemap-gallery).
