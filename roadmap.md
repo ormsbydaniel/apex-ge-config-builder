@@ -46,6 +46,7 @@
 - [ ] Later: CSV assets and remaining format-specific tools (constraints, validation) on effective format
 
 ## STAC item queries
+- [x] Replace the coupled range calendar with independent start/end popover calendars with month/year selection, retaining presets, open endpoints and optional times.
 - [x] Assess queryables-driven support and scope the first release to core URL parameters.
 - [x] Add guided bbox, datetime, and limit controls with URL-only persistence.
 - [x] Simplify the STAC form with side-by-side asset fields, inline result limit, and badge-based date/bbox dialogs.
