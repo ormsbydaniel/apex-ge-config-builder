@@ -3,7 +3,11 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download, LayoutGrid } from 'lucide-react';
+import BasemapGalleryDialog from './BasemapGalleryDialog';
+import { useLayersTabContext } from '@/contexts/LayersTabContext';
+import { useConfig } from '@/contexts/ConfigContext';
+import { toast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DataSource } from '@/types/config';
 import { calculateQAStats } from '@/utils/qaUtils';
@@ -67,12 +71,35 @@ const BaseLayerGroup = ({
   isLoadingRecommended
 }: BaseLayerGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
+  const { config: tabConfig, onUpdateConfig } = useLayersTabContext();
+  const { config: fullConfig } = useConfig();
+  const [showGallery, setShowGallery] = useState(false);
+  const mapCenter = ((fullConfig as any).mapConstraints?.center as [number, number] | undefined) || [0, 20];
+  const existingBaseUrls = baseLayers.flatMap(({ layer }) => (layer.data || []).map((d) => d.url).filter(Boolean) as string[]);
+
+  const handleGalleryConfirm = (added: DataSource[]) => {
+    const makeActive = added.some((l) => l.isActive);
+    const current = makeActive
+      ? tabConfig.sources.map((s) => (s.isBaseLayer && s.isActive ? { ...s, isActive: false } : s))
+      : tabConfig.sources;
+    onUpdateConfig({ sources: [...current, ...added] });
+    setShowGallery(false);
+    if (!isExpanded) onToggle();
+    toast({ title: 'Base maps added', description: `Added ${added.length} base map${added.length !== 1 ? 's' : ''} from the gallery.` });
+  };
 
   // Calculate QA stats for base layers
   const qaStats = calculateQAStats(baseLayers.map(item => item.layer));
 
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      <BasemapGalleryDialog
+        open={showGallery}
+        onClose={() => setShowGallery(false)}
+        center={mapCenter}
+        existingUrls={existingBaseUrls}
+        onConfirm={handleGalleryConfirm}
+      />
       <Card className="border-green-200">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -127,6 +154,15 @@ const BaseLayerGroup = ({
               >
                 <Download className="h-3 w-3 mr-1" />
                 {isLoadingRecommended ? 'Loading...' : 'Add Recommended Base Layers'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowGallery(true)}
+                className="text-primary hover:bg-primary/10 border-primary/30"
+              >
+                <LayoutGrid className="h-3 w-3 mr-1" />
+                Browse Basemap Gallery
               </Button>
               <Button
                 variant="outline"
