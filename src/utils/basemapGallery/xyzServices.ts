@@ -33,6 +33,9 @@ export interface GalleryEntry {
   maxZoom?: number;
   attributionText: string;
   attributionUrl?: string;
+  bounds?: LatLngBounds;
+  isPolar?: boolean;
+  coverage: BasemapCoverage;
 }
 
 const KEY_MARKER = '<insert your';
@@ -63,6 +66,48 @@ export const parseHtmlAttributionUrl = (html?: string): string | undefined => {
 
 const cleanAttribution = (text?: string) => (text || '').replace(/\(C\)/g, '©').trim();
 
+export type BasemapCoverage = 'Global' | 'Regional' | 'National';
+export const BASEMAP_COVERAGES: BasemapCoverage[] = ['Global', 'Regional', 'National'];
+/** Bounds as [[south, west], [north, east]] in degrees. */
+export type LatLngBounds = [[number, number], [number, number]];
+
+const NATIONAL_MAX_AREA = 200; // square degrees: roughly one country or less
+
+const parseBounds = (v: unknown): { bounds?: LatLngBounds; polar: boolean } => {
+  if (!Array.isArray(v) || v.length !== 2) return { polar: false };
+  const flat = (v as unknown[]).flat();
+  if (flat.length !== 4 || !flat.every((n) => typeof n === 'number' && isFinite(n))) return { polar: false };
+  const [a, b, c, d] = flat as number[];
+  // Values outside degree ranges mean projected (metre) bounds, used by polar maps
+  if ([a, b, c, d].some((n) => Math.abs(n) > 360)) return { polar: true };
+  return { bounds: [[Math.min(a, c), Math.min(b, d)], [Math.max(a, c), Math.max(b, d)]], polar: false };
+};
+
+export const classifyCoverage = (bounds?: LatLngBounds, polar = false): BasemapCoverage => {
+  if (polar) return 'Regional';
+  if (!bounds) return 'Global';
+  const latSpan = bounds[1][0] - bounds[0][0];
+  const lngSpan = bounds[1][1] - bounds[0][1];
+  if (lngSpan >= 300 && latSpan >= 140) return 'Global';
+  return latSpan * lngSpan < NATIONAL_MAX_AREA ? 'National' : 'Regional';
+};
+
+/** Whether the map covers `point` ([lng, lat]). */
+export const coversPoint = (entry: Pick<GalleryEntry, 'coverage' | 'bounds' | 'isPolar'>, point: [number, number]): boolean => {
+  const [lng, lat] = point;
+  if (entry.isPolar) return Math.abs(lat) > 60;
+  if (entry.coverage === 'Global' || !entry.bounds) return true;
+  const [[s, w], [n, e]] = entry.bounds;
+  return lat >= s && lat <= n && lng >= w && lng <= e;
+};
+
+/** Centre used for thumbnails: the project centre if covered, else the middle of the map's own area. */
+export const entryPreviewCenter = (entry: GalleryEntry, fallback: [number, number]): [number, number] => {
+  if (coversPoint(entry, fallback) || !entry.bounds) return fallback;
+  const [[s, w], [n, e]] = entry.bounds;
+  return [(w + e) / 2, (s + n) / 2];
+};
+
 const toEntry = (provider: string, raw: RawProvider): GalleryEntry | null => {
   if (!raw.url || !/\{z\}/.test(raw.url) || !/\{x\}/.test(raw.url) || !/\{y\}/.test(raw.url)) return null;
   if (raw.status && /broken/i.test(String(raw.status))) return null;
@@ -71,6 +116,7 @@ const toEntry = (provider: string, raw: RawProvider): GalleryEntry | null => {
   );
   const requiresKey = !!keyField && !OPTIONAL_KEY_PROVIDERS.has(provider);
   const name = (raw.name || provider).replace(/\./g, ' ');
+  const { bounds, polar } = parseBounds(raw.bounds);
   return {
     id: raw.name || provider,
     name,
@@ -83,6 +129,9 @@ const toEntry = (provider: string, raw: RawProvider): GalleryEntry | null => {
     maxZoom: typeof raw.max_zoom === 'number' ? raw.max_zoom : undefined,
     attributionText: cleanAttribution(raw.attribution),
     attributionUrl: parseHtmlAttributionUrl(raw.html_attribution),
+    bounds,
+    isPolar: polar,
+    coverage: classifyCoverage(bounds, polar),
   };
 };
 
