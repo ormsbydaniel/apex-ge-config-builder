@@ -17,6 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { compareStacFilterEndpoints, type FilterComparison, type FilterVerdict } from '@/utils/stacFilterComparison';
 import PropertyFilterDialog from './PropertyFilterDialog';
 import StacBboxMap from './StacBboxMap';
+import StacDateRangePicker from './StacDateRangePicker';
 import {
   describeStacPropertyRule,
   getStacCollectionIds,
@@ -408,15 +409,12 @@ const StacQueryEditor: React.FC<StacQueryEditorProps> = ({ url, onChange }) => {
       </Dialog>
 
       <Dialog open={dateOpen} onOpenChange={setDateOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Date filter</DialogTitle>
-            <DialogDescription>Set a start, an end, or both. Leave one side empty for an open interval.</DialogDescription>
+            <DialogDescription>Pick a preset, or click a start day then an end day. Either side can be left open.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2"><Label htmlFor="stac-datetime-start">Start date and time</Label><Input id="stac-datetime-start" type="datetime-local" value={start} onChange={(event) => setStart(event.target.value)} /></div>
-            <div className="space-y-2"><Label htmlFor="stac-datetime-end">End date and time</Label><Input id="stac-datetime-end" type="datetime-local" value={end} onChange={(event) => setEnd(event.target.value)} /></div>
-          </div>
+          <StacDateRangePicker start={start} end={end} onChange={(s, e) => { setStart(s); setEnd(e); }} />
           {dateError && <p className="text-xs text-destructive">{dateError}</p>}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDateOpen(false)}>Cancel</Button>
