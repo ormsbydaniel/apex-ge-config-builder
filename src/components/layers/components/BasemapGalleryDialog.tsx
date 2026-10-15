@@ -129,7 +129,7 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
                     <Checkbox checked={isSel} disabled={added} onCheckedChange={() => toggle(e.id)} onClick={(ev) => ev.stopPropagation()} />
                     <div className="h-12 w-12 shrink-0 rounded border bg-muted overflow-hidden">
                       {!(e.requiresKey && !keys[e.id]) && (
-                        <img src={previewTileUrl(tpl, center, 4)} alt="" loading="lazy" className="h-full w-full object-cover"
+                        <img src={previewTileUrl(tpl, center, Math.min(Math.max(e.minZoom ?? 0, 4), e.maxZoom ?? 20))} alt="" loading="lazy" className="h-full w-full object-cover"
                           onError={(ev) => { (ev.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }} />
                       )}
                     </div>
