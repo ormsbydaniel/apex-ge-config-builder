@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertTriangle, Key, Loader2, Map as MapIcon } from 'lucide-react';
 import { DataSource } from '@/types/config';
 import {
-  BASEMAP_CATEGORIES, BasemapCategory, GalleryEntry, fetchXyzProviders, previewTileUrl, resolveTemplate, toBaseLayer,
+  BASEMAP_CATEGORIES, BASEMAP_COVERAGES, BasemapCategory, BasemapCoverage, coversPoint, entryPreviewCenter, GalleryEntry, fetchXyzProviders, previewTileUrl, resolveTemplate, toBaseLayer,
 } from '@/utils/basemapGallery/xyzServices';
 
 interface Props {
@@ -35,6 +35,8 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
   const [selected, setSelected] = useState<string[]>([]);
   const [keys, setKeys] = useState<Record<string, string>>({});
   const [highlight, setHighlight] = useState<string | null>(null);
+  const [coverage, setCoverage] = useState<BasemapCoverage | 'All'>('All');
+  const [onCentre, setOnCentre] = useState(false);
   const [activeOnLoad, setActiveOnLoad] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
 
@@ -57,13 +59,16 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
     return entries.filter((e) =>
       (showKeyed || !e.requiresKey) &&
       (category === 'All' || e.category === category) &&
+      (coverage === 'All' || e.coverage === coverage) &&
+      (!onCentre || coversPoint(e, center)) &&
       (!q || e.name.toLowerCase().includes(q) || e.provider.toLowerCase().includes(q)),
     );
-  }, [entries, search, category, showKeyed]);
+  }, [entries, search, category, showKeyed, coverage, onCentre, center]);
 
   const byId = useMemo(() => new Map(entries.map((e) => [e.id, e])), [entries]);
   const highlighted = highlight ? byId.get(highlight) : undefined;
   const highlightUrl = highlighted ? resolveTemplate(highlighted, keys[highlighted.id]) : undefined;
+  const highlightCenter = highlighted ? entryPreviewCenter(highlighted, center) : center;
   const highlightNeedsKey = !!highlighted?.requiresKey && !keys[highlighted.id]?.trim();
 
   const toggle = (id: string) => {
@@ -106,6 +111,18 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
             {(['All', ...BASEMAP_CATEGORIES] as const).map((c) => <TabsTrigger key={c} value={c}>{c}</TabsTrigger>)}
           </TabsList>
         </Tabs>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-muted-foreground">Coverage</span>
+          <Tabs value={coverage} onValueChange={(v) => setCoverage(v as BasemapCoverage | 'All')}>
+            <TabsList>
+              {(['All', ...BASEMAP_COVERAGES] as const).map((c) => <TabsTrigger key={c} value={c}>{c}</TabsTrigger>)}
+            </TabsList>
+          </Tabs>
+          <div className="flex items-center gap-2">
+            <Switch id="bg-centre" checked={onCentre} onCheckedChange={setOnCentre} />
+            <Label htmlFor="bg-centre" className="text-sm">Covers map centre</Label>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-4 min-h-0 flex-1">
           <ScrollArea className="h-[48vh] border rounded-md">
@@ -122,6 +139,7 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
                 const tpl = resolveTemplate(e, keys[e.id]);
                 const added = existing.has(tpl);
                 const isSel = selected.includes(e.id);
+                const covers = coversPoint(e, center);
                 return (
                   <div key={e.id}
                     className={`flex items-center gap-3 p-2 cursor-pointer ${highlight === e.id ? 'bg-muted' : 'hover:bg-muted/50'} ${added ? 'opacity-50' : ''}`}
@@ -129,17 +147,18 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
                     <Checkbox checked={isSel} disabled={added} onCheckedChange={() => toggle(e.id)} onClick={(ev) => ev.stopPropagation()} />
                     <div className="h-12 w-12 shrink-0 rounded border bg-muted overflow-hidden">
                       {!(e.requiresKey && !keys[e.id]) && (
-                        <img src={previewTileUrl(tpl, center, Math.min(Math.max(e.minZoom ?? 0, 4), e.maxZoom ?? 20))} alt="" loading="lazy" className="h-full w-full object-cover"
+                        <img src={previewTileUrl(tpl, entryPreviewCenter(e, center), Math.min(Math.max(e.minZoom ?? 0, 4), e.maxZoom ?? 20))} alt="" loading="lazy" className="h-full w-full object-cover"
                           onError={(ev) => { (ev.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }} />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{e.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{e.provider} · {e.category}</p>
+                      <p className="text-xs text-muted-foreground truncate">{e.provider} · {e.category}{!covers && ' · Outside map centre'}</p>
                     </div>
                     {(e.minZoom !== undefined || e.maxZoom !== undefined) && (
                       <Badge variant="outline" className="text-[10px]">z{e.minZoom ?? 0}–{e.maxZoom ?? '…'}</Badge>
                     )}
+                    <Badge variant="outline" className="text-[10px]">{e.isPolar ? 'Polar' : e.coverage}</Badge>
                     {e.requiresKey && <Badge variant="secondary" className="text-[10px]"><Key className="h-3 w-3 mr-1" />Key</Badge>}
                     {added && <Badge variant="outline" className="text-[10px]">Added</Badge>}
                   </div>
@@ -154,7 +173,7 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
                 <p className="text-sm font-medium">{highlighted.name}</p>
                 <div className="h-56 rounded-md overflow-hidden border">
                   {highlightUrl && !highlightNeedsKey ? (
-                    <MapContainer key={highlightUrl} center={[center[1], center[0]]} zoom={Math.max(highlighted.minZoom ?? 0, 4)}
+                    <MapContainer key={highlightUrl} center={[highlightCenter[1], highlightCenter[0]]} zoom={Math.max(highlighted.minZoom ?? 0, 4)}
                       minZoom={highlighted.minZoom ?? 0} maxZoom={highlighted.maxZoom ?? 19} className="h-full w-full" attributionControl={false}>
                       <TileLayer url={highlightUrl} />
                     </MapContainer>

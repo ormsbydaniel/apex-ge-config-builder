@@ -91,3 +91,7 @@ OpenStreetMap, OpenTopoMap, USGS, NASA GIBS and more).
 Each map is saved as a normal base layer — name, XYZ tile address,
 attribution, preview thumbnail and zoom limits filled in — and can be edited
 afterwards like any other. Each provider's terms of use still apply.
+
+### Coverage filters
+
+Many gallery maps only cover part of the world. Use the **Coverage** filter (Global, Regional, National) and the **Covers map centre** switch to find maps that show something at your project's map centre. Maps outside the centre are marked **Outside map centre**, and their thumbnails show the map's own area instead.
