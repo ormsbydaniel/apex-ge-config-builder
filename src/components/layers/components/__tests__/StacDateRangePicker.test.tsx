@@ -10,7 +10,7 @@ describe('STAC independent date pickers', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Start date' }));
     fireEvent.change(screen.getByRole('combobox', { name: 'Year:' }), { target: { value: '2023' } });
     fireEvent.change(screen.getByRole('combobox', { name: 'Month:' }), { target: { value: '2' } });
-    fireEvent.click(screen.getByRole('gridcell', { name: '15', exact: true }));
+    fireEvent.click(screen.getByRole('gridcell', { name: /^15$/ }));
     expect(onChange).toHaveBeenCalledWith('2023-03-15T00:00', '2025-06-20T23:59');
   });
 
@@ -20,7 +20,7 @@ describe('STAC independent date pickers', () => {
     fireEvent.click(screen.getByRole('button', { name: 'End date' }));
     expect(screen.getByRole('combobox', { name: 'Year:' })).toHaveValue('2025');
     expect(screen.getByRole('combobox', { name: 'Month:' })).toHaveValue('5');
-    fireEvent.click(screen.getByRole('gridcell', { name: '18', exact: true }));
+    fireEvent.click(screen.getByRole('gridcell', { name: /^18$/ }));
     expect(onChange).toHaveBeenCalledWith('2022-01-10T00:00', '2025-06-18T23:59');
   });
 
