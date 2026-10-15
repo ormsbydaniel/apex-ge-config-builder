@@ -203,7 +203,7 @@ export const toBaseLayer = (
     name: entry.name,
     isActive: !!opts.isActive,
     isBaseLayer: true,
-    preview: previewTileUrl(url, opts.center, previewZoom),
+    preview: previewTileUrl(url, entryPreviewCenter(entry, opts.center), previewZoom),
     meta: {
       description: '',
       attribution: {
