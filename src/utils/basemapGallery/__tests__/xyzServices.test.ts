@@ -44,19 +44,27 @@ describe('xyzServices', () => {
   });
 });
 
-import { classifyCoverage, coversPoint, entryPreviewCenter } from '../xyzServices';
+import { classifyCoverage, coversPoint, entryPreviewCenter, lookupCountry } from '../xyzServices';
 describe('coverage', () => {
-  it('classifies bounds', () => {
-    expect(classifyCoverage(undefined)).toBe('Global');
+  it('classifies coverage', () => {
+    expect(classifyCoverage(undefined)).toBe('Unknown');
     expect(classifyCoverage([[-85, -180], [85, 180]])).toBe('Global');
-    expect(classifyCoverage([[45, 5], [48, 11]])).toBe('National');
-    expect(classifyCoverage([[35, -25], [72, 45]])).toBe('Regional');
+    expect(classifyCoverage([[45, 5], [48, 11]])).toBe('Regional');
+    expect(classifyCoverage([[45, 5], [48, 11]], false, 'Switzerland')).toBe('National');
+    expect(classifyCoverage([[46, -6], [50, 1]], false, null)).toBe('Regional');
     expect(classifyCoverage(undefined, true)).toBe('Regional');
+  });
+  it('looks up single-country maps, variant before family', () => {
+    expect(lookupCountry('OpenStreetMap', 'OpenStreetMap.CH')).toBe('Switzerland');
+    expect(lookupCountry('OpenStreetMap', 'OpenStreetMap.BZH')).toBeNull();
+    expect(lookupCountry('OpenStreetMap', 'OpenStreetMap.Mapnik')).toBeUndefined();
+    expect(lookupCountry('nlmaps', 'nlmaps.pastel')).toBe('Netherlands');
   });
   it('checks centre coverage and preview centre', () => {
     const ch = { coverage: 'National' as const, bounds: [[45, 5], [48, 11]] as [[number, number], [number, number]] };
     expect(coversPoint(ch, [8, 46.5])).toBe(true);
     expect(coversPoint(ch, [0, 51])).toBe(false);
+    expect(coversPoint({ coverage: 'Unknown' }, [0, 51])).toBeUndefined();
     expect(coversPoint({ coverage: 'Regional', isPolar: true }, [0, 51])).toBe(false);
     expect(entryPreviewCenter(ch as any, [0, 51])).toEqual([8, 46.5]);
   });

@@ -60,7 +60,7 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
       (showKeyed || !e.requiresKey) &&
       (category === 'All' || e.category === category) &&
       (coverage === 'All' || e.coverage === coverage) &&
-      (!onCentre || coversPoint(e, center)) &&
+      (!onCentre || coversPoint(e, center) === true) &&
       (!q || e.name.toLowerCase().includes(q) || e.provider.toLowerCase().includes(q)),
     );
   }, [entries, search, category, showKeyed, coverage, onCentre, center]);
@@ -153,12 +153,12 @@ const BasemapGalleryDialog: React.FC<Props> = ({ open, onClose, center, existing
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{e.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{e.provider} · {e.category}{!covers && ' · Outside map centre'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{e.provider} · {e.category}{covers === false && ' · Outside map centre'}</p>
                     </div>
                     {(e.minZoom !== undefined || e.maxZoom !== undefined) && (
                       <Badge variant="outline" className="text-[10px]">z{e.minZoom ?? 0}–{e.maxZoom ?? '…'}</Badge>
                     )}
-                    <Badge variant="outline" className="text-[10px]">{e.isPolar ? 'Polar' : e.coverage}</Badge>
+                    <Badge variant="outline" className="text-[10px]">{e.isPolar ? 'Polar' : e.country ? `National · ${e.country}` : e.coverage}</Badge>
                     {e.requiresKey && <Badge variant="secondary" className="text-[10px]"><Key className="h-3 w-3 mr-1" />Key</Badge>}
                     {added && <Badge variant="outline" className="text-[10px]">Added</Badge>}
                   </div>
