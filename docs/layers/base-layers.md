@@ -70,3 +70,24 @@ rather than a data overlay.
 - [XYZ](../data-sources/xyz.md) and
   [WMS / WMTS / WFS](../data-sources/wms-wmts-wfs.md) — common base-layer
   source formats.
+
+## Basemap Gallery
+
+Select **Browse Basemap Gallery** in the Base Layers header to choose from
+hundreds of ready-made background maps in the open
+[xyzservices](https://github.com/geopandas/xyzservices) registry (CARTO, Esri,
+OpenStreetMap, OpenTopoMap, USGS, NASA GIBS and more).
+
+- Filter by category (Satellite, Light, Dark, Terrain, Streets, Specialist)
+  or search by name or provider.
+- Only free maps are listed by default. Turn on **Show maps that need an API
+  key** to include the rest; selecting one asks for its key. Keys are written
+  into the tile address, so they are visible in the saved configuration.
+- Click a row to see a live preview at your map centre.
+- Maps already in your configuration are marked **Added**.
+- Tick **Display first selection on load** to make the first chosen map the
+  default.
+
+Each map is saved as a normal base layer — name, XYZ tile address,
+attribution, preview thumbnail and zoom limits filled in — and can be edited
+afterwards like any other. Each provider's terms of use still apply.
