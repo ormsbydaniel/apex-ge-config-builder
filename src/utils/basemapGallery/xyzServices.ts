@@ -36,6 +36,8 @@ export interface GalleryEntry {
   bounds?: LatLngBounds;
   isPolar?: boolean;
   coverage: BasemapCoverage;
+  /** Set for National maps. */
+  country?: string;
 }
 
 const KEY_MARKER = '<insert your';
@@ -66,12 +68,38 @@ export const parseHtmlAttributionUrl = (html?: string): string | undefined => {
 
 const cleanAttribution = (text?: string) => (text || '').replace(/\(C\)/g, '©').trim();
 
-export type BasemapCoverage = 'Global' | 'Regional' | 'National';
-export const BASEMAP_COVERAGES: BasemapCoverage[] = ['Global', 'Regional', 'National'];
+export type BasemapCoverage = 'Global' | 'Regional' | 'National' | 'Unknown';
+export const BASEMAP_COVERAGES: BasemapCoverage[] = ['Global', 'Regional', 'National', 'Unknown'];
 /** Bounds as [[south, west], [north, east]] in degrees. */
 export type LatLngBounds = [[number, number], [number, number]];
 
-const NATIONAL_MAX_AREA = 200; // square degrees: roughly one country or less
+/**
+ * Maps known to cover exactly one country. Keys are a provider family or a full
+ * variant name; a variant entry wins over its family. `null` marks a sub-national map.
+ */
+export const NATIONAL_MAPS: Record<string, string | null> = {
+  'OpenStreetMap.DE': 'Germany',
+  'OpenStreetMap.CH': 'Switzerland',
+  'OpenStreetMap.France': 'France',
+  'OpenStreetMap.BZH': null,
+  'OpenStreetMap.CAT': null,
+  BaseMapDE: 'Germany',
+  TopPlusOpen: 'Germany',
+  BasemapAT: 'Austria',
+  nlmaps: 'Netherlands',
+  NLS: 'United Kingdom',
+  OrdnanceSurvey: 'United Kingdom',
+  SwissFederalGeoportal: 'Switzerland',
+  GeoportailFrance: 'France',
+  FreeMapSK: 'Slovakia',
+  OneMapSG: 'Singapore',
+  JusticeMap: 'United States',
+  USGS: 'United States',
+  Gaode: 'China',
+};
+
+export const lookupCountry = (provider: string, variantId: string): string | null | undefined =>
+  variantId in NATIONAL_MAPS ? NATIONAL_MAPS[variantId] : NATIONAL_MAPS[provider];
 
 const parseBounds = (v: unknown): { bounds?: LatLngBounds; polar: boolean } => {
   if (!Array.isArray(v) || v.length !== 2) return { polar: false };
@@ -83,27 +111,31 @@ const parseBounds = (v: unknown): { bounds?: LatLngBounds; polar: boolean } => {
   return { bounds: [[Math.min(a, c), Math.min(b, d)], [Math.max(a, c), Math.max(b, d)]], polar: false };
 };
 
-export const classifyCoverage = (bounds?: LatLngBounds, polar = false): BasemapCoverage => {
-  if (polar) return 'Regional';
-  if (!bounds) return 'Global';
+/** National needs a known single-country map; otherwise bounds decide, and no bounds means Unknown. */
+export const classifyCoverage = (bounds?: LatLngBounds, polar = false, country?: string | null): BasemapCoverage => {
+  if (country) return 'National';
+  if (polar || country === null) return 'Regional';
+  if (!bounds) return 'Unknown';
   const latSpan = bounds[1][0] - bounds[0][0];
   const lngSpan = bounds[1][1] - bounds[0][1];
-  if (lngSpan >= 300 && latSpan >= 140) return 'Global';
-  return latSpan * lngSpan < NATIONAL_MAX_AREA ? 'National' : 'Regional';
+  return lngSpan >= 300 && latSpan >= 140 ? 'Global' : 'Regional';
 };
 
-/** Whether the map covers `point` ([lng, lat]). */
-export const coversPoint = (entry: Pick<GalleryEntry, 'coverage' | 'bounds' | 'isPolar'>, point: [number, number]): boolean => {
+/** Whether the map covers `point` ([lng, lat]); undefined when that can't be known. */
+export const coversPoint = (
+  entry: Pick<GalleryEntry, 'coverage' | 'bounds' | 'isPolar'>, point: [number, number],
+): boolean | undefined => {
   const [lng, lat] = point;
   if (entry.isPolar) return Math.abs(lat) > 60;
-  if (entry.coverage === 'Global' || !entry.bounds) return true;
+  if (entry.coverage === 'Global') return true;
+  if (!entry.bounds) return undefined;
   const [[s, w], [n, e]] = entry.bounds;
   return lat >= s && lat <= n && lng >= w && lng <= e;
 };
 
-/** Centre used for thumbnails: the project centre if covered, else the middle of the map's own area. */
+/** Centre used for thumbnails: the project centre unless the map is known not to cover it. */
 export const entryPreviewCenter = (entry: GalleryEntry, fallback: [number, number]): [number, number] => {
-  if (coversPoint(entry, fallback) || !entry.bounds) return fallback;
+  if (coversPoint(entry, fallback) !== false || !entry.bounds) return fallback;
   const [[s, w], [n, e]] = entry.bounds;
   return [(w + e) / 2, (s + n) / 2];
 };
@@ -117,6 +149,7 @@ const toEntry = (provider: string, raw: RawProvider): GalleryEntry | null => {
   const requiresKey = !!keyField && !OPTIONAL_KEY_PROVIDERS.has(provider);
   const name = (raw.name || provider).replace(/\./g, ' ');
   const { bounds, polar } = parseBounds(raw.bounds);
+  const country = lookupCountry(provider, raw.name || provider);
   return {
     id: raw.name || provider,
     name,
@@ -131,7 +164,8 @@ const toEntry = (provider: string, raw: RawProvider): GalleryEntry | null => {
     attributionUrl: parseHtmlAttributionUrl(raw.html_attribution),
     bounds,
     isPolar: polar,
-    coverage: classifyCoverage(bounds, polar),
+    coverage: classifyCoverage(bounds, polar, country),
+    ...(country && { country }),
   };
 };
 

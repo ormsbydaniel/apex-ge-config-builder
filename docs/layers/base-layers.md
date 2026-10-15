@@ -94,4 +94,11 @@ afterwards like any other. Each provider's terms of use still apply.
 
 ### Coverage filters
 
-Many gallery maps only cover part of the world. Use the **Coverage** filter (Global, Regional, National) and the **Covers map centre** switch to find maps that show something at your project's map centre. Maps outside the centre are marked **Outside map centre**, and their thumbnails show the map's own area instead.
+Many gallery maps only cover part of the world. Use the **Coverage** filter and the **Covers map centre** switch to find maps that show something at your project's map centre:
+
+- **Global** – the map lists worldwide coverage.
+- **Regional** – the map covers a continent, several countries, or part of a country (for example Brittany).
+- **National** – the map covers exactly one country; the badge names it (for example *National · Switzerland*).
+- **Unknown** – the registry doesn't say what area the map covers. These maps are never hidden by **Covers map centre** being off, but are left out when it's on.
+
+Maps known not to cover your centre are marked **Outside map centre**, and their thumbnails show the map's own area instead.
