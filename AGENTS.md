@@ -9,3 +9,4 @@
 - Keep spectral-index recipe and custom palette stops as the single rendering/legend source; export per-COG labelled snapshots only for explicit palette modes so legacy styles stay truthful.
 - The STAC editor exposes one asset while the contract preserves ordered `assets` and name-keyed `assetFormats`; gate format-dependent tools with `getEffectiveFormat` and keep resolved sample URLs in memory only, because signed hrefs must not be persisted.
 - Keep STAC core item filters encoded only in the data-source URL and manipulate them through `src/utils/stacQuery.ts` (CQL2 `filter` or Query-extension `query`, chosen from the catalogue's conformance), so the Explorer contract needs no parallel query state.
+- Keep STAC interval endpoints independently navigable in the shared date picker, preserving datetime-local values and empty open endpoints so navigation never couples the two dates.
