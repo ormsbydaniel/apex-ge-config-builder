@@ -10,7 +10,6 @@
 import { updateStacCql2Filter } from '@/utils/stacQuery';
 import {
   DataInsight,
-  periodWithinExtent,
   probeStacCollection,
   probeStacCount,
   probeVectorExtent,
@@ -233,7 +232,7 @@ const SEASONS: Record<string, { label: string; range: (y: number) => [string, st
   spring: { label: 'Spring (Mar–May)', range: (y) => [`${y}-03-01`, `${y}-05-31`] },
   summer: { label: 'Summer (Jun–Aug)', range: (y) => [`${y}-06-01`, `${y}-08-31`] },
   autumn: { label: 'Autumn (Sep–Nov)', range: (y) => [`${y}-09-01`, `${y}-11-30`] },
-  winter: { label: 'Winter (Dec–Feb)', range: (y) => [`${y - 1}-12-01`, `${y}-${y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? '29' : '28'}-02`.replace(/-(\d\d)-02$/, '-02-$1')] },
+  winter: { label: 'Winter (Dec–Feb)', range: (y) => [`${y - 1}-12-01`, `${y}-02-${new Date(Date.UTC(y, 2, 0)).getUTCDate()}`] },
   year: { label: 'Whole year', range: (y) => [`${y}-01-01`, `${y}-12-31`] },
 };
 /** Legacy period ids from earlier drafts. */
