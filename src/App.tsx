@@ -7,6 +7,7 @@ import { ConfigProvider } from "@/contexts/ConfigContext";
 import Index from "./pages/Index";
 import Preview from "./pages/Preview";
 import ConfigJson from "./pages/ConfigJson";
+import Apps from "./pages/Apps";
 import NotFound from "./pages/NotFound";
 import RelocationNotice from "./pages/RelocationNotice";
 import { shouldShowRelocationNotice } from "@/utils/siteRedirect";
@@ -36,6 +37,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/preview" element={<Preview />} />
+              <Route path="/apps" element={<Apps />} />
               <Route path="/config.json" element={<ConfigJson />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

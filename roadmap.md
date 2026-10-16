@@ -88,3 +88,4 @@
 - [x] JSON Style Editor in Data Visualisation (standard + swipe layers, statistics excluded)
 
 - [x] Basemap Gallery (xyzservices) in Base Layers section
+- [ ] Geospatial Explorer Apps: AI prompt engine (Build with AI) — next step
