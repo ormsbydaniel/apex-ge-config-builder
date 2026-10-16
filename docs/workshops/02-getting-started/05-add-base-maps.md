@@ -38,7 +38,8 @@ title: 2-5. Add recommended base maps
 
 !!! tip "Want more choice?"
     **Browse Basemap Gallery**, next to **Add Recommended Base Layers**, lists
-    hundreds of free background maps you can add with one click. This button
-    only appears when **Experimental features** is enabled in the Config
-    Builder settings. See
+    hundreds of free background maps you can add with one click. The gallery
+    is built on the open [xyzservices](https://github.com/geopandas/xyzservices)
+    registry of tile providers. This button only appears when **Experimental
+    features** is enabled in the Config Builder settings. See
     [Base layers](../../layers/base-layers.md#basemap-gallery).
