@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Download, Eye, Wrench } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Download, Eye, Loader2, Wrench } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   AppTemplate,
+  DataInsight,
+  WizardField,
+  WizardOption,
   FINAL_TWEAKS_STEP,
   LOCATION_PRESETS,
   WizardStep,
@@ -19,28 +23,68 @@ import {
   validateStep,
 } from '@/utils/appTemplates/templates';
 import { AppWizardDraft, saveWizardDraft } from '@/utils/appTemplates/wizardDraft';
+import { Bbox, pointInBbox } from '@/utils/appTemplates/dataProbes';
 import LocationPickerMap from './LocationPickerMap';
 
 type Action = 'builder' | 'preview' | 'download';
-const STEP_LABELS = ['Title', 'Location', 'Options', 'Data', 'Final tweaks'];
+const STEP_LABELS = ['Title', 'Data', 'Location', 'Options', 'Final tweaks'];
+const S_DATA = 1;
+const S_LOCATION = 2;
+const S_OPTIONS = 3;
+const S_FINAL = 4;
 
-const StepFields: React.FC<{ step: WizardStep; values: WizardValues; onChange: (id: string, v: string) => void }> = ({ step, values, onChange }) => (
+const fieldOptions = (f: WizardField, insight: DataInsight | null): WizardOption[] | undefined =>
+  (insight && f.optionsFrom?.(insight)) || f.options;
+
+const bboxView = (b: Bbox): { center: [number, number]; zoom: number } => {
+  const w = Math.max(b[2] - b[0], (b[3] - b[1]) * 2, 0.01);
+  const zoom = Math.max(1, Math.min(14, Math.floor(Math.log2(360 / w)) + 1));
+  return { center: [Number(((b[0] + b[2]) / 2).toFixed(4)), Number(((b[1] + b[3]) / 2).toFixed(4))], zoom };
+};
+
+const StepFields: React.FC<{
+  step: WizardStep;
+  values: WizardValues;
+  insight: DataInsight | null;
+  onChange: (id: string, v: string) => void;
+}> = ({ step, values, insight, onChange }) => (
   <div className="space-y-4">
     {step.fields.filter((f) => isFieldVisible(f, values)).map((f) => (
       <div key={f.id} className="space-y-1.5">
         <Label htmlFor={`wiz-${f.id}`}>{f.label}</Label>
-        {f.type === 'choice' ? (
-          <div className={cn('grid gap-2', f.options!.some((o) => o.description) ? 'grid-cols-1' : 'grid-cols-4')}>
-            {f.options!.map((o) => {
+        {(() => {
+          const opts = fieldOptions(f, insight);
+          if (!opts?.length || (f.type !== 'choice' && !f.optionsFrom)) return null;
+          if (f.type === 'choice' && opts.length <= 12) return null;
+          return (
+            <Select value={values[f.id] || undefined} onValueChange={(v) => onChange(f.id, v)}>
+              <SelectTrigger id={`wiz-${f.id}`}><SelectValue placeholder="Choose…" /></SelectTrigger>
+              <SelectContent className="max-h-72">
+                {opts.map((o) => (
+                  <SelectItem key={o.value} value={o.value} disabled={o.disabled}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        })()}
+        {(() => {
+          const opts = fieldOptions(f, insight);
+          return (f.type !== 'choice' && f.optionsFrom && opts?.length) || (f.type === 'choice' && opts && opts.length > 12);
+        })() ? null : f.type === 'choice' ? (
+          <div className={cn('grid gap-2', fieldOptions(f, insight)!.some((o) => o.description) ? 'grid-cols-1' : 'grid-cols-4')}>
+            {fieldOptions(f, insight)!.map((o) => {
               const active = values[f.id] === o.value;
               return (
                 <button
                   key={o.value}
                   type="button"
+                  disabled={o.disabled}
+                  title={o.disabled ? 'Outside the dates this data covers' : undefined}
                   onClick={() => onChange(f.id, o.value)}
                   className={cn(
                     'rounded-lg border px-3 py-2 text-left text-sm transition-colors',
                     active ? 'border-primary bg-primary/10' : 'hover:border-primary/50',
+                    o.disabled && 'cursor-not-allowed opacity-40 hover:border-border',
                   )}
                 >
                   <span className="font-medium">{o.label}</span>
@@ -55,6 +99,8 @@ const StepFields: React.FC<{ step: WizardStep; values: WizardValues; onChange: (
             type={f.type === 'date' ? 'date' : 'text'}
             value={values[f.id] ?? ''}
             placeholder={f.placeholder}
+            min={insight && f.rangeFrom ? f.rangeFrom(insight).min : undefined}
+            max={insight && f.rangeFrom ? f.rangeFrom(insight).max : undefined}
             onChange={(e) => onChange(f.id, e.target.value)}
             className={f.type === 'text' ? 'font-mono text-xs' : undefined}
           />
@@ -83,6 +129,10 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   const [busy, setBusy] = useState<Action | null>(null);
 
   const [maxVisited, setMaxVisited] = useState(0);
+  const [insight, setInsight] = useState<DataInsight | null>(null);
+  const [probing, setProbing] = useState(false);
+  const [liveNote, setLiveNote] = useState<string | null>(null);
+  const probeSeq = useRef(0);
 
   useEffect(() => {
     if (!template) return;
@@ -95,17 +145,55 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
     setPreset(null);
     setValues({ ...getDefaultValues(template), ...(resume?.values ?? {}) });
     setError(null);
+    setInsight(null);
+    setLiveNote(null);
   }, [template, draft]);
+
+  // Ask the chosen data what it offers (debounced; probes are cached per URL).
+  useEffect(() => {
+    if (!template?.probe) return;
+    const t = setTimeout(() => {
+      const req = template.probe!(values);
+      const seq = ++probeSeq.current;
+      if (!req) {
+        setInsight(null);
+        setProbing(false);
+        return;
+      }
+      setProbing(true);
+      req.then((res) => {
+        if (seq !== probeSeq.current) return;
+        setInsight(res);
+        setProbing(false);
+      });
+    }, 500);
+    return () => clearTimeout(t);
+  }, [template, values]);
+
+  // Live check on the options step (e.g. matching scene count).
+  useEffect(() => {
+    if (!template?.liveCheck || step !== S_OPTIONS) return;
+    let alive = true;
+    setLiveNote('Checking data…');
+    const t = setTimeout(() => {
+      template.liveCheck!({ title, center, zoom, values }).then((n) => alive && setLiveNote(n));
+    }, 600);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template, step, values, center, zoom]);
 
   if (!template) return null;
 
   const isLast = step === STEP_LABELS.length - 1;
-  const currentWizardStep = step === 2 ? template.optionsStep : step === 3 ? template.dataStep : step === 4 ? FINAL_TWEAKS_STEP : null;
+  const currentWizardStep = step === S_DATA ? template.dataStep : step === S_OPTIONS ? template.optionsStep : step === S_FINAL ? FINAL_TWEAKS_STEP : null;
 
   const problemFor = (i: number): string | null => {
     if (i === 0) return title.trim() ? null : 'Please give your app a title.';
-    if (i === 2) return validateStep(template.optionsStep, values);
-    if (i === 3) return validateStep(template.dataStep, values);
+    if (i === S_DATA) return validateStep(template.dataStep, values);
+    if (i === S_OPTIONS) return validateStep(template.optionsStep, values);
     return null;
   };
 
@@ -210,13 +298,32 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
             </div>
           )}
 
-          {step === 1 && (
+          {step === S_LOCATION && (
             <div className="space-y-3">
               <div>
                 <h3 className="font-semibold">Where should the app start?</h3>
                 <p className="text-sm text-muted-foreground">Pick a place, or move the map so the circle sits where you want.</p>
               </div>
               <div className="space-y-1.5">
+                {insight?.bbox && (
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="w-20 text-xs text-muted-foreground">Data</span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={preset === '__data' ? 'default' : 'outline'}
+                      className="h-6 px-2 text-xs"
+                      onClick={() => {
+                        const v = bboxView(insight.bbox!);
+                        setPreset('__data');
+                        setCenter(v.center);
+                        setZoom(v.zoom);
+                      }}
+                    >
+                      Fit to data area
+                    </Button>
+                  </div>
+                )}
                 {groups.map((g) => (
                   <div key={g} className="flex flex-wrap items-center gap-1.5">
                     <span className="w-20 text-xs text-muted-foreground">{g}</span>
@@ -242,6 +349,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
               <LocationPickerMap
                 center={center}
                 zoom={zoom}
+                dataBbox={insight?.bbox}
                 onChange={(c, z) => {
                   setCenter((prev) => {
                     if (Math.abs(prev[0] - c[0]) > 1e-3 || Math.abs(prev[1] - c[1]) > 1e-3) setPreset(null);
@@ -253,6 +361,9 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
               <p className="text-xs text-muted-foreground">
                 Centre {center[1].toFixed(3)}, {center[0].toFixed(3)} · zoom {zoom}
               </p>
+              {insight?.bbox && !pointInBbox(center, insight.bbox) && (
+                <p className="text-xs text-destructive">This place is outside the area the data covers (outlined on the map).</p>
+              )}
             </div>
           )}
 
@@ -265,6 +376,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
               <StepFields
                 step={currentWizardStep}
                 values={values}
+                insight={insight}
                 onChange={(id, v) => {
                   setValues((prev) => ({ ...prev, [id]: v }));
                   setError(null);
@@ -272,6 +384,25 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
               />
             </div>
           )}
+
+          {(step === S_DATA || step === S_OPTIONS) && template.probe && (
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              {probing ? (
+                <><Loader2 className="h-3 w-3 animate-spin" /> Checking data…</>
+              ) : insight?.failed ? (
+                "Couldn't check the service, so the standard choices are shown."
+              ) : insight?.temporalExtent ? (
+                `Data available ${insight.temporalExtent[0] ?? '…'} to ${insight.temporalExtent[1] ?? 'today'}.`
+              ) : insight?.years?.length ? (
+                `Years available: ${insight.years.join(', ')}.`
+              ) : insight?.layers?.length ? (
+                `${insight.layers.length} layers found in this service.`
+              ) : insight?.bbox ? (
+                'Data area found; you can fit the map to it in the Location step.'
+              ) : null}
+            </p>
+          )}
+          {step === S_OPTIONS && liveNote && <p className="text-xs text-muted-foreground">{liveNote}</p>}
 
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
