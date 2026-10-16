@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   AppTemplate,
+  FINAL_TWEAKS_STEP,
   LOCATION_PRESETS,
   WizardStep,
   WizardValues,
@@ -21,7 +22,7 @@ import { AppWizardDraft, saveWizardDraft } from '@/utils/appTemplates/wizardDraf
 import LocationPickerMap from './LocationPickerMap';
 
 type Action = 'builder' | 'preview' | 'download';
-const STEP_LABELS = ['Title', 'Location', 'Options', 'Data'];
+const STEP_LABELS = ['Title', 'Location', 'Options', 'Data', 'Final tweaks'];
 
 const StepFields: React.FC<{ step: WizardStep; values: WizardValues; onChange: (id: string, v: string) => void }> = ({ step, values, onChange }) => (
   <div className="space-y-4">
@@ -99,7 +100,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   if (!template) return null;
 
   const isLast = step === STEP_LABELS.length - 1;
-  const currentWizardStep = step === 2 ? template.optionsStep : step === 3 ? template.dataStep : null;
+  const currentWizardStep = step === 2 ? template.optionsStep : step === 3 ? template.dataStep : step === 4 ? FINAL_TWEAKS_STEP : null;
 
   const problemFor = (i: number): string | null => {
     if (i === 0) return title.trim() ? null : 'Please give your app a title.';

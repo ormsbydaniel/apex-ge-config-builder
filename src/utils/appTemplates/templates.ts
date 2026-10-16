@@ -228,7 +228,7 @@ export const APP_TEMPLATES: AppTemplate[] = [
     tagline: 'Compare two moments side by side',
     description: 'A swipe comparison between two years of imagery. Ideal for showing change after floods, fires or construction.',
     bestFor: ['Before / after', 'Disaster response', 'Land change'],
-    defaults: { title: 'Change Explorer', center: [15, 52], zoom: 4 },
+    defaults: { title: 'Change Explorer', center: [15, 52], zoom: 4, layoutVariant: 'fullscreen' },
     optionsStep: {
       title: 'Before and after',
       description: 'Pick the two years to compare. The "before" image shows on the left of the swipe, "after" on the right.',
