@@ -81,10 +81,13 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Action | null>(null);
 
+  const [maxVisited, setMaxVisited] = useState(0);
+
   useEffect(() => {
     if (!template) return;
     const resume = draft && draft.templateId === template.id ? draft : null;
     setStep(resume ? Math.min(resume.step, STEP_LABELS.length - 1) : 0);
+    setMaxVisited(resume ? STEP_LABELS.length - 1 : 0);
     setTitle(resume?.title ?? template.defaults.title);
     setCenter(resume?.center ?? template.defaults.center);
     setZoom(resume?.zoom ?? template.defaults.zoom);
@@ -98,18 +101,42 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   const isLast = step === STEP_LABELS.length - 1;
   const currentWizardStep = step === 2 ? template.optionsStep : step === 3 ? template.dataStep : null;
 
-  const check = (): boolean => {
-    let problem: string | null = null;
-    if (step === 0 && !title.trim()) problem = 'Please give your app a title.';
-    if (currentWizardStep) problem = validateStep(currentWizardStep, values);
-    setError(problem);
-    return !problem;
+  const problemFor = (i: number): string | null => {
+    if (i === 0) return title.trim() ? null : 'Please give your app a title.';
+    if (i === 2) return validateStep(template.optionsStep, values);
+    if (i === 3) return validateStep(template.dataStep, values);
+    return null;
   };
 
-  const next = () => check() && setStep((s) => s + 1);
+  const ready = maxVisited >= STEP_LABELS.length - 1 && STEP_LABELS.every((_, i) => !problemFor(i));
+
+  const goTo = (target: number) => {
+    if (target === step) return;
+    if (target > step) {
+      // Moving forward: every step before the target must be valid.
+      for (let i = step; i < target; i++) {
+        const p = problemFor(i);
+        if (p) {
+          setStep(i);
+          setError(p);
+          return;
+        }
+      }
+    }
+    setError(null);
+    setStep(target);
+    setMaxVisited((m) => Math.max(m, target));
+  };
+
+  const next = () => goTo(step + 1);
 
   const run = async (action: Action) => {
-    if (!check()) return;
+    const bad = STEP_LABELS.findIndex((_, i) => problemFor(i));
+    if (bad >= 0) {
+      setStep(bad);
+      setError(problemFor(bad));
+      return;
+    }
     const config = template.build({ title: title.trim(), center, zoom, values });
     saveWizardDraft({ templateId: template.id, title: title.trim(), center, zoom, values, step });
     const text = JSON.stringify(config, null, 2);
@@ -136,7 +163,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
 
   return (
     <Dialog open={!!template} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{template.name}</DialogTitle>
           <DialogDescription>{template.tagline}</DialogDescription>
@@ -145,23 +172,29 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
         <ol className="flex items-center gap-2 text-xs">
           {STEP_LABELS.map((l, i) => (
             <li key={l} className="flex flex-1 items-center gap-2">
-              <span
-                className={cn(
-                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium',
-                  i < step && 'border-primary bg-primary text-primary-foreground',
-                  i === step && 'border-primary text-primary',
-                  i > step && 'text-muted-foreground',
-                )}
+              <button
+                type="button"
+                onClick={() => goTo(i)}
+                className="flex items-center gap-2 rounded-md px-1 py-0.5 hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                {i + 1}
-              </span>
-              <span className={cn(i === step ? 'font-medium' : 'text-muted-foreground')}>{l}</span>
+                <span
+                  className={cn(
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium',
+                    i !== step && i <= maxVisited && 'border-primary bg-primary text-primary-foreground',
+                    i === step && 'border-primary text-primary',
+                    i > maxVisited && i !== step && 'text-muted-foreground',
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <span className={cn(i === step ? 'font-medium' : 'text-muted-foreground')}>{l}</span>
+              </button>
               {i < STEP_LABELS.length - 1 && <span className="h-px flex-1 bg-border" />}
             </li>
           ))}
         </ol>
 
-        <div className="min-h-64 space-y-4 py-2">
+        <div className="min-h-[24rem] space-y-4 py-2">
           {step === 0 && (
             <div className="space-y-1.5">
               <h3 className="font-semibold">Name your app</h3>
@@ -246,23 +279,22 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
           <Button variant="ghost" onClick={() => (step === 0 ? onClose() : (setError(null), setStep((s) => s - 1)))}>
             <ArrowLeft className="mr-1.5 h-4 w-4" /> {step === 0 ? 'Cancel' : 'Back'}
           </Button>
-          {isLast ? (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="ghost" size="sm" onClick={() => run('download')}>
-                <Download className="mr-1.5 h-4 w-4" /> Export JSON
-              </Button>
-              <Button variant="outline" onClick={() => run('builder')} disabled={!!busy}>
-                <Wrench className="mr-1.5 h-4 w-4" /> {busy === 'builder' ? 'Creating…' : 'Config Builder'}
-              </Button>
-              <Button onClick={() => run('preview')} disabled={!!busy}>
-                <Eye className="mr-1.5 h-4 w-4" /> {busy === 'preview' ? 'Creating…' : 'Launch preview'}
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={next}>
-              Next <ArrowRight className="ml-1.5 h-4 w-4" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => run('download')} disabled={!ready || !!busy}>
+              <Download className="mr-1.5 h-4 w-4" /> Export JSON
             </Button>
-          )}
+            <Button variant="outline" onClick={() => run('builder')} disabled={!ready || !!busy}>
+              <Wrench className="mr-1.5 h-4 w-4" /> {busy === 'builder' ? 'Creating…' : 'Config Builder'}
+            </Button>
+            <Button variant={isLast ? 'default' : 'outline'} onClick={() => run('preview')} disabled={!ready || !!busy}>
+              <Eye className="mr-1.5 h-4 w-4" /> {busy === 'preview' ? 'Creating…' : 'Launch preview'}
+            </Button>
+            {!isLast && (
+              <Button onClick={next}>
+                Next <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
