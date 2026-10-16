@@ -47,13 +47,13 @@ const checkHelpers = (t: CommunityTemplate) => {
 };
 
 const toStep = (s: CommunityTemplate['steps']['data']): WizardStep => ({
-  title: s.title,
-  description: s.description,
-  fields: s.fields.map((f): WizardField => ({
+  title: s.title ?? '',
+  description: s.description ?? '',
+  fields: s.fields.map((f) => ({
     ...f,
     optionsFrom: f.optionsFrom ? OPTIONS_FROM[f.optionsFrom] : undefined,
     rangeFrom: f.rangeFrom ? RANGE_FROM[f.rangeFrom] : undefined,
-  })),
+  }) as WizardField),
 });
 
 const evalArgs = (args: Record<string, ValueExpr> | undefined, ctx: EvalContext) =>
@@ -61,6 +61,7 @@ const evalArgs = (args: Record<string, ValueExpr> | undefined, ctx: EvalContext)
 
 /** Turn a validated template + base config into a wizard template. */
 export const adaptCommunityTemplate = (t: CommunityTemplate, baseConfig: Record<string, unknown>): AppTemplate => {
+  const defaults = t.defaults as AppTemplate['defaults'];
   const ctxFor = (params: AppTemplateParams): EvalContext => ({ params, computed: t.computed, transforms: TRANSFORMS });
   const template: AppTemplate = {
     id: `${COMMUNITY_PREFIX}${t.id}`,
@@ -68,7 +69,7 @@ export const adaptCommunityTemplate = (t: CommunityTemplate, baseConfig: Record<
     tagline: t.tagline,
     description: t.description,
     bestFor: t.bestFor,
-    defaults: t.defaults,
+    defaults,
     dataStep: toStep(t.steps.data),
     optionsStep: toStep(t.steps.options),
     community: true,
@@ -78,7 +79,7 @@ export const adaptCommunityTemplate = (t: CommunityTemplate, baseConfig: Record<
     const call = t.probe;
     template.probe = (values) => {
       try {
-        const params = { title: t.defaults.title, center: t.defaults.center, zoom: t.defaults.zoom, values };
+        const params = { title: defaults.title, center: defaults.center, zoom: defaults.zoom, values };
         return PROBES[call.use](evalArgs(call.args, ctxFor(params)));
       } catch { return null; }
     };
@@ -110,7 +111,7 @@ export const parseCommunityTemplate = (raw: unknown, baseConfig: unknown): AppTe
   }
   const template = adaptCommunityTemplate(parsed.data, baseConfig as Record<string, unknown>);
   // Dry run with the default answers so missing paths fail now, not at launch.
-  const d = parsed.data.defaults;
+  const d = template.defaults;
   template.build({ title: d.title, center: d.center, zoom: d.zoom, values: getDefaultValues(template) });
   return template;
 };
