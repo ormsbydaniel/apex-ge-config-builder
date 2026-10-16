@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Columns2, Layers, Satellite, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { APP_TEMPLATES, AppTemplate } from '@/utils/appTemplates/templates';
+import { AppWizardDraft, loadWizardDraft } from '@/utils/appTemplates/wizardDraft';
 import AppWizardDialog from '@/components/apps/AppWizardDialog';
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -21,7 +23,10 @@ const PROMPT_IDEAS = [
 ];
 
 const Apps: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<AppTemplate | null>(null);
+  const [draft, setDraft] = useState<AppWizardDraft | null>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const { toast } = useToast();
@@ -29,6 +34,23 @@ const Apps: React.FC = () => {
   useEffect(() => {
     document.title = 'Geospatial Explorer Apps';
   }, []);
+
+  // Returning from Preview: reopen the wizard on its last step with the saved answers.
+  useEffect(() => {
+    if (!(location.state as { resumeWizard?: boolean } | null)?.resumeWizard) return;
+    const saved = loadWizardDraft();
+    const template = saved && APP_TEMPLATES.find((t) => t.id === saved.templateId);
+    if (saved && template) {
+      setDraft(saved);
+      setSelected(template);
+    }
+    navigate('/apps', { replace: true, state: null });
+  }, [location.state, navigate]);
+
+  const openTemplate = (t: AppTemplate) => {
+    setDraft(null);
+    setSelected(t);
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -55,7 +77,7 @@ const Apps: React.FC = () => {
               return (
                 <button
                   key={t.id}
-                  onClick={() => setSelected(t)}
+                  onClick={() => openTemplate(t)}
                   className="group text-left rounded-xl border bg-card p-5 space-y-3 transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
@@ -95,7 +117,7 @@ const Apps: React.FC = () => {
         </section>
       </main>
 
-      <AppWizardDialog template={selected} onClose={() => setSelected(null)} />
+      <AppWizardDialog template={selected} draft={draft} onClose={() => setSelected(null)} />
 
       <Dialog open={aiOpen} onOpenChange={setAiOpen}>
         <DialogContent className="max-w-lg">
