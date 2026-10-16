@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Rectangle, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 interface MapCentrePickerDialogProps {
@@ -11,6 +11,8 @@ interface MapCentrePickerDialogProps {
   center: [number, number];
   zoom: number;
   onApply: (center: [number, number], zoom: number) => void;
+  /** Optional data coverage [minLng, minLat, maxLng, maxLat] outlined on the map. */
+  dataBbox?: [number, number, number, number];
 }
 
 const MapEvents: React.FC<{
@@ -50,6 +52,7 @@ const MapCentrePickerDialog: React.FC<MapCentrePickerDialogProps> = ({
   center,
   zoom,
   onApply,
+  dataBbox,
 }) => {
   // Initialize local state inside effect that watches `open` to prevent stale overwrites
   const [localCenter, setLocalCenter] = useState<[number, number]>(center);
@@ -97,6 +100,12 @@ const MapCentrePickerDialog: React.FC<MapCentrePickerDialogProps> = ({
                 />
                 <MapEvents onChange={(c, z) => { setLocalCenter(c); setLocalZoom(z); }} />
                 <InvalidateOnOpen open={open} />
+                {dataBbox && (
+                  <Rectangle
+                    bounds={[[dataBbox[1], dataBbox[0]], [dataBbox[3], dataBbox[2]]]}
+                    pathOptions={{ color: 'hsl(var(--primary))', weight: 1.5, fillOpacity: 0.05, dashArray: '4 4' }}
+                  />
+                )}
               </MapContainer>
             )}
             {/* Fixed crosshair overlay at map centre */}
