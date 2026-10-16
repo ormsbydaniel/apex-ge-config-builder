@@ -1,5 +1,5 @@
 /**
- * Declarative format for community app templates (`template.json`).
+ * Declarative format for community app templates (`wizard.json`).
  * Templates never contain code: data-aware behaviour is chosen by helper name.
  */
 import { z } from 'zod';

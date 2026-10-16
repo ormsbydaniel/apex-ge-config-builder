@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import templateJson from '../../../../community-templates/apps/s2-monitor/template.json';
+import templateJson from '../../../../community-templates/apps/s2-monitor/wizard.json';
 import baseConfig from '../../../../community-templates/apps/s2-monitor/config.json';
 import { parseCommunityTemplate } from '../communityTemplates';
 import { applyPatches } from '../patchEngine';
