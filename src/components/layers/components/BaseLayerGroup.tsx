@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download, LayoutGrid } from 'lucide-react';
 import BasemapGalleryDialog from './BasemapGalleryDialog';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
 import { useConfig } from '@/contexts/ConfigContext';
 import { toast } from '@/hooks/use-toast';
@@ -71,6 +72,7 @@ const BaseLayerGroup = ({
   isLoadingRecommended
 }: BaseLayerGroupProps) => {
   const { toggleCard, isExpanded: isCardExpanded } = useLayerStateManagement();
+  const { settings } = useAppSettings();
   const { config: tabConfig, onUpdateConfig } = useLayersTabContext();
   const { config: fullConfig } = useConfig();
   const [showGallery, setShowGallery] = useState(false);
@@ -155,15 +157,17 @@ const BaseLayerGroup = ({
                 <Download className="h-3 w-3 mr-1" />
                 {isLoadingRecommended ? 'Loading...' : 'Add Recommended Base Layers'}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowGallery(true)}
-                className="text-primary hover:bg-primary/10 border-primary/30"
-              >
-                <LayoutGrid className="h-3 w-3 mr-1" />
-                Browse Basemap Gallery
-              </Button>
+              {settings.showExperimentalFeatures && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowGallery(true)}
+                  className="text-primary hover:bg-primary/10 border-primary/30"
+                >
+                  <LayoutGrid className="h-3 w-3 mr-1" />
+                  Browse Basemap Gallery
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
