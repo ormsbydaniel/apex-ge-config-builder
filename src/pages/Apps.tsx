@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { APP_TEMPLATES, AppTemplate } from '@/utils/appTemplates/templates';
 import { AppWizardDraft, loadWizardDraft } from '@/utils/appTemplates/wizardDraft';
 import AppWizardDialog from '@/components/apps/AppWizardDialog';
+import { CommunityTemplatesResult, fetchCommunityTemplates } from '@/utils/appTemplates/communityTemplates';
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'change-swipe': Columns2,
@@ -30,6 +31,14 @@ const Apps: React.FC = () => {
   const [aiOpen, setAiOpen] = useState(false);
   const [prompt, setPrompt] = useState('');
   const { toast } = useToast();
+  const [community, setCommunity] = useState<CommunityTemplatesResult | null>(null);
+  const allTemplates = [...APP_TEMPLATES, ...(community?.templates ?? [])];
+
+  useEffect(() => {
+    let alive = true;
+    fetchCommunityTemplates().then((r) => alive && setCommunity(r));
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     document.title = 'Geospatial Explorer Apps';
@@ -39,13 +48,17 @@ const Apps: React.FC = () => {
   useEffect(() => {
     if (!(location.state as { resumeWizard?: boolean } | null)?.resumeWizard) return;
     const saved = loadWizardDraft();
-    const template = saved && APP_TEMPLATES.find((t) => t.id === saved.templateId);
-    if (saved && template) {
+    if (!saved) { navigate('/apps', { replace: true, state: null }); return; }
+    // Community templates load asynchronously; wait for them before resuming one.
+    if (saved.templateId.startsWith('community:') && !community) return;
+    const template = allTemplates.find((t) => t.id === saved.templateId);
+    if (template) {
       setDraft(saved);
       setSelected(template);
     }
     navigate('/apps', { replace: true, state: null });
-  }, [location.state, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state, navigate, community]);
 
   const openTemplate = (t: AppTemplate) => {
     setDraft(null);
@@ -72,7 +85,7 @@ const Apps: React.FC = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Start from a template</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {APP_TEMPLATES.map((t) => {
+            {allTemplates.map((t) => {
               const Icon = ICONS[t.id] ?? Layers;
               return (
                 <button
@@ -84,7 +97,10 @@ const Apps: React.FC = () => {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">{t.name}</h3>
+                    <h3 className="font-semibold flex items-center gap-2">
+                      {t.name}
+                      {t.community && <Badge variant="secondary" className="text-[10px]">Community</Badge>}
+                    </h3>
                     <p className="text-sm text-muted-foreground min-h-[2.5rem]">{t.tagline}</p>
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -119,6 +135,19 @@ const Apps: React.FC = () => {
               </span>
             </button>
           </div>
+          {community?.failed && (
+            <p className="text-xs text-muted-foreground">Couldn't load community templates. The built-in ones are still available.</p>
+          )}
+          {!!community?.unavailable.length && (
+            <details className="text-xs text-muted-foreground">
+              <summary className="cursor-pointer">Unavailable templates ({community.unavailable.length})</summary>
+              <ul className="mt-1 space-y-0.5 pl-4 list-disc">
+                {community.unavailable.map((u) => (
+                  <li key={u.ref}><span className="font-mono">{u.ref}</span>: {u.reason}</li>
+                ))}
+              </ul>
+            </details>
+          )}
         </section>
       </main>
 
