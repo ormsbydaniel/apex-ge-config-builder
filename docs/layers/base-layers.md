@@ -73,6 +73,11 @@ rather than a data overlay.
 
 ## Basemap Gallery
 
+!!! warning "Experimental"
+    The Basemap Gallery is currently available only when **Experimental
+    features** is enabled in the Config Builder settings. It will be
+    switched on for everyone once it has been reviewed.
+
 Select **Browse Basemap Gallery** in the Base Layers header to choose from
 hundreds of ready-made background maps in the open
 [xyzservices](https://github.com/geopandas/xyzservices) registry (CARTO, Esri,
