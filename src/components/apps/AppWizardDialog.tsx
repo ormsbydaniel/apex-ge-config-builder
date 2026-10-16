@@ -163,7 +163,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
 
   return (
     <Dialog open={!!template} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{template.name}</DialogTitle>
           <DialogDescription>{template.tagline}</DialogDescription>
@@ -279,23 +279,22 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
           <Button variant="ghost" onClick={() => (step === 0 ? onClose() : (setError(null), setStep((s) => s - 1)))}>
             <ArrowLeft className="mr-1.5 h-4 w-4" /> {step === 0 ? 'Cancel' : 'Back'}
           </Button>
-          {isLast ? (
-            <div className="flex flex-wrap gap-2">
-              <Button variant="ghost" size="sm" onClick={() => run('download')}>
-                <Download className="mr-1.5 h-4 w-4" /> Export JSON
-              </Button>
-              <Button variant="outline" onClick={() => run('builder')} disabled={!!busy}>
-                <Wrench className="mr-1.5 h-4 w-4" /> {busy === 'builder' ? 'Creating…' : 'Config Builder'}
-              </Button>
-              <Button onClick={() => run('preview')} disabled={!!busy}>
-                <Eye className="mr-1.5 h-4 w-4" /> {busy === 'preview' ? 'Creating…' : 'Launch preview'}
-              </Button>
-            </div>
-          ) : (
-            <Button onClick={next}>
-              Next <ArrowRight className="ml-1.5 h-4 w-4" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => run('download')} disabled={!ready || !!busy}>
+              <Download className="mr-1.5 h-4 w-4" /> Export JSON
             </Button>
-          )}
+            <Button variant="outline" onClick={() => run('builder')} disabled={!ready || !!busy}>
+              <Wrench className="mr-1.5 h-4 w-4" /> {busy === 'builder' ? 'Creating…' : 'Config Builder'}
+            </Button>
+            <Button variant={isLast ? 'default' : 'outline'} onClick={() => run('preview')} disabled={!ready || !!busy}>
+              <Eye className="mr-1.5 h-4 w-4" /> {busy === 'preview' ? 'Creating…' : 'Launch preview'}
+            </Button>
+            {!isLast && (
+              <Button onClick={next}>
+                Next <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
