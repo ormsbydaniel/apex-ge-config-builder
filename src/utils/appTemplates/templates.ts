@@ -1,15 +1,27 @@
 /**
  * Geospatial Explorer App templates ("blueprints").
  *
- * Each template declares two simple wizard steps (template options, then data
- * content) and turns the answers into a complete raw APEx config. The output is
+ * Each template declares two simple wizard steps (data content, then template
+ * options; the data step comes first so options can adapt to probed data) and turns the answers into a complete raw APEx config. The output is
  * deliberately raw JSON so it goes through the normal import pipeline
  * (normalise + Zod validation) before reaching state.
  */
 
+import {
+  DataInsight,
+  periodWithinExtent,
+  probeStacCollection,
+  probeStacCount,
+  probeVectorExtent,
+  probeWmsLayers,
+} from './dataProbes';
+
+export type { DataInsight } from './dataProbes';
+
 export interface WizardOption {
   value: string;
   label: string;
+  disabled?: boolean;
   description?: string;
 }
 
@@ -23,6 +35,10 @@ export interface WizardField {
   placeholder?: string;
   /** Only show this field when another field has one of these values. */
   showIf?: { field: string; in: string[] };
+  /** Replace static options with ones derived from the data probe (null = keep static). */
+  optionsFrom?: (insight: DataInsight) => WizardOption[] | null;
+  /** Date limits derived from the data probe. */
+  rangeFrom?: (insight: DataInsight) => { min?: string; max?: string };
 }
 
 export interface WizardStep {
@@ -50,6 +66,10 @@ export interface AppTemplate {
   optionsStep: WizardStep;
   dataStep: WizardStep;
   build: (p: AppTemplateParams) => Record<string, unknown>;
+  /** Ask the chosen data endpoint what it offers; null when answers are incomplete. */
+  probe?: (values: WizardValues) => Promise<DataInsight> | null;
+  /** Optional live check for the options step (e.g. matching scene count). */
+  liveCheck?: (p: AppTemplateParams) => Promise<string | null>;
 }
 
 export interface LocationPreset {
@@ -192,6 +212,10 @@ export const buildStacSearchUrl = (
 const S2_YEARS = ['2016', '2018', '2019', '2020', '2021', '2022', '2023', '2024'];
 const s2CloudlessLayer = (year: string) => (year === '2016' ? 's2cloudless_3857' : `s2cloudless-${year}_3857`);
 const yearOptions = S2_YEARS.map((y) => ({ value: y, label: y }));
+const EOX_WMS = 'https://tiles.maps.eox.at/wms';
+const eoxYears = (i: DataInsight) => (i.years?.length ? i.years.map((y) => ({ value: y, label: y })) : null);
+const wmsLayerOptions = (i: DataInsight) =>
+  i.layers?.length ? i.layers.map((l) => ({ value: l.name, label: l.title && l.title !== l.name ? `${l.title} (${l.name})` : l.name })) : null;
 
 /* ---------- STAC Monitor ---------- */
 
@@ -217,6 +241,18 @@ const STAC_MISSIONS: Record<string, { collection: string; asset: string; name: s
   },
 };
 
+const STAC_PERIOD_OPTIONS: WizardOption[] = [
+  { value: 'summer-2025', label: 'Summer 2025' },
+  { value: 'spring-2025', label: 'Spring 2025' },
+  { value: 'year-2025', label: 'All of 2025' },
+  { value: 'summer-2024', label: 'Summer 2024' },
+  { value: 'custom', label: 'Custom dates' },
+];
+const extentRange = (i: DataInsight) => ({ min: i.temporalExtent?.[0] ?? undefined, max: i.temporalExtent?.[1] ?? undefined });
+const stacPeriod = (v: WizardValues): [string, string] =>
+  v.period === 'custom' ? [v.start, v.end] : STAC_PERIODS[v.period] ?? STAC_PERIODS['summer-2025'];
+const stacCollection = (v: WizardValues) => STAC_MISSIONS[v.mission]?.collection ?? v.collectionUrl;
+
 /* ---------- Vector ---------- */
 
 const HV_GRID_URL = 'https://sef-prod-public.obs.eu-nl.otc.t-systems.com/energy/grid/eu_hv_grid.geojson';
@@ -233,8 +269,10 @@ export const APP_TEMPLATES: AppTemplate[] = [
       title: 'Before and after',
       description: 'Pick the two years to compare. The "before" image shows on the left of the swipe, "after" on the right.',
       fields: [
-        { id: 'before', label: 'Before', type: 'choice', options: yearOptions, default: '2018' },
-        { id: 'after', label: 'After', type: 'choice', options: yearOptions, default: '2024' },
+        { id: 'before', label: 'Before', type: 'choice', options: yearOptions, default: '2018', showIf: { field: 'source', in: ['eox'] }, optionsFrom: eoxYears },
+        { id: 'after', label: 'After', type: 'choice', options: yearOptions, default: '2024', showIf: { field: 'source', in: ['eox'] }, optionsFrom: eoxYears },
+        { id: 'beforeLayer', label: 'Before layer', type: 'text', default: '', showIf: { field: 'source', in: ['custom'] }, optionsFrom: wmsLayerOptions },
+        { id: 'afterLayer', label: 'After layer', type: 'text', default: '', showIf: { field: 'source', in: ['custom'] }, optionsFrom: wmsLayerOptions },
       ],
     },
     dataStep: {
@@ -252,14 +290,16 @@ export const APP_TEMPLATES: AppTemplate[] = [
           ],
         },
         { id: 'wmsUrl', label: 'WMS service URL', type: 'text', default: '', placeholder: 'https://…/wms', showIf: { field: 'source', in: ['custom'] } },
-        { id: 'beforeLayer', label: 'Before layer name', type: 'text', default: '', showIf: { field: 'source', in: ['custom'] } },
-        { id: 'afterLayer', label: 'After layer name', type: 'text', default: '', showIf: { field: 'source', in: ['custom'] } },
       ],
     },
+    probe: (v) =>
+      v.source === 'custom'
+        ? /^https?:\/\//i.test(v.wmsUrl ?? '') ? probeWmsLayers(v.wmsUrl) : null
+        : probeWmsLayers(EOX_WMS),
     build: (p) => {
       const v = p.values;
       const custom = v.source === 'custom';
-      const url = custom ? v.wmsUrl : 'https://tiles.maps.eox.at/wms';
+      const url = custom ? v.wmsUrl : EOX_WMS;
       const beforeLayer = custom ? v.beforeLayer : s2CloudlessLayer(v.before);
       const afterLayer = custom ? v.afterLayer : s2CloudlessLayer(v.after);
       const group = 'Change comparison';
@@ -313,9 +353,16 @@ export const APP_TEMPLATES: AppTemplate[] = [
             { value: 'summer-2024', label: 'Summer 2024' },
             { value: 'custom', label: 'Custom dates' },
           ],
+          optionsFrom: (i) =>
+            i.temporalExtent
+              ? STAC_PERIOD_OPTIONS.map((o) => {
+                  const r = STAC_PERIODS[o.value];
+                  return { ...o, disabled: !!r && !periodWithinExtent(r[0], r[1], i.temporalExtent) };
+                })
+              : null,
         },
-        { id: 'start', label: 'From', type: 'date', default: '2025-06-01', showIf: { field: 'period', in: ['custom'] } },
-        { id: 'end', label: 'To', type: 'date', default: '2025-08-31', showIf: { field: 'period', in: ['custom'] } },
+        { id: 'start', label: 'From', type: 'date', default: '2025-06-01', showIf: { field: 'period', in: ['custom'] }, rangeFrom: extentRange },
+        { id: 'end', label: 'To', type: 'date', default: '2025-08-31', showIf: { field: 'period', in: ['custom'] }, rangeFrom: extentRange },
       ],
     },
     dataStep: {
@@ -338,9 +385,22 @@ export const APP_TEMPLATES: AppTemplate[] = [
         { id: 'asset', label: 'Image asset name', type: 'text', default: 'visual', showIf: { field: 'mission', in: ['custom'] } },
       ],
     },
+    probe: (v) => {
+      const c = stacCollection(v);
+      return /^https?:\/\//i.test(c ?? '') ? probeStacCollection(c) : null;
+    },
+    liveCheck: async (p) => {
+      const [start, end] = stacPeriod(p.values);
+      if (!start || !end) return null;
+      const n = await probeStacCount(buildStacSearchUrl(stacCollection(p.values), p.center, p.zoom, start, end));
+      if (n === null) return null;
+      return n === 0
+        ? 'No scenes found for this place and period. Try a longer period or move the map.'
+        : `${n} scene${n === 1 ? '' : 's'} found for this place and period.`;
+    },
     build: (p) => {
       const v = p.values;
-      const [start, end] = v.period === 'custom' ? [v.start, v.end] : STAC_PERIODS[v.period] ?? STAC_PERIODS['summer-2025'];
+      const [start, end] = stacPeriod(v);
       const preset = STAC_MISSIONS[v.mission];
       const collection = preset ? preset.collection : v.collectionUrl;
       const asset = preset ? preset.asset : v.asset || 'visual';
@@ -413,6 +473,10 @@ export const APP_TEMPLATES: AppTemplate[] = [
         },
         { id: 'url', label: 'GeoJSON or FlatGeobuf URL', type: 'text', default: '', placeholder: 'https://…/data.geojson', showIf: { field: 'dataset', in: ['custom'] } },
       ],
+    },
+    probe: (v) => {
+      const url = v.dataset === 'custom' ? v.url : HV_GRID_URL;
+      return /^https?:\/\//i.test(url ?? '') ? probeVectorExtent(url) : null;
     },
     build: (p) => {
       const v = p.values;
