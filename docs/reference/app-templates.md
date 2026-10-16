@@ -15,7 +15,7 @@ Then list the template in `config-builder/manifest.json`:
 ]
 ```
 
-## The template file
+## The wizard file
 
 ```json
 {
