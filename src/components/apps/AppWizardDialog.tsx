@@ -122,7 +122,6 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   const [title, setTitle] = useState('');
   const [center, setCenter] = useState<[number, number]>([0, 20]);
   const [zoom, setZoom] = useState(2);
-  const [preset, setPreset] = useState<string | null>(null);
   const [values, setValues] = useState<WizardValues>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Action | null>(null);
@@ -141,7 +140,6 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
     setTitle(resume?.title ?? template.defaults.title);
     setCenter(resume?.center ?? template.defaults.center);
     setZoom(resume?.zoom ?? template.defaults.zoom);
-    setPreset(null);
     setValues({ ...getDefaultValues(template), ...(resume?.values ?? {}) });
     setError(null);
     setInsight(null);
