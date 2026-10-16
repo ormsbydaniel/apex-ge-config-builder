@@ -75,6 +75,8 @@ export interface AppTemplate {
   probe?: (values: WizardValues) => Promise<DataInsight> | null;
   /** Optional live check for the options step (e.g. matching scene count). */
   liveCheck?: (p: AppTemplateParams) => Promise<string | null>;
+  /** Set for templates loaded from the community configs repository. */
+  community?: boolean;
 }
 
 export interface LocationPreset {
@@ -222,8 +224,8 @@ const S2_YEARS = ['2016', '2018', '2019', '2020', '2021', '2022', '2023', '2024'
 const s2CloudlessLayer = (year: string) => (year === '2016' ? 's2cloudless_3857' : `s2cloudless-${year}_3857`);
 const yearOptions = S2_YEARS.map((y) => ({ value: y, label: y }));
 const EOX_WMS = 'https://tiles.maps.eox.at/wms';
-const eoxYears = (i: DataInsight) => (i.years?.length ? i.years.map((y) => ({ value: y, label: y })) : null);
-const wmsLayerOptions = (i: DataInsight) =>
+export const eoxYears = (i: DataInsight) => (i.years?.length ? i.years.map((y) => ({ value: y, label: y })) : null);
+export const wmsLayerOptions = (i: DataInsight) =>
   i.layers?.length ? i.layers.map((l) => ({ value: l.name, label: l.title && l.title !== l.name ? `${l.title} (${l.name})` : l.name })) : null;
 
 /* ---------- STAC Monitor ---------- */
@@ -246,7 +248,7 @@ const THIS_YEAR = new Date().getFullYear();
 const yearRangeOptions = (from: number, to: number): WizardOption[] =>
   Array.from({ length: Math.max(0, to - from + 1) }, (_, i) => String(to - i)).map((y) => ({ value: y, label: y }));
 /** Collection years from the probe; null keeps the static fallback. */
-const extentYears = (i: DataInsight): WizardOption[] | null => {
+export const extentYears = (i: DataInsight): WizardOption[] | null => {
   const [a, b] = i.temporalExtent ?? [];
   if (!a) return null;
   return yearRangeOptions(Number(a.slice(0, 4)), b ? Number(b.slice(0, 4)) : THIS_YEAR);
@@ -267,7 +269,7 @@ const STAC_MISSIONS: Record<string, { collection: string; asset: string; name: s
   },
 };
 
-const extentRange = (i: DataInsight) => ({ min: i.temporalExtent?.[0] ?? undefined, max: i.temporalExtent?.[1] ?? undefined });
+export const extentRange = (i: DataInsight) => ({ min: i.temporalExtent?.[0] ?? undefined, max: i.temporalExtent?.[1] ?? undefined });
 export const stacPeriod = (v: WizardValues): [string, string] => {
   if (!v.season && v.period) return v.period === 'custom' ? [v.start, v.end] : LEGACY_PERIODS[v.period] ?? LEGACY_PERIODS['summer-2025'];
   if (v.season === 'custom') return [v.start, v.end];
