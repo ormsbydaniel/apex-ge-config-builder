@@ -77,7 +77,7 @@ const Apps: React.FC = () => {
               return (
                 <button
                   key={t.id}
-                  onClick={() => setSelected(t)}
+                  onClick={() => openTemplate(t)}
                   className="group text-left rounded-xl border bg-card p-5 space-y-3 transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
@@ -117,7 +117,7 @@ const Apps: React.FC = () => {
         </section>
       </main>
 
-      <AppWizardDialog template={selected} onClose={() => setSelected(null)} />
+      <AppWizardDialog template={selected} draft={draft} onClose={() => setSelected(null)} />
 
       <Dialog open={aiOpen} onOpenChange={setAiOpen}>
         <DialogContent className="max-w-lg">
