@@ -166,34 +166,6 @@ const Apps: React.FC = () => {
           </p>
         </section>
 
-        <section className="rounded-xl border bg-card p-6 space-y-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">Build with AI</h2>
-            <Badge variant="secondary">Coming soon</Badge>
-          </div>
-          <Textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe your app, e.g. Monitor crop health around Bristol through summer 2025 using Sentinel-2"
-            className="min-h-20"
-          />
-          <div className="flex flex-wrap items-center gap-2">
-            {PROMPT_IDEAS.map((idea) => (
-              <Button key={idea} variant="outline" size="sm" className="h-7 text-xs" onClick={() => setPrompt(idea)}>
-                {idea}
-              </Button>
-            ))}
-            <Button
-              className="ml-auto"
-              disabled={!prompt.trim()}
-              onClick={() => toast({ title: 'Build with AI is coming soon', description: 'For now, start from one of the templates below.' })}
-            >
-              Generate app <ArrowRight className="h-4 w-4 ml-1.5" />
-            </Button>
-          </div>
-        </section>
-
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">Start from a template</h2>
           <div className="grid gap-4 md:grid-cols-3">
@@ -225,6 +197,35 @@ const Apps: React.FC = () => {
             })}
           </div>
         </section>
+
+        <section className="rounded-xl border bg-card p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Build with AI</h2>
+            <Badge variant="secondary">Coming soon</Badge>
+          </div>
+          <Textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Describe your app, e.g. Monitor crop health around Bristol through summer 2025 using Sentinel-2"
+            className="min-h-20"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            {PROMPT_IDEAS.map((idea) => (
+              <Button key={idea} variant="outline" size="sm" className="h-7 text-xs" onClick={() => setPrompt(idea)}>
+                {idea}
+              </Button>
+            ))}
+            <Button
+              className="ml-auto"
+              disabled={!prompt.trim()}
+              onClick={() => toast({ title: 'Build with AI is coming soon', description: 'For now, start from one of the templates above.' })}
+            >
+              Generate app <ArrowRight className="h-4 w-4 ml-1.5" />
+            </Button>
+          </div>
+        </section>
+
       </main>
 
       <TemplateDialog template={selected} onClose={() => setSelected(null)} />
