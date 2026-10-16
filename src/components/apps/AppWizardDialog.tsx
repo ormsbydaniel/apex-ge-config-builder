@@ -15,7 +15,6 @@ import {
   WizardField,
   WizardOption,
   FINAL_TWEAKS_STEP,
-  LOCATION_PRESETS,
   WizardStep,
   WizardValues,
   getDefaultValues,
@@ -24,7 +23,7 @@ import {
 } from '@/utils/appTemplates/templates';
 import { AppWizardDraft, saveWizardDraft } from '@/utils/appTemplates/wizardDraft';
 import { Bbox, pointInBbox } from '@/utils/appTemplates/dataProbes';
-import LocationPickerMap from './LocationPickerMap';
+import StartLocationControls from '@/components/config/StartLocationControls';
 
 type Action = 'builder' | 'preview' | 'download';
 const STEP_LABELS = ['Title', 'Data', 'Location', 'Options', 'Final tweaks'];
