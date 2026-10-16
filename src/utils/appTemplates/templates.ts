@@ -46,7 +46,7 @@ export interface AppTemplate {
   tagline: string;
   description: string;
   bestFor: string[];
-  defaults: { title: string; center: [number, number]; zoom: number };
+  defaults: { title: string; center: [number, number]; zoom: number; layoutVariant?: 'fullscreen' | 'sidebar' };
   optionsStep: WizardStep;
   dataStep: WizardStep;
   build: (p: AppTemplateParams) => Record<string, unknown>;
@@ -129,7 +129,10 @@ const layerLayout = (group: string, temporal = false) => ({
 const shell = (p: AppTemplateParams, group: string, sources: unknown[]) => ({
   version: '1.0.0',
   exportPrefix: p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'app',
-  layout: { navigation: { logo: LOGO, title: p.title } },
+  layout: {
+    design: { variant: p.values.layoutVariant || 'sidebar' },
+    navigation: { logo: LOGO, title: p.title },
+  },
   interfaceGroups: [group],
   exclusivitySets: [],
   mapConstraints: { zoom: p.zoom, center: p.center, projection: 'EPSG:3857' },
@@ -141,8 +144,28 @@ const shell = (p: AppTemplateParams, group: string, sources: unknown[]) => ({
 });
 
 /** Initial wizard values for a template (options + data step defaults). */
-export const getDefaultValues = (t: AppTemplate): WizardValues =>
-  Object.fromEntries([...t.optionsStep.fields, ...t.dataStep.fields].map((f) => [f.id, f.default]));
+export const getDefaultValues = (t: AppTemplate): WizardValues => ({
+  ...Object.fromEntries([...t.optionsStep.fields, ...t.dataStep.fields].map((f) => [f.id, f.default])),
+  layoutVariant: t.defaults.layoutVariant ?? 'sidebar',
+});
+
+/** Shared last wizard step: same layout variants as the Config Builder settings. */
+export const FINAL_TWEAKS_STEP: WizardStep = {
+  title: 'Final tweaks',
+  description: 'Choose how the Explorer lays out the map and its panels.',
+  fields: [
+    {
+      id: 'layoutVariant',
+      label: 'Layout variant',
+      type: 'choice',
+      default: 'sidebar',
+      options: [
+        { value: 'fullscreen', label: 'Fullscreen', description: 'The map fills the screen, with panels floating on top.' },
+        { value: 'sidebar', label: 'Sidebar', description: 'Panels sit in a sidebar beside the map.' },
+      ],
+    },
+  ],
+};
 
 export const isFieldVisible = (f: WizardField, values: WizardValues) =>
   !f.showIf || f.showIf.in.includes(values[f.showIf.field] ?? '');
@@ -247,6 +270,7 @@ export const APP_TEMPLATES: AppTemplate[] = [
           name: custom ? `Before vs after` : `Sentinel-2 cloudless: ${v.before} vs ${v.after}`,
           isActive: true,
           isBaseLayer: false,
+          isSwipeLayer: true,
           data: [
             { url, format: 'wms', zIndex: 50, layers: beforeLayer, position: 'left' },
             { url, format: 'wms', zIndex: 50, layers: afterLayer, position: 'right' },
