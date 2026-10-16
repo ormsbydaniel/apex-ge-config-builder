@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, ChevronDown, ChevronRight, Check, AlertTriangle, Triangle, Download, LayoutGrid } from 'lucide-react';
 import BasemapGalleryDialog from './BasemapGalleryDialog';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { useLayersTabContext } from '@/contexts/LayersTabContext';
 import { useConfig } from '@/contexts/ConfigContext';
 import { toast } from '@/hooks/use-toast';
