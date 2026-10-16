@@ -47,6 +47,8 @@ export interface ExampleManifest {
     services?: RecommendedResourceEntry;
     catalogues?: RecommendedCatalogueEntry[];
   };
+  /** Community app templates (`template.json` files) for /apps. */
+  appTemplates: RecommendedResourceEntry[];
 }
 
 
@@ -177,7 +179,13 @@ export const fetchExampleManifest = async (
       catalogues: catalogues.length > 0 ? catalogues : undefined,
     };
 
-    return { examples, testConfigs, recommended } satisfies ExampleManifest;
+    const appTemplates = Array.isArray((raw as Record<string, unknown>).appTemplates)
+      ? ((raw as Record<string, unknown>).appTemplates as unknown[])
+          .map(parseRecommendedEntry)
+          .filter((e): e is RecommendedResourceEntry => !!e)
+      : [];
+
+    return { examples, testConfigs, recommended, appTemplates } satisfies ExampleManifest;
   })();
 
   cache = run.catch((e) => {
