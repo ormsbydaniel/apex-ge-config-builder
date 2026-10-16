@@ -12,3 +12,4 @@
 - Keep STAC interval endpoints independently navigable in the shared date picker, preserving datetime-local values and empty open endpoints so navigation never couples the two dates.
 
 - Convert xyzservices basemap entries into base layers only in `src/utils/basemapGallery/`, so the gallery and saved layers cannot drift.
+- Geospatial Explorer App templates live in `src/utils/appTemplates/` and emit raw config JSON that is loaded via the normal import pipeline, so `/apps` output is always schema-validated like any loaded file.
