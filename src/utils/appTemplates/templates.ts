@@ -117,14 +117,14 @@ const osmBase = {
 };
 
 const darkBase = {
-  id: 'carto-dark',
-  name: 'CARTO Dark Matter',
+  id: 'stadia-dark',
+  name: 'Stadia Alidade Smooth Dark',
   isActive: true,
   isBaseLayer: true,
-  data: [{ url: 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', format: 'xyz', zIndex: 10 }],
+  data: [{ url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}@2x.png', format: 'xyz', zIndex: 10 }],
   meta: {
-    description: 'Base layer: CARTO Dark Matter',
-    attribution: { text: '© OpenStreetMap contributors © CARTO', url: 'https://carto.com/attributions' },
+    description: 'Base layer: Stadia Alidade Smooth Dark',
+    attribution: { text: '© Stadia Maps © OpenMapTiles © OpenStreetMap', url: 'https://stadiamaps.com/' },
     categories: [],
   },
   exclusivitySets: [],
