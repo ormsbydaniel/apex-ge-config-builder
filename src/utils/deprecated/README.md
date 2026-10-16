@@ -1,0 +1,1 @@
+- LocationPickerMap.tsx: old wizard mini-map, replaced by StartLocationControls.

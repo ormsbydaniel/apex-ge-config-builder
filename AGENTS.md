@@ -14,3 +14,4 @@
 - Convert xyzservices basemap entries into base layers only in `src/utils/basemapGallery/`, so the gallery and saved layers cannot drift.
 - Geospatial Explorer App templates live in `src/utils/appTemplates/` and emit raw config JSON that is loaded via the normal import pipeline, so `/apps` output is always schema-validated like any loaded file.
 - App wizard data probes live in `src/utils/appTemplates/dataProbes.ts` and are advisory only (cached, time-limited, falling back to static choices), so the wizard keeps working when services are unreachable.
+- Start-location controls (preset dropdown, pick on map, zoom slider) live in `src/components/config/StartLocationControls.tsx` and are used by the app wizard, so app builders learn the same controls as Settings → Navigation.

@@ -1,3 +1,4 @@
+/** @deprecated Replaced by components/config/StartLocationControls in the app wizard. */
 import React, { useEffect } from 'react';
 import { MapContainer, Rectangle, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
