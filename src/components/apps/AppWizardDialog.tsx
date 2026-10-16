@@ -17,6 +17,7 @@ import {
   isFieldVisible,
   validateStep,
 } from '@/utils/appTemplates/templates';
+import { AppWizardDraft, saveWizardDraft } from '@/utils/appTemplates/wizardDraft';
 import LocationPickerMap from './LocationPickerMap';
 
 type Action = 'builder' | 'preview' | 'download';
@@ -63,7 +64,11 @@ const StepFields: React.FC<{ step: WizardStep; values: WizardValues; onChange: (
   </div>
 );
 
-const AppWizardDialog: React.FC<{ template: AppTemplate | null; onClose: () => void }> = ({ template, onClose }) => {
+const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizardDraft | null; onClose: () => void }> = ({
+  template,
+  draft,
+  onClose,
+}) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { importConfigFromText } = useConfigImport();
@@ -78,14 +83,15 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; onClose: () => v
 
   useEffect(() => {
     if (!template) return;
-    setStep(0);
-    setTitle(template.defaults.title);
-    setCenter(template.defaults.center);
-    setZoom(template.defaults.zoom);
+    const resume = draft && draft.templateId === template.id ? draft : null;
+    setStep(resume ? Math.min(resume.step, STEP_LABELS.length - 1) : 0);
+    setTitle(resume?.title ?? template.defaults.title);
+    setCenter(resume?.center ?? template.defaults.center);
+    setZoom(resume?.zoom ?? template.defaults.zoom);
     setPreset(null);
-    setValues(getDefaultValues(template));
+    setValues({ ...getDefaultValues(template), ...(resume?.values ?? {}) });
     setError(null);
-  }, [template]);
+  }, [template, draft]);
 
   if (!template) return null;
 
@@ -105,6 +111,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; onClose: () => v
   const run = async (action: Action) => {
     if (!check()) return;
     const config = template.build({ title: title.trim(), center, zoom, values });
+    saveWizardDraft({ templateId: template.id, title: title.trim(), center, zoom, values, step });
     const text = JSON.stringify(config, null, 2);
     if (action === 'download') {
       const blob = new Blob([text], { type: 'application/json' });
@@ -122,7 +129,7 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; onClose: () => v
       toast({ title: 'Could not create app', description: 'The generated configuration failed validation.', variant: 'destructive' });
       return;
     }
-    navigate(action === 'builder' ? '/' : '/preview');
+    navigate(action === 'builder' ? '/' : '/preview', { state: action === 'preview' ? { fromApps: true } : undefined });
   };
 
   const groups = Array.from(new Set(LOCATION_PRESETS.map((l) => l.group)));
