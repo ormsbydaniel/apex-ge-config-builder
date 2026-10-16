@@ -107,3 +107,26 @@ Many gallery maps only cover part of the world. Use the **Coverage** filter and 
 - **Unknown** – the registry doesn't say what area the map covers. These maps are never hidden by **Covers map centre** being off, but are left out when it's on.
 
 Maps known not to cover your centre are marked **Outside map centre**, and their thumbnails show the map's own area instead.
+
+### Registry and licence
+
+The gallery is generated from [xyzservices](https://github.com/geopandas/xyzservices),
+the open registry of XYZ tile providers maintained by the
+[GeoPandas](https://geopandas.org) project and used by Python mapping tools such
+as Folium. At runtime the Config Builder reads
+[providers.json](https://github.com/geopandas/xyzservices/blob/main/xyzservices/data/providers.json),
+so maps added upstream appear in the gallery without a new Config Builder
+release.
+
+- **Licence** — xyzservices is distributed under the
+  [BSD-3-Clause licence](https://github.com/geopandas/xyzservices/blob/main/LICENSE);
+  its documentation is at
+  [xyzservices.readthedocs.io](https://xyzservices.readthedocs.io/).
+- **Names, tile addresses, attribution and zoom limits** come straight from the
+  registry entry, which is why saved base layers credit providers correctly.
+- **Coverage badges** are worked out by the Config Builder from registry
+  metadata plus a curated list of single-country maps — the registry itself does
+  not classify coverage, so treat the badges as a guide rather than a guarantee.
+- **Terms of use** are not part of the registry. Check each provider's own
+  conditions before publishing a configuration that uses its maps, especially
+  for anything that needs an API key.
