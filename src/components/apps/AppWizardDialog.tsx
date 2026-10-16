@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useConfigImport } from '@/hooks/useConfigIO';
 import { useToast } from '@/hooks/use-toast';
@@ -69,7 +70,20 @@ const StepFields: React.FC<{
         {(() => {
           const opts = fieldOptions(f, insight);
           return (f.type !== 'choice' && f.optionsFrom && opts?.length) || (f.type === 'choice' && opts && opts.length > 12);
-        })() ? null : f.type === 'choice' ? (
+        })() ? null : f.type === 'slider' ? (
+          <div className="flex items-center gap-3">
+            <Slider
+              id={`wiz-${f.id}`}
+              min={f.min ?? 0}
+              max={f.max ?? 100}
+              step={f.step ?? 1}
+              value={[Number(values[f.id] ?? f.default)]}
+              onValueChange={([n]) => onChange(f.id, String(n))}
+              className="flex-1"
+            />
+            <span className="w-12 text-right text-sm tabular-nums">{values[f.id] ?? f.default}{f.unit}</span>
+          </div>
+        ) : f.type === 'choice' ? (
           <div className={cn('grid gap-2', fieldOptions(f, insight)!.some((o) => o.description) ? 'grid-cols-1' : 'grid-cols-4')}>
             {fieldOptions(f, insight)!.map((o) => {
               const active = values[f.id] === o.value;

@@ -7,9 +7,9 @@
  * (normalise + Zod validation) before reaching state.
  */
 
+import { updateStacCql2Filter } from '@/utils/stacQuery';
 import {
   DataInsight,
-  periodWithinExtent,
   probeStacCollection,
   probeStacCount,
   probeVectorExtent,
@@ -28,7 +28,12 @@ export interface WizardOption {
 export interface WizardField {
   id: string;
   label: string;
-  type: 'choice' | 'date' | 'text';
+  type: 'choice' | 'date' | 'text' | 'slider';
+  /** Slider bounds (slider only). */
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
   options?: WizardOption[];
   default: string;
   help?: string;
@@ -197,6 +202,8 @@ export const buildStacSearchUrl = (
   zoom: number,
   start = '2025-06-01',
   end = '2025-08-31',
+  maxCloud?: number,
+  filterStyle: 'query' | 'cql2' = 'query',
 ): string => {
   const half = Math.min(10, Math.max(0.05, 180 / Math.pow(2, zoom)));
   const bbox = [center[0] - half, center[1] - half / 2, center[0] + half, center[1] + half / 2]
@@ -204,7 +211,9 @@ export const buildStacSearchUrl = (
     .join(',');
   const base = collectionUrl.replace(/\/+$/, '');
   const itemsUrl = /\/items$/.test(base) ? base : `${base}/items`;
-  return `${itemsUrl}?bbox=${bbox}&datetime=${start}T00:00:00Z/${end}T23:59:59Z&limit=20`;
+  const url = `${itemsUrl}?bbox=${bbox}&datetime=${start}T00:00:00Z/${end}T23:59:59Z&limit=20`;
+  if (maxCloud === undefined || !Number.isFinite(maxCloud) || maxCloud >= 100) return url;
+  return updateStacCql2Filter(url, [{ property: 'eo:cloud_cover', type: 'number', operator: 'lte', values: [String(maxCloud)] }] as never, filterStyle);
 };
 
 /* ---------- Change & Swipe ---------- */
@@ -219,11 +228,28 @@ const wmsLayerOptions = (i: DataInsight) =>
 
 /* ---------- STAC Monitor ---------- */
 
-const STAC_PERIODS: Record<string, [string, string]> = {
+const SEASONS: Record<string, { label: string; range: (y: number) => [string, string] }> = {
+  spring: { label: 'Spring (Mar–May)', range: (y) => [`${y}-03-01`, `${y}-05-31`] },
+  summer: { label: 'Summer (Jun–Aug)', range: (y) => [`${y}-06-01`, `${y}-08-31`] },
+  autumn: { label: 'Autumn (Sep–Nov)', range: (y) => [`${y}-09-01`, `${y}-11-30`] },
+  winter: { label: 'Winter (Dec–Feb)', range: (y) => [`${y - 1}-12-01`, `${y}-02-${new Date(Date.UTC(y, 2, 0)).getUTCDate()}`] },
+  year: { label: 'Whole year', range: (y) => [`${y}-01-01`, `${y}-12-31`] },
+};
+/** Legacy period ids from earlier drafts. */
+const LEGACY_PERIODS: Record<string, [string, string]> = {
   'summer-2025': ['2025-06-01', '2025-08-31'],
   'spring-2025': ['2025-03-01', '2025-05-31'],
   'year-2025': ['2025-01-01', '2025-12-31'],
   'summer-2024': ['2024-06-01', '2024-08-31'],
+};
+const THIS_YEAR = new Date().getFullYear();
+const yearRangeOptions = (from: number, to: number): WizardOption[] =>
+  Array.from({ length: Math.max(0, to - from + 1) }, (_, i) => String(to - i)).map((y) => ({ value: y, label: y }));
+/** Collection years from the probe; null keeps the static fallback. */
+const extentYears = (i: DataInsight): WizardOption[] | null => {
+  const [a, b] = i.temporalExtent ?? [];
+  if (!a) return null;
+  return yearRangeOptions(Number(a.slice(0, 4)), b ? Number(b.slice(0, 4)) : THIS_YEAR);
 };
 
 const STAC_MISSIONS: Record<string, { collection: string; asset: string; name: string; attribution: string }> = {
@@ -241,16 +267,14 @@ const STAC_MISSIONS: Record<string, { collection: string; asset: string; name: s
   },
 };
 
-const STAC_PERIOD_OPTIONS: WizardOption[] = [
-  { value: 'summer-2025', label: 'Summer 2025' },
-  { value: 'spring-2025', label: 'Spring 2025' },
-  { value: 'year-2025', label: 'All of 2025' },
-  { value: 'summer-2024', label: 'Summer 2024' },
-  { value: 'custom', label: 'Custom dates' },
-];
 const extentRange = (i: DataInsight) => ({ min: i.temporalExtent?.[0] ?? undefined, max: i.temporalExtent?.[1] ?? undefined });
-const stacPeriod = (v: WizardValues): [string, string] =>
-  v.period === 'custom' ? [v.start, v.end] : STAC_PERIODS[v.period] ?? STAC_PERIODS['summer-2025'];
+export const stacPeriod = (v: WizardValues): [string, string] => {
+  if (!v.season && v.period) return v.period === 'custom' ? [v.start, v.end] : LEGACY_PERIODS[v.period] ?? LEGACY_PERIODS['summer-2025'];
+  if (v.season === 'custom') return [v.start, v.end];
+  return (SEASONS[v.season] ?? SEASONS.summer).range(Number(v.year) || THIS_YEAR - 1);
+};
+const stacMaxCloud = (v: WizardValues) => (v.maxCloud === undefined || v.maxCloud === '' ? undefined : Number(v.maxCloud));
+const stacFilterStyle = (v: WizardValues) => (STAC_MISSIONS[v.mission] ? 'query' : 'cql2') as 'query' | 'cql2';
 const stacCollection = (v: WizardValues) => STAC_MISSIONS[v.mission]?.collection ?? v.collectionUrl;
 
 /* ---------- Vector ---------- */
@@ -342,27 +366,38 @@ export const APP_TEMPLATES: AppTemplate[] = [
       description: 'Which period should the app show scenes from?',
       fields: [
         {
-          id: 'period',
-          label: 'Period',
+          id: 'season',
+          label: 'Season',
           type: 'choice',
-          default: 'summer-2025',
+          default: 'summer',
           options: [
-            { value: 'summer-2025', label: 'Summer 2025' },
-            { value: 'spring-2025', label: 'Spring 2025' },
-            { value: 'year-2025', label: 'All of 2025' },
-            { value: 'summer-2024', label: 'Summer 2024' },
+            ...Object.entries(SEASONS).map(([value, x]) => ({ value, label: x.label })),
             { value: 'custom', label: 'Custom dates' },
           ],
-          optionsFrom: (i) =>
-            i.temporalExtent
-              ? STAC_PERIOD_OPTIONS.map((o) => {
-                  const r = STAC_PERIODS[o.value];
-                  return { ...o, disabled: !!r && !periodWithinExtent(r[0], r[1], i.temporalExtent) };
-                })
-              : null,
         },
-        { id: 'start', label: 'From', type: 'date', default: '2025-06-01', showIf: { field: 'period', in: ['custom'] }, rangeFrom: extentRange },
-        { id: 'end', label: 'To', type: 'date', default: '2025-08-31', showIf: { field: 'period', in: ['custom'] }, rangeFrom: extentRange },
+        {
+          id: 'year',
+          label: 'Year',
+          type: 'choice',
+          default: String(THIS_YEAR - 1),
+          options: yearRangeOptions(2015, THIS_YEAR),
+          optionsFrom: extentYears,
+          help: 'Years the collection covers. Winter runs from December of the year before.',
+          showIf: { field: 'season', in: Object.keys(SEASONS) },
+        },
+        { id: 'start', label: 'From', type: 'date', default: '2025-06-01', showIf: { field: 'season', in: ['custom'] }, rangeFrom: extentRange },
+        { id: 'end', label: 'To', type: 'date', default: '2025-08-31', showIf: { field: 'season', in: ['custom'] }, rangeFrom: extentRange },
+        {
+          id: 'maxCloud',
+          label: 'Maximum cloud cover',
+          type: 'slider',
+          default: '20',
+          min: 0,
+          max: 100,
+          step: 5,
+          unit: '%',
+          help: 'Scenes cloudier than this are left out. 100% includes every scene.',
+        },
       ],
     },
     dataStep: {
@@ -392,7 +427,7 @@ export const APP_TEMPLATES: AppTemplate[] = [
     liveCheck: async (p) => {
       const [start, end] = stacPeriod(p.values);
       if (!start || !end) return null;
-      const n = await probeStacCount(buildStacSearchUrl(stacCollection(p.values), p.center, p.zoom, start, end));
+      const n = await probeStacCount(buildStacSearchUrl(stacCollection(p.values), p.center, p.zoom, start, end, stacMaxCloud(p.values), stacFilterStyle(p.values)));
       if (n === null) return null;
       return n === 0
         ? 'No scenes found for this place and period. Try a longer period or move the map.'
@@ -414,7 +449,7 @@ export const APP_TEMPLATES: AppTemplate[] = [
           isBaseLayer: false,
           data: [
             {
-              url: buildStacSearchUrl(collection, p.center, p.zoom, start, end),
+              url: buildStacSearchUrl(collection, p.center, p.zoom, start, end, stacMaxCloud(v), stacFilterStyle(v)),
               format: 'stac',
               zIndex: 50,
               minZoom: 8,
