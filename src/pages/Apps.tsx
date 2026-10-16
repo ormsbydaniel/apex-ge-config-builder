@@ -111,7 +111,7 @@ const Apps: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-1">
                 <Badge variant="outline" className="text-[10px] font-normal">Any use case</Badge>
-                <Badge variant="outline" className="text-[10px] font-normal">"Build me a wildfires app"</Badge>
+                <Badge variant="outline" className="text-[10px] font-normal">"Wildfire app"</Badge>
                 <Badge variant="outline" className="text-[10px] font-normal">"Flood extent map"</Badge>
               </div>
               <span className="mt-auto text-sm text-primary inline-flex items-center">
