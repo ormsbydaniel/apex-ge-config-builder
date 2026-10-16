@@ -421,6 +421,17 @@ export const APP_TEMPLATES: AppTemplate[] = [
               maxZoom: 20,
               assets: [asset],
               assetFormats: { [asset]: 'cog' },
+              // Earth Search "visual" COGs are 8-bit true colour: bands 1-3 = R, G, B in 0-255.
+              ...(asset === 'visual'
+                ? {
+                    convertToRGB: true,
+                    normalize: false,
+                    bands: [1, 2, 3],
+                    style: {
+                      color: ['array', ['/', ['band', 1], 255], ['/', ['band', 2], 255], ['/', ['band', 3], 255], 1],
+                    },
+                  }
+                : {}),
             },
           ],
           meta: {
@@ -429,6 +440,7 @@ export const APP_TEMPLATES: AppTemplate[] = [
             categories: [],
           },
           layout: layerLayout(group, true),
+          timeframe: 'Days',
           exclusivitySets: [],
         },
       ]);
