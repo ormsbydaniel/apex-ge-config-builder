@@ -5,17 +5,17 @@ The **Apps** page (`/apps`) offers ready-made app templates. Besides the built-i
 A template is two files in its own folder:
 
 - `config.json`: a normal Geospatial Explorer configuration, built and styled in the Configuration Builder and exported. This is the **base config**.
-- `template.json`: which questions the wizard asks, and where each answer goes in the base config.
+- `wizard.json`: which questions the wizard asks, and where each answer goes in the base config.
 
 Then list the template in `config-builder/manifest.json`:
 
 ```json
 "appTemplates": [
-  { "file": "apps/s2-monitor/template.json" }
+  { "file": "apps/s2-monitor/wizard.json" }
 ]
 ```
 
-## The template file
+## The wizard file
 
 ```json
 {

@@ -47,7 +47,7 @@ export interface ExampleManifest {
     services?: RecommendedResourceEntry;
     catalogues?: RecommendedCatalogueEntry[];
   };
-  /** Community app templates (`template.json` files) for /apps. */
+  /** Community app templates (`wizard.json` files) for /apps. */
   appTemplates: RecommendedResourceEntry[];
 }
 
