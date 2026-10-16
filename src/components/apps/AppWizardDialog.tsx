@@ -172,23 +172,29 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
         <ol className="flex items-center gap-2 text-xs">
           {STEP_LABELS.map((l, i) => (
             <li key={l} className="flex flex-1 items-center gap-2">
-              <span
-                className={cn(
-                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium',
-                  i < step && 'border-primary bg-primary text-primary-foreground',
-                  i === step && 'border-primary text-primary',
-                  i > step && 'text-muted-foreground',
-                )}
+              <button
+                type="button"
+                onClick={() => goTo(i)}
+                className="flex items-center gap-2 rounded-md px-1 py-0.5 hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                {i + 1}
-              </span>
-              <span className={cn(i === step ? 'font-medium' : 'text-muted-foreground')}>{l}</span>
+                <span
+                  className={cn(
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium',
+                    i !== step && i <= maxVisited && 'border-primary bg-primary text-primary-foreground',
+                    i === step && 'border-primary text-primary',
+                    i > maxVisited && i !== step && 'text-muted-foreground',
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <span className={cn(i === step ? 'font-medium' : 'text-muted-foreground')}>{l}</span>
+              </button>
               {i < STEP_LABELS.length - 1 && <span className="h-px flex-1 bg-border" />}
             </li>
           ))}
         </ol>
 
-        <div className="min-h-64 space-y-4 py-2">
+        <div className="min-h-[24rem] space-y-4 py-2">
           {step === 0 && (
             <div className="space-y-1.5">
               <h3 className="font-semibold">Name your app</h3>
