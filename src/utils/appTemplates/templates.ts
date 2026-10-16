@@ -145,7 +145,7 @@ export const getDefaultValues = (t: AppTemplate): WizardValues =>
   Object.fromEntries([...t.optionsStep.fields, ...t.dataStep.fields].map((f) => [f.id, f.default]));
 
 export const isFieldVisible = (f: WizardField, values: WizardValues) =>
-  !f.showIf || f.showIf.in.includes(values[f.field_ref ?? f.showIf.field] ?? '');
+  !f.showIf || f.showIf.in.includes(values[f.showIf.field] ?? '');
 
 /** Build a STAC item-search URL with bbox (around centre), datetime and limit. */
 export const buildStacSearchUrl = (
