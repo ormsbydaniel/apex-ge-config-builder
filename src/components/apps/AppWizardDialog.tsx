@@ -299,70 +299,40 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
           )}
 
           {step === S_LOCATION && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <h3 className="font-semibold">Where should the app start?</h3>
-                <p className="text-sm text-muted-foreground">Pick a place, or move the map so the circle sits where you want.</p>
+                <p className="text-sm text-muted-foreground">
+                  Choose a place, set the zoom, or pick any spot on the map. These are the same controls as Settings → Navigation.
+                </p>
               </div>
-              <div className="space-y-1.5">
-                {insight?.bbox && (
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="w-20 text-xs text-muted-foreground">Data</span>
+              <StartLocationControls
+                center={center}
+                zoom={zoom}
+                dataBbox={insight?.bbox}
+                onChange={(c, z) => {
+                  setCenter(c);
+                  setZoom(z);
+                }}
+                extra={
+                  insight?.bbox ? (
                     <Button
                       type="button"
                       size="sm"
-                      variant={preset === '__data' ? 'default' : 'outline'}
-                      className="h-6 px-2 text-xs"
+                      variant="outline"
                       onClick={() => {
                         const v = bboxView(insight.bbox!);
-                        setPreset('__data');
                         setCenter(v.center);
                         setZoom(v.zoom);
                       }}
                     >
                       Fit to data area
                     </Button>
-                  </div>
-                )}
-                {groups.map((g) => (
-                  <div key={g} className="flex flex-wrap items-center gap-1.5">
-                    <span className="w-20 text-xs text-muted-foreground">{g}</span>
-                    {LOCATION_PRESETS.filter((l) => l.group === g).map((l) => (
-                      <Button
-                        key={l.label}
-                        type="button"
-                        size="sm"
-                        variant={preset === l.label ? 'default' : 'outline'}
-                        className="h-6 px-2 text-xs"
-                        onClick={() => {
-                          setPreset(l.label);
-                          setCenter(l.center);
-                          setZoom(l.zoom);
-                        }}
-                      >
-                        {l.label}
-                      </Button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-              <LocationPickerMap
-                center={center}
-                zoom={zoom}
-                dataBbox={insight?.bbox}
-                onChange={(c, z) => {
-                  setCenter((prev) => {
-                    if (Math.abs(prev[0] - c[0]) > 1e-3 || Math.abs(prev[1] - c[1]) > 1e-3) setPreset(null);
-                    return c;
-                  });
-                  setZoom(z);
-                }}
+                  ) : null
+                }
               />
-              <p className="text-xs text-muted-foreground">
-                Centre {center[1].toFixed(3)}, {center[0].toFixed(3)} · zoom {zoom}
-              </p>
               {insight?.bbox && !pointInBbox(center, insight.bbox) && (
-                <p className="text-xs text-destructive">This place is outside the area the data covers (outlined on the map).</p>
+                <p className="text-xs text-destructive">This place is outside the area the data covers (outlined when you pick on the map).</p>
               )}
             </div>
           )}
