@@ -78,21 +78,21 @@ const Apps: React.FC = () => {
                 <button
                   key={t.id}
                   onClick={() => openTemplate(t)}
-                  className="group text-left rounded-xl border bg-card p-5 space-y-3 transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group flex h-full flex-col items-start gap-3 text-left rounded-xl border bg-card p-5 transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
                     <h3 className="font-semibold">{t.name}</h3>
-                    <p className="text-sm text-muted-foreground">{t.tagline}</p>
+                    <p className="text-sm text-muted-foreground min-h-[2.5rem]">{t.tagline}</p>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {t.bestFor.map((b) => (
                       <Badge key={b} variant="outline" className="text-[10px] font-normal">{b}</Badge>
                     ))}
                   </div>
-                  <span className="text-sm text-primary inline-flex items-center">
+                  <span className="mt-auto text-sm text-primary inline-flex items-center">
                     Use template <ArrowRight className="h-3.5 w-3.5 ml-1 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </button>
@@ -100,16 +100,21 @@ const Apps: React.FC = () => {
             })}
             <button
               onClick={() => setAiOpen(true)}
-              className="group text-left rounded-xl border border-dashed bg-card p-5 space-y-3 transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group flex h-full flex-col items-start gap-3 text-left rounded-xl border border-dashed bg-card p-5 transition-colors hover:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="font-semibold flex items-center gap-2">Build with AI <Badge variant="secondary" className="text-[10px]">Soon</Badge></h3>
-                <p className="text-sm text-muted-foreground">Describe your app in plain words</p>
+                <p className="text-sm text-muted-foreground min-h-[2.5rem]">Describe your app in plain words</p>
               </div>
-              <span className="text-sm text-primary inline-flex items-center">
+              <div className="flex flex-wrap gap-1">
+                <Badge variant="outline" className="text-[10px] font-normal">Any use case</Badge>
+                <Badge variant="outline" className="text-[10px] font-normal">"Wildfire app"</Badge>
+                <Badge variant="outline" className="text-[10px] font-normal">"Flood extent map"</Badge>
+              </div>
+              <span className="mt-auto text-sm text-primary inline-flex items-center">
                 Try it <ArrowRight className="h-3.5 w-3.5 ml-1 transition-transform group-hover:translate-x-0.5" />
               </span>
             </button>
