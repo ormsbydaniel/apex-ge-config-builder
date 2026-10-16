@@ -85,7 +85,7 @@ const Apps: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold">{t.name}</h3>
-                    <p className="text-sm text-muted-foreground">{t.tagline}</p>
+                    <p className="text-sm text-muted-foreground min-h-[2.5rem]">{t.tagline}</p>
                   </div>
                   <div className="flex flex-wrap gap-1">
                     {t.bestFor.map((b) => (
@@ -107,7 +107,7 @@ const Apps: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-semibold flex items-center gap-2">Build with AI <Badge variant="secondary" className="text-[10px]">Soon</Badge></h3>
-                <p className="text-sm text-muted-foreground">Describe your app in plain words</p>
+                <p className="text-sm text-muted-foreground min-h-[2.5rem]">Describe your app in plain words</p>
               </div>
               <div className="flex flex-wrap gap-1">
                 <Badge variant="outline" className="text-[10px] font-normal">Any use case</Badge>
