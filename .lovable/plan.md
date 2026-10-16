@@ -1,34 +1,79 @@
-# Keycloak sign-in for the Configuration Builder (saved for later)
+# Phase 1: Community app templates from the configs repository
 
-Status: parked. Saved to come back to after more work on the Apps feature.
+## Goal
 
-## Decisions
-- **Sign-in is optional.** The builder and /apps stay fully usable without signing in (local authoring, load, export). Signing in unlocks protected features: protected ESA/APEx data in the Preview, and later saved cloud workspaces and publishing.
-- **Shared client.** Use the existing `apex-explorer` Keycloak client (realm `apex`). Only split into a dedicated `apex-config-builder` client if we later need different redirect rules, scopes or roles (e.g. a "publisher" role only builders get).
+App templates on `/apps` come from the ESA-APEx configs repository instead of being written in code. Each template is a normal Geospatial Explorer config (the "base config") plus a small wizard file that says which questions to ask and where each answer goes in the config. Anyone can add a template with a pull request; no redeploy of the Config Builder is needed.
 
-## What the user will see
-- A small "Sign in" button in the builder header (next to User Guide / Export) and on /apps.
-- When signed in: name/initials with a menu (account, sign out).
-- The Preview passes the signed-in session to the viewer so protected layers load without a second login.
-- Features that need an account show a gentle "Sign in to use this" prompt instead of failing.
-- Session stays alive quietly in the background; if it expires, the user is asked to sign in again without losing unsaved work.
+This phase builds the template format, the loader and the wizard support. "Save as App Template" from the Config Builder is Phase 2.
 
-## Steps
-1. **Keycloak client setup (APEx admins):** add the builder's addresses (preview, published, sparkgeo.uk domain, localhost:8080) as allowed redirect URIs and web origins on `apex-explorer`; confirm public client + PKCE.
-2. **Auth layer:** add `keycloak-js`, initialise with `check-sso` using the existing `public/silent-check-sso.html`, PKCE S256. One auth context exposes user, token, login, logout, and refreshes the token before expiry.
-3. **Header controls:** Sign in / user menu in ConfigBuilder header and Apps page.
-4. **Viewer handoff:** extend the iframe handshake so the Preview sends the current token (and refreshed tokens) to the viewer alongside the env from `buildViewerEnv`, instead of the viewer starting its own login. Needs agreement with the viewer bundle team on the message format.
-5. **Protected-feature gating:** small helper/hook for "requires sign-in" so future features (cloud save, publish, AI build) gate consistently.
-6. **Unsaved work safety:** before redirecting to Keycloak, the current config is already persisted locally; confirm it survives the round-trip.
-7. **Docs:** short user-guide page on signing in and what it unlocks.
+## What the user sees
+
+- `/apps` shows templates listed in the repository's manifest, alongside the three current built-in ones.
+- Each card shows its name, tagline, badges and a "Community" marker when it comes from the repository.
+- Opening one runs the same 5-step wizard (Title, Data, Location, Options, Final tweaks) with the same buttons, step jumping and Back to App Builder from Preview.
+- If the repository can't be reached, the built-in templates still show, with a quiet "Couldn't load community templates" note.
+- A template that fails its checks is left out and listed under a small "Unavailable templates" note, with the reason, so authors can fix it.
+
+## Template format
+
+A manifest entry in `config-builder/manifest.json`:
+
+```json
+"appTemplates": [
+  { "id": "s2-monitor", "file": "apps/s2-monitor/template.json" }
+]
+```
+
+`template.json`:
+
+```json
+{
+  "formatVersion": 1,
+  "id": "s2-monitor",
+  "name": "Satellite STAC Monitor",
+  "tagline": "...",
+  "bestFor": ["Crop health", "Seasonal change"],
+  "baseConfig": "config.json",
+  "defaults": { "title": "...", "center": [15, 52], "zoom": 4, "layoutVariant": "sidebar" },
+  "steps": {
+    "data":    { "title": "Imagery", "fields": [ ... ] },
+    "options": { "title": "Time period", "fields": [ ... ] }
+  },
+  "patches": [
+    { "set": "/layout/navigation/title", "from": "title" },
+    { "set": "/sources/0/data/0/url", "from": "stacUrl", "transform": "stacSearch" }
+  ]
+}
+```
+
+- Fields use the same kinds as today: choice, date, text, slider, with `showIf`.
+- Patches are declarative: `set` a JSON path to a wizard answer, a fixed value, or the result of a named helper.
+- Data-aware behaviour (EOX year lists, STAC date ranges, scene counts, vector extents) is opted into by name, e.g. `"probe": "stacCollection"` or `"optionsFrom": "stacYears"`. Authors pick from a fixed list of built-in helpers; templates never contain code.
+
+## Build steps
+
+1. Keep the parked Keycloak plan: move it into the saved-plans folder so this plan doesn't replace it.
+2. Define the template format: Zod schema and TypeScript types for `template.json` and the patch rules, with a format version.
+3. Patch engine: apply patches to a copy of the base config (JSON-pointer style paths, array indexes, named transforms). Pure functions, unit-tested.
+4. Helper registry: wrap today's probes, `optionsFrom`, `rangeFrom`, `liveCheck` and transforms (STAC search URL, cloud filter, period from season/year, bbox from centre/zoom) under stable names.
+5. Loader: extend the manifest reader with an optional `appTemplates` section, fetch each template and its base config, validate, cache for the session, and collect failures with reasons.
+6. Adapter: turn a loaded community template into the same internal template object the wizard already uses, so the wizard needs only small changes (card marker, unavailable note).
+7. Prove it: write the Satellite STAC Monitor as a `template.json` + `config.json` pair, check that its output matches the built-in version's output in a test, and supply the files for the configs repository (staged locally until they are pushed there).
+8. Docs: a "Writing an app template" page in the guide (format, patches, helper names, how to submit), registered in `mkdocs.yml` and `nav-groups.js`.
+9. Record the decision in `AGENTS.md`.
+
+## Not in this phase
+
+- "Save as App Template" in the Config Builder (Phase 2).
+- Removing the built-in TypeScript templates. They stay as a fallback until the community versions are proven; retiring them is a later decision.
+- Build with AI.
 
 ## Technical details
-- Env values (URL, realm, client ID) stay in `src/config/viewerEnv.ts`; builder auth reads the same constants so builder and viewer can't drift. Move to per-environment values (dev/prod) when a prod realm is available.
-- Tokens kept in memory only (not localStorage); never written into configs or exports.
-- No Lovable Cloud needed for login itself; cloud workspaces/publishing would later call APEx APIs (e.g. dispatcher) with the bearer token.
-- Record the auth architecture rule in `AGENTS.md` when implemented.
 
-## Open questions for later
-- Exact redirect URIs the APEx team will allow on `apex-explorer`.
-- Does the viewer accept an injected token, or must it be updated?
-- Which features first require sign-in (cloud save, publish, Build with AI)?
+- New files under `src/utils/appTemplates/`: `templateSchema.ts`, `patchEngine.ts`, `helpers.ts` (named registry), `communityTemplates.ts` (loader + adapter). Tests in `__tests__/`.
+- `exampleManifest.ts`: parse optional `appTemplates` entries with the existing `resolveRef`; a missing section is fine.
+- Generated config still goes through `importConfigFromText`, so community output is schema-validated like any loaded file. Base configs are also validated at load time so broken templates are caught before the wizard opens.
+- Patch paths that don't exist in the base config fail validation of the template, not silently at build time.
+- Unknown helper names or a newer `formatVersion` mark the template unavailable rather than crashing.
+- Draft resume keys on template id; community ids are prefixed (`community:`) to avoid clashing with built-ins.
+- Tests: patch engine paths and transforms, schema rejection cases, manifest parsing with and without `appTemplates`, and STAC template parity with the built-in builder.
