@@ -247,7 +247,6 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
     navigate(action === 'builder' ? '/' : '/preview', { state: action === 'preview' ? { fromApps: true } : undefined });
   };
 
-  const groups = Array.from(new Set(LOCATION_PRESETS.map((l) => l.group)));
 
   return (
     <Dialog open={!!template} onOpenChange={(o) => !o && onClose()}>
