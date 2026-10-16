@@ -52,9 +52,11 @@ export const evalExpr = (e: ValueExpr, ctx: EvalContext): unknown => {
   return fn(args);
 };
 
-export const conditionMet = (c: Condition | undefined, p: AppTemplateParams) => {
+/** Conditions read a computed value when one has that name, otherwise an answer. */
+export const conditionMet = (c: Condition | undefined, ctx: EvalContext) => {
   if (!c) return true;
-  const v = String(answer(p, c.field) ?? '');
+  const raw = c.field in ctx.computed ? evalExpr({ ref: c.field }, ctx) : answer(ctx.params, c.field);
+  const v = String(raw ?? '');
   if (c.in && !c.in.includes(v)) return false;
   if (c.notIn && c.notIn.includes(v)) return false;
   return true;
@@ -90,7 +92,7 @@ export const applyPatches = (
 ): Record<string, unknown> => {
   const out = structuredClone(base);
   for (const patch of patches) {
-    if (!conditionMet(patch.when, ctx.params)) continue;
+    if (!conditionMet(patch.when, ctx)) continue;
     if ('remove' in patch && typeof patch.remove === 'string') {
       const { parent, key } = parentOf(out, patch.remove);
       if (Array.isArray(parent)) parent.splice(Number(key), 1);

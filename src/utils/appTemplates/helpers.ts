@@ -23,6 +23,8 @@ export const TRANSFORMS: Record<string, TransformHelper> = {
     return buildStacSearchUrl(str(a.collection), center, Number(a.zoom), str(a.start), str(a.end), cloud,
       a.filterStyle === 'cql2' ? 'cql2' : 'query');
   },
+  /** First non-empty of a, b. */
+  coalesce: ({ a, b }) => (str(a) !== '' ? a : b),
   singleKeyObject: ({ key, value }) => ({ [str(key)]: value }),
   list: (a) => Object.keys(a).sort().map((k) => a[k]),
 };
