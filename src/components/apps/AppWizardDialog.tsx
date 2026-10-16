@@ -81,10 +81,13 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<Action | null>(null);
 
+  const [maxVisited, setMaxVisited] = useState(0);
+
   useEffect(() => {
     if (!template) return;
     const resume = draft && draft.templateId === template.id ? draft : null;
     setStep(resume ? Math.min(resume.step, STEP_LABELS.length - 1) : 0);
+    setMaxVisited(resume ? STEP_LABELS.length - 1 : 0);
     setTitle(resume?.title ?? template.defaults.title);
     setCenter(resume?.center ?? template.defaults.center);
     setZoom(resume?.zoom ?? template.defaults.zoom);
@@ -98,18 +101,42 @@ const AppWizardDialog: React.FC<{ template: AppTemplate | null; draft?: AppWizar
   const isLast = step === STEP_LABELS.length - 1;
   const currentWizardStep = step === 2 ? template.optionsStep : step === 3 ? template.dataStep : null;
 
-  const check = (): boolean => {
-    let problem: string | null = null;
-    if (step === 0 && !title.trim()) problem = 'Please give your app a title.';
-    if (currentWizardStep) problem = validateStep(currentWizardStep, values);
-    setError(problem);
-    return !problem;
+  const problemFor = (i: number): string | null => {
+    if (i === 0) return title.trim() ? null : 'Please give your app a title.';
+    if (i === 2) return validateStep(template.optionsStep, values);
+    if (i === 3) return validateStep(template.dataStep, values);
+    return null;
   };
 
-  const next = () => check() && setStep((s) => s + 1);
+  const ready = maxVisited >= STEP_LABELS.length - 1 && STEP_LABELS.every((_, i) => !problemFor(i));
+
+  const goTo = (target: number) => {
+    if (target === step) return;
+    if (target > step) {
+      // Moving forward: every step before the target must be valid.
+      for (let i = step; i < target; i++) {
+        const p = problemFor(i);
+        if (p) {
+          setStep(i);
+          setError(p);
+          return;
+        }
+      }
+    }
+    setError(null);
+    setStep(target);
+    setMaxVisited((m) => Math.max(m, target));
+  };
+
+  const next = () => goTo(step + 1);
 
   const run = async (action: Action) => {
-    if (!check()) return;
+    const bad = STEP_LABELS.findIndex((_, i) => problemFor(i));
+    if (bad >= 0) {
+      setStep(bad);
+      setError(problemFor(bad));
+      return;
+    }
     const config = template.build({ title: title.trim(), center, zoom, values });
     saveWizardDraft({ templateId: template.id, title: title.trim(), center, zoom, values, step });
     const text = JSON.stringify(config, null, 2);
