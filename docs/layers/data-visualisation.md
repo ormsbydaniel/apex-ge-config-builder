@@ -59,3 +59,11 @@ Pressing the **Trash** icon resets that tool's underlying configuration:
 - Vector Style → removes the inline style block
 
 Clearing one tool does **not** automatically activate another — the layer falls back to the viewer's default rendering until you pick a new tool.
+
+## JSON Style Editor
+
+The **JSON Style Editor** row (braces icon) opens a JSON editor for the rendering settings of the layer's datasets. It is not one of the exclusive tools — it is an expert view over whatever the other tools wrote. It is available on standard and swipe layers, not base layers, and never edits statistics datasets.
+
+- **Apply to** — all datasets, a ticked selection, or one dataset. If the chosen datasets differ, the first one's values are shown and applying makes them identical (you are asked to confirm).
+- **Fields shown** — *Style* (`style`), *Bands* (`bands`, `convertToRGB`, `normalize`), *Display* (`opacity`, `minZoom`, `maxZoom`, `zIndex`) and, optionally, *Recipe metadata* (`spectralIndex`, `computedComposite`, `styleSource`, `batchStretch`).
+- Deleting a shown key removes it from the datasets; keys that are not shown (URL, format, timestamps…) are never changed.

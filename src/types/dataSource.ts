@@ -36,6 +36,8 @@ export interface DataSourceItem {
   parameters?: Record<string, unknown>;
   // Opacity support (0-1 range)
   opacity?: number;
+  // Layer blend mode applied by the viewer when compositing this dataset
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'difference' | 'exclusion';
   // RGB composite rendering flag
   convertToRGB?: boolean;
   computedComposite?: {

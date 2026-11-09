@@ -8,4 +8,11 @@
 - Vector attribute detection probes a layer's data files in order (`src/utils/vectorStyle/pickAttributeSource.ts`) and streams FlatGeobuf reads with early abort, because multi-file layers can contain attribute-less files and files can be very large.
 - Keep spectral-index recipe and custom palette stops as the single rendering/legend source; export per-COG labelled snapshots only for explicit palette modes so legacy styles stay truthful.
 - The STAC editor exposes one asset while the contract preserves ordered `assets` and name-keyed `assetFormats`; gate format-dependent tools with `getEffectiveFormat` and keep resolved sample URLs in memory only, because signed hrefs must not be persisted.
-- Keep STAC core item filters encoded only in the data-source URL and manipulate them through `src/utils/stacQuery.ts`, so the Explorer contract needs no parallel query state.
+- Keep STAC core item filters encoded only in the data-source URL and manipulate them through `src/utils/stacQuery.ts` (CQL2 `filter` or Query-extension `query`, chosen from the catalogue's conformance), so the Explorer contract needs no parallel query state.
+- Keep STAC interval endpoints independently navigable in the shared date picker, preserving datetime-local values and empty open endpoints so navigation never couples the two dates.
+
+- Convert xyzservices basemap entries into base layers only in `src/utils/basemapGallery/`, so the gallery and saved layers cannot drift.
+- Geospatial Explorer App templates live in `src/utils/appTemplates/` and emit raw config JSON that is loaded via the normal import pipeline, so `/apps` output is always schema-validated like any loaded file.
+- App wizard data probes live in `src/utils/appTemplates/dataProbes.ts` and are advisory only (cached, time-limited, falling back to static choices), so the wizard keeps working when services are unreachable.
+- Start-location controls (preset dropdown, pick on map, zoom slider) live in `src/components/config/StartLocationControls.tsx` and are used by the app wizard, so app builders learn the same controls as Settings → Navigation.
+- Community app templates are declarative (`wizard.json` + base `config.json` from the configs repository manifest's `appTemplates`); they reference helpers only by name from `src/utils/appTemplates/helpers.ts` and are adapted into ordinary `AppTemplate`s in `communityTemplates.ts`, so contributed templates never run code and the wizard has one code path. Helper names are a stable contract.

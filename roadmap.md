@@ -46,6 +46,7 @@
 - [ ] Later: CSV assets and remaining format-specific tools (constraints, validation) on effective format
 
 ## STAC item queries
+- [x] Replace the coupled range calendar with independent start/end popover calendars with month/year selection, retaining presets, open endpoints and optional times.
 - [x] Assess queryables-driven support and scope the first release to core URL parameters.
 - [x] Add guided bbox, datetime, and limit controls with URL-only persistence.
 - [x] Simplify the STAC form with side-by-side asset fields, inline result limit, and badge-based date/bbox dialogs.
@@ -84,3 +85,7 @@
 - [x] Register pages in mkdocs.yml and nav-groups.js; strict rebuild.
 - [ ] Add contextual screenshots in a later pass.
 - [x] Warn in 12-4 that the first preview load can take up to a minute; rebuild the guide.
+- [x] JSON Style Editor in Data Visualisation (standard + swipe layers, statistics excluded)
+
+- [x] Basemap Gallery (xyzservices) in Base Layers section
+- [ ] Geospatial Explorer Apps: AI prompt engine (Build with AI) — next step

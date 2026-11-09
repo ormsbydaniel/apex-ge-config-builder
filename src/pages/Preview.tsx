@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useViewerLoader } from '@/hooks/useViewerLoader';
 import { useConfig } from '@/contexts/ConfigContext';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,8 @@ const SEMVER_RE = /^\d+\.\d+\.\d+$/;
 
 const Preview = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromApps = !!(location.state as { fromApps?: boolean } | null)?.fromApps;
   const { config } = useConfig();
   
   // Extract only viewer-needed config fields, memoized to prevent unnecessary reloads
@@ -331,10 +333,17 @@ const Preview = () => {
           >
             <GripVertical className="h-4 w-4" />
           </div>
-          <Button onClick={() => navigate('/')} variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Config Builder
-          </Button>
+          {fromApps ? (
+            <Button onClick={() => navigate('/apps', { state: { resumeWizard: true } })} variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to App Builder
+            </Button>
+          ) : (
+            <Button onClick={() => navigate('/')} variant="outline" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Config Builder
+            </Button>
+          )}
           
           <div className="h-6 w-px bg-border" />
           

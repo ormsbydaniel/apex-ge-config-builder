@@ -70,3 +70,63 @@ rather than a data overlay.
 - [XYZ](../data-sources/xyz.md) and
   [WMS / WMTS / WFS](../data-sources/wms-wmts-wfs.md) — common base-layer
   source formats.
+
+## Basemap Gallery
+
+!!! warning "Experimental"
+    The Basemap Gallery is currently available only when **Experimental
+    features** is enabled in the Config Builder settings. It will be
+    switched on for everyone once it has been reviewed.
+
+Select **Browse Basemap Gallery** in the Base Layers header to choose from
+hundreds of ready-made background maps in the open
+[xyzservices](https://github.com/geopandas/xyzservices) registry (CARTO, Esri,
+OpenStreetMap, OpenTopoMap, USGS, NASA GIBS and more).
+
+- Filter by category (Satellite, Light, Dark, Terrain, Streets, Specialist)
+  or search by name or provider.
+- Only free maps are listed by default. Turn on **Show maps that need an API
+  key** to include the rest; selecting one asks for its key. Keys are written
+  into the tile address, so they are visible in the saved configuration.
+- Click a row to see a live preview at your map centre.
+- Maps already in your configuration are marked **Added**.
+- Tick **Display first selection on load** to make the first chosen map the
+  default.
+
+Each map is saved as a normal base layer — name, XYZ tile address,
+attribution, preview thumbnail and zoom limits filled in — and can be edited
+afterwards like any other. Each provider's terms of use still apply.
+
+### Coverage filters
+
+Many gallery maps only cover part of the world. Use the **Coverage** filter and the **Covers map centre** switch to find maps that show something at your project's map centre:
+
+- **Global** – the map lists worldwide coverage.
+- **Regional** – the map covers a continent, several countries, or part of a country (for example Brittany).
+- **National** – the map covers exactly one country; the badge names it (for example *National · Switzerland*).
+- **Unknown** – the registry doesn't say what area the map covers. These maps are never hidden by **Covers map centre** being off, but are left out when it's on.
+
+Maps known not to cover your centre are marked **Outside map centre**, and their thumbnails show the map's own area instead.
+
+### Registry and licence
+
+The gallery is generated from [xyzservices](https://github.com/geopandas/xyzservices),
+the open registry of XYZ tile providers maintained by the
+[GeoPandas](https://geopandas.org) project and used by Python mapping tools such
+as Folium. At runtime the Config Builder reads
+[providers.json](https://github.com/geopandas/xyzservices/blob/main/xyzservices/data/providers.json),
+so maps added upstream appear in the gallery without a new Config Builder
+release.
+
+- **Licence** — xyzservices is distributed under the
+  [BSD-3-Clause licence](https://github.com/geopandas/xyzservices/blob/main/LICENSE);
+  its documentation is at
+  [xyzservices.readthedocs.io](https://xyzservices.readthedocs.io/).
+- **Names, tile addresses, attribution and zoom limits** come straight from the
+  registry entry, which is why saved base layers credit providers correctly.
+- **Coverage badges** are worked out by the Config Builder from registry
+  metadata plus a curated list of single-country maps — the registry itself does
+  not classify coverage, so treat the badges as a guide rather than a guarantee.
+- **Terms of use** are not part of the registry. Check each provider's own
+  conditions before publishing a configuration that uses its maps, especially
+  for anything that needs an API key.
