@@ -1,4 +1,4 @@
-import { deserialize } from 'flatgeobuf/lib/mjs/geojson';
+import { deserialize } from 'flatgeobuf/geojson';
 
 export interface FlatGeobufMetadata {
   featureCount: number;
