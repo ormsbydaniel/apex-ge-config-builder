@@ -1,4 +1,4 @@
-import { deserialize } from 'flatgeobuf/lib/mjs/geojson';
+import { deserialize } from 'flatgeobuf/geojson';
 
 export interface FlatGeobufMetadata {
   featureCount: number;
@@ -54,7 +54,7 @@ export const HEADER_RANGE_BYTES = 65536;
 const headerFromBytes = async (bytes: Uint8Array): Promise<any | null> => {
   let header: any = null;
   try {
-    const it = deserialize(bytes, undefined, (h: any) => { header = h; }) as any;
+    const it = deserialize(bytes, { headerMetaFn: (h: any) => { header = h; } }) as any;
     await it.next();
   } catch {
     // Truncated feature data after the header is expected.
@@ -70,7 +70,7 @@ const headerFromStream = async (url: string): Promise<{ header: any; size: numbe
   const size = parseInt(response.headers.get('content-length') || '0');
   let header: any = null;
   try {
-    const it = deserialize(response.body as any, undefined, (h: any) => { header = h; }) as any;
+    const it = deserialize(response.body as any, { headerMetaFn: (h: any) => { header = h; } }) as any;
     await it.next();
   } catch (e) {
     if (!header) throw e;
