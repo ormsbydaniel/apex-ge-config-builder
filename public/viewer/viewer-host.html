@@ -6,6 +6,21 @@
   <title>Apex Viewer</title>
   <script>
     (function() {
+      // The bundle runs with the builder's origin, so a page from another origin
+      // must never frame this host and feed it config.
+      if (window.parent !== window) {
+        var parentOrigin = null;
+        try {
+          parentOrigin = window.parent.location.origin;
+        } catch (e) {
+          parentOrigin = null;
+        }
+        if (parentOrigin !== window.location.origin) {
+          console.error('[Viewer Host] Framed by another origin. Refusing to load.');
+          return;
+        }
+      }
+
       var params = new URLSearchParams(window.location.search);
 
       // Reset the iframe path to '/' so the explorer router matches its root route.
@@ -16,27 +31,19 @@
       var version = params.get('version');
       var baseUrl = params.get('baseUrl');
 
-      // Allow-list of trusted bundle base URLs. Only these origins/prefixes are
-      // permitted to serve the viewer JS/CSS to prevent arbitrary remote script
-      // execution via the baseUrl query parameter.
-      var ALLOWED_BASE_URLS = [
-        'https://esa-apex.s3.eu-west-1.amazonaws.com/software/',
-        'https://esa-apex.s3.eu-west-1.amazonaws.com/software',
-      ];
+      // The only trusted bundle location. Matched exactly, never as a prefix, so the
+      // query string cannot point the host at other paths in the bucket.
+      var BUNDLE_BASE_URL = 'https://esa-apex.s3.eu-west-1.amazonaws.com/software/';
 
       function isAllowedBaseUrl(url) {
-        if (!url || typeof url !== 'string') return false;
-        for (var i = 0; i < ALLOWED_BASE_URLS.length; i++) {
-          if (url === ALLOWED_BASE_URLS[i] || url.indexOf(ALLOWED_BASE_URLS[i]) === 0) {
-            return true;
-          }
-        }
-        return false;
+        return url === BUNDLE_BASE_URL;
       }
 
-      // Only allow simple version identifiers (semver, dev-* branches).
+      // Simple version identifiers only (semver, dev-* branches). No path segments.
       function isValidVersion(v) {
-        return typeof v === 'string' && /^[A-Za-z0-9._-]+$/.test(v);
+        return typeof v === 'string'
+          && /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(v)
+          && v.indexOf('..') === -1;
       }
 
       if (!version || !isValidVersion(version)) {
@@ -49,7 +56,7 @@
         return;
       }
 
-      var basePath = baseUrl.replace(/\/+$/, '') + '/' + version + '/';
+      var basePath = BUNDLE_BASE_URL + version + '/';
       console.log('[Viewer Host] Loading bundles from:', basePath);
 
       function loadAssets(jsFile, cssFile) {
@@ -75,7 +82,7 @@
             if (root && root.children.length > 0) {
               clearInterval(readyPoll);
               console.log('[Viewer Host] Viewer rendered, sending ready message');
-              window.parent.postMessage({ type: 'apex-viewer-ready' }, '*');
+              window.parent.postMessage({ type: 'apex-viewer-ready' }, window.location.origin);
             }
           }, 200);
           setTimeout(function() { clearInterval(readyPoll); }, 30000);
@@ -86,7 +93,7 @@
       function loadBundle() {
         // Discover actual entry filenames from S3 listing
         // This supports hashed Vite output (index-AbC123.js) and falls back to bundle.js/css
-        var bucketRoot = baseUrl.replace(/\/software\/?$/, '').replace(/\/$/, '');
+        var bucketRoot = BUNDLE_BASE_URL.replace(/\/software\/$/, '');
         var listingUrl = bucketRoot + '/?list-type=2&prefix=software/' + version + '/';
 
         console.log('[Viewer Host] Discovering bundle files from:', listingUrl);
@@ -131,6 +138,7 @@
       // Request config from parent before loading the bundle.
       // This ensures window.explorerConfig is set before the viewer executes.
       window.addEventListener('message', function onConfig(event) {
+        if (event.origin !== window.location.origin || event.source !== window.parent) return;
         if (event.data && event.data.type === 'apex-viewer-config-delivery') {
           window.removeEventListener('message', onConfig);
           console.log('[Viewer Host] Received config from parent, setting explorerConfig');
@@ -140,7 +148,7 @@
       });
 
       // Ask the parent for the config
-      window.parent.postMessage({ type: 'apex-viewer-request-config' }, '*');
+      window.parent.postMessage({ type: 'apex-viewer-request-config' }, window.location.origin);
 
       // Fallback: if parent doesn't respond within 3s, load bundle anyway
       // (standalone mode or legacy parent)

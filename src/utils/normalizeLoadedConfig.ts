@@ -1,5 +1,6 @@
 import { DataSourceItem } from '@/types/config';
 import { validateImages } from '@/utils/imageValidation';
+import { safeHref } from '@/utils/urlSanitizer';
 
 /**
  * Shared by LOAD_CONFIG and RESTORE_DRAFT so a restored draft and a loaded
@@ -60,6 +61,30 @@ const migrateChart = (chart: any) => {
   return { ...chart, layout };
 };
 
+/**
+ * Link URLs are rendered as anchors in the preview, which runs with the
+ * builder's origin and the user's token, so `javascript:` and similar schemes
+ * from a shared config must be dropped before they reach it.
+ */
+type Obj = Record<string, unknown>;
+const isObj = (value: unknown): value is Obj => Boolean(value) && typeof value === 'object';
+
+const withSafeUrl = (link: unknown): unknown => {
+  if (!isObj(link) || !link.url) return link;
+  if (typeof link.url === 'string' && safeHref(link.url)) return link;
+  console.warn('[Config Builder] Dropped unsafe link URL from loaded config:', link.url);
+  const { url: _unsafe, ...rest } = link;
+  return rest;
+};
+
+const withSafeAttribution = (meta: unknown): unknown =>
+  isObj(meta) && meta.attribution ? { ...meta, attribution: withSafeUrl(meta.attribution) } : meta;
+
+const withSafeFooter = (layout: unknown): unknown =>
+  isObj(layout) && Array.isArray(layout.footer)
+    ? { ...layout, footer: layout.footer.map(withSafeUrl) }
+    : layout;
+
 export interface NormalizedLoadedConfig {
   config: Record<string, any>;
   source: any;
@@ -101,8 +126,10 @@ export function normalizeLoadedConfig(payload: any): NormalizedLoadedConfig {
           center: [0, 0],
           projection: 'EPSG:3857',
         },
+    ...(body.layout !== undefined && { layout: withSafeFooter(body.layout) }),
     sources: sources.map((sourceItem: any) => ({
       ...sourceItem,
+      ...(sourceItem.meta !== undefined && { meta: withSafeAttribution(sourceItem.meta) }),
       data: normalizeDataToArray(sourceItem.data),
       ...(sourceItem.statistics && { statistics: sourceItem.statistics }),
       ...(Array.isArray(sourceItem.charts) && { charts: sourceItem.charts.map(migrateChart) }),

@@ -11,6 +11,20 @@ function normalizeBase(value: string | undefined): string {
   return withLeading.endsWith('/') ? withLeading : `${withLeading}/`;
 }
 
+// The Lovable/gpteng editor script runs with the builder's origin and can read
+// the signed-in session. It is injected only by the dev server, never into
+// production builds.
+const devOnlyGptEngineer = {
+  name: 'dev-only-gptengineer',
+  apply: 'serve' as const,
+  transformIndexHtml(html: string) {
+    return html.replace(
+      '</body>',
+      '    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>\n  </body>',
+    );
+  },
+};
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   base: normalizeBase(process.env.VITE_BASE_PATH),
@@ -22,6 +36,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    devOnlyGptEngineer,
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),

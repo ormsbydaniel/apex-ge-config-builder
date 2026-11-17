@@ -47,5 +47,25 @@ origin in web origins, registered the same way. Confirm the client is public
 and uses PKCE (S256). No change to Keycloak framing is required, because the
 sign-in page is never shown inside the preview frame.
 
+### Hosting the builder securely
+
+The preview runs the Geospatial Explorer with the builder's origin, and
+receives the signed-in user's access token. Serve the builder with these
+response headers so other sites cannot frame it:
+
+```text
+Content-Security-Policy: frame-ancestors 'self'
+X-Frame-Options: SAMEORIGIN
+```
+
+A stricter `script-src` limited to the builder's origin and
+`https://esa-apex.s3.eu-west-1.amazonaws.com` is also worth adding. It needs
+`'unsafe-inline'` or script hashes until the inline scripts in
+`viewer/viewer-host.html` and `silent-check-sso.html` move into files.
+
+Explorer bundles load from `esa-apex/software/` in S3. Anyone who can write
+there can run code in the builder with a user's session, so limit write access
+to the release pipeline.
+
 Realm roles, including a future `publisher` role, are shared by the builder,
 the explorer and the publishing API. The API is where a role is enforced.

@@ -78,7 +78,7 @@ export function useViewerLoader({
       console.log('[Config Builder] Sending config to viewer iframe (legacy)');
       iframe.contentWindow.postMessage(
         { type: 'apex-viewer-config', config: withEnv(configRef.current, versionRef.current) },
-        '*'
+        window.location.origin
       );
     }
   }, []);
@@ -104,6 +104,9 @@ export function useViewerLoader({
   // Listen for messages from viewer iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (!iframeRef.current || event.source !== iframeRef.current.contentWindow) return;
+
       // Modern viewer host requests config before loading bundle
       if (event.data?.type === 'apex-viewer-request-config') {
         console.log('[Config Builder] Viewer host requested config, delivering...');

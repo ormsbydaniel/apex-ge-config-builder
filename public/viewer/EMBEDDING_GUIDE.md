@@ -369,4 +369,11 @@ The builder delivers `env.AUTH_MODE: "host"` with the config. Older bundles igno
 | `apex-auth-logout` | Explorer | The builder signs out the top-level page |
 | `apex-auth-account` | Explorer | The builder opens account management in a new tab |
 
-Tokens are memory-only. They are not written into the configuration, the draft, or the "Inspect delivered config" dialog.
+Tokens are memory-only. They are not written into the configuration, the draft, or the "Inspect delivered config" dialog. Only the short-lived access token crosses the bridge. The refresh token never does.
+
+### Security boundaries
+
+- `viewer-host.html` refuses to run when it is framed by another origin. It accepts `apex-viewer-config-delivery` only from its parent at its own origin, and it posts its handshake messages only to its own origin.
+- Bundles load only from `https://esa-apex.s3.eu-west-1.amazonaws.com/software/{version}/`. The base URL must match exactly, and `version` must be a single path segment with no `..`.
+- The explorer bundle runs with the builder's origin, in the same browser context as the session. **Write access to `esa-apex/software/` is therefore equivalent to access to signed-in users' tokens.** Restrict it to the release pipeline.
+- Config link URLs (attributions, footer links, provider websites) must be `http:`, `https:` or `mailto:`. The builder strips other schemes when a config is loaded, and the explorer refuses to render them.
