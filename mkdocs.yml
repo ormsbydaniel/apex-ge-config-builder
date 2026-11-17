@@ -61,6 +61,7 @@ nav:
       - Overview: getting-started/overview.md
       - Build your first config: getting-started/first-config.md
       - Loading and saving: getting-started/loading-saving.md
+      - Signing in: getting-started/signing-in.md
   - Home:
       - Overview: home/overview.md
       - Run Healthcheck: services/healthcheck.md

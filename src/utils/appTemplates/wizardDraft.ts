@@ -1,4 +1,5 @@
 import type { WizardValues } from './templates';
+import { readStored, writeStored } from '@/utils/browserStorage';
 
 /** Wizard answers kept for the session so authors can return from Preview and refine. */
 export interface AppWizardDraft {
@@ -22,7 +23,7 @@ const KEY = 'apex-app-wizard-draft';
 
 export const saveWizardDraft = (draft: AppWizardDraft) => {
   try {
-    sessionStorage.setItem(KEY, JSON.stringify({ ...draft, version: 2 }));
+    writeStored(sessionStorage, KEY, JSON.stringify({ ...draft, version: 2 }));
   } catch {
     /* storage unavailable: refinement simply starts fresh */
   }
@@ -30,7 +31,7 @@ export const saveWizardDraft = (draft: AppWizardDraft) => {
 
 export const loadWizardDraft = (): AppWizardDraft | null => {
   try {
-    const raw = sessionStorage.getItem(KEY);
+    const raw = readStored(sessionStorage, KEY);
     if (!raw) return null;
     const d = JSON.parse(raw) as AppWizardDraft;
     return { ...d, step: migrateDraftStep(d), version: 2 };

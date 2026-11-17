@@ -24,6 +24,11 @@ import {
 } from '@/utils/viewerVersions';
 import type { ViewerVersion } from '@/types/viewer';
 import { useAppSettings } from '@/hooks/useAppSettings';
+import { supportsHostAuth } from '@/utils/viewerVersions';
+import { useViewerAuthBridge } from '@/hooks/useViewerAuthBridge';
+import { useAuth } from '@/auth/AuthContext';
+import { formatDraftTime, useDraftStatus } from '@/components/DraftPersistence';
+import { readStored, writeStored } from '@/utils/browserStorage';
 
 const SEMVER_RE = /^\d+\.\d+\.\d+$/;
 
@@ -48,11 +53,12 @@ const Preview = () => {
       projections: config.projections,
       stories: config.stories,
       settings: config.settings,
+      workflows: config.workflows,
     };
     console.log('[Config Builder Preview] viewerConfig.layout:', vConfig.layout);
     console.log('[Config Builder Preview] viewerConfig.layout.theme:', vConfig.layout?.theme);
     return vConfig;
-  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections, config.stories, config.settings]);
+  }, [config.version, config.layout, config.interfaceGroups, config.exclusivitySets, config.services, config.sources, config.mapConstraints, config.projections, config.stories, config.settings, config.workflows]);
   
   const [versions, setVersions] = useState<ViewerVersion[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
@@ -129,6 +135,11 @@ const Preview = () => {
     config: viewerConfig,
     enabled: selectedVersion !== '',
   });
+  const auth = useAuth();
+  const hostAuthSupported = supportsHostAuth(selectedVersion);
+  useViewerAuthBridge(iframeRef, hostAuthSupported && auth.env.FEATURE_FLAGS.KEYCLOAK_ACTIVE);
+  const { savedAt } = useDraftStatus();
+  const draftTime = formatDraftTime(savedAt);
 
   const [showConfigDialog, setShowConfigDialog] = useState(false);
   const deliveredConfigJson = useMemo(
@@ -178,7 +189,7 @@ const Preview = () => {
 
     let restored: { x: number; y: number } | null = null;
     try {
-      const raw = localStorage.getItem('preview-toolbar-position');
+      const raw = readStored(localStorage, 'preview-toolbar-position');
       if (raw) {
         const parsed = JSON.parse(raw);
         if (typeof parsed?.x === 'number' && typeof parsed?.y === 'number') {
@@ -226,7 +237,7 @@ const Preview = () => {
     }
     if (toolbarPos) {
       try {
-        localStorage.setItem('preview-toolbar-position', JSON.stringify(toolbarPos));
+        writeStored(localStorage, 'preview-toolbar-position', JSON.stringify(toolbarPos));
       } catch {
         // storage unavailable
       }
@@ -362,6 +373,13 @@ const Preview = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {draftTime && (
+            <>
+              <div className="h-6 w-px bg-border" />
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Draft saved {draftTime}</span>
+            </>
+          )}
 
           <div className="h-6 w-px bg-border" />
 

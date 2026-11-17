@@ -4,6 +4,7 @@ import { WorkflowItem } from '@/types/dataSource';
 import { ValidatedConfiguration } from '@/schemas/configSchema';
 import { sanitizeUrl } from '@/utils/urlSanitizer';
 import { validateImages } from '@/utils/imageValidation';
+import { normalizeLoadedConfig } from '@/utils/normalizeLoadedConfig';
 
 
 export type LoadedConfigSource = {
@@ -24,6 +25,7 @@ interface ConfigState extends ValidatedConfiguration {
 
 type ConfigAction =
   | { type: 'LOAD_CONFIG'; payload: ValidatedConfiguration & { __source?: LoadedConfigSource } }
+  | { type: 'RESTORE_DRAFT'; payload: Record<string, any> }
   | { type: 'RESET_CONFIG' }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_LAST_EXPORTED' }
@@ -52,7 +54,7 @@ type ConfigAction =
   | { type: 'UPDATE_STORIES'; payload: Story[] };
 
 
-const initialState: ConfigState = {
+export const initialState: ConfigState = {
   version: '1.0.0',
   exportPrefix: 'config',
   layout: {
@@ -104,113 +106,37 @@ const initialState: ConfigState = {
   unsavedFormDescription: null,
 };
 
-// Helper function to normalize legacy data to always be arrays
-const normalizeDataToArray = (data: any): DataSourceItem[] => {
-  if (Array.isArray(data)) {
-    return data.map(item => ({
-      ...item,
-      format: item.format || 'wms',
-      zIndex: item.zIndex ?? 0,
-      url: item.url || (item.images?.[0]?.url) || '',
-      // Filter images to only include those with valid URLs
-      ...(item.images && {
-        images: validateImages(item.images)
-      })
-    }));
-  } else if (data && typeof data === 'object') {
-    // Convert single objects or special structures to arrays
-    if (data.type === 'swipe') {
-      // For comparison data, create a placeholder array item
-      return [{
-        format: 'comparison',
-        zIndex: 0,
-        type: data.type,
-        url: `swipe:${data.clippedSource}:${data.baseSources.join(',')}`
-      }];
-    } else {
-      // Convert single data source to array
-      return [{
-        ...data,
-        url: data.url || '',
-        format: data.format || 'wms',
-        zIndex: data.zIndex ?? 0,
-        // Filter images to only include those with valid URLs
-        ...(data.images && {
-          images: validateImages(data.images)
-        })
-      }];
-    }
-  }
-  return [];
-};
+const clearedSession = () => ({
+  isLoading: false,
+  validationResults: new Map(),
+  hasUnsavedFormChanges: false,
+  unsavedFormDescription: null as string | null,
+});
 
 export function configReducer(state: ConfigState, action: ConfigAction): ConfigState {
   switch (action.type) {
     case 'LOAD_CONFIG': {
-      // Normalize all data fields to arrays when loading and preserve statistics
-      const { __source, ...payloadWithoutSource } = action.payload as any;
-
-      // Migrate legacy chart axis title shape to Plotly v2 native shape:
-      //   { title: "Wavelength", titleFont: { size: 12 } }
-      //     -> { title: { text: "Wavelength", font: { size: 12 } } }
-      const migrateAxis = (axis: any) => {
-        if (!axis || typeof axis !== 'object') return axis;
-        const next: any = { ...axis };
-        if (typeof next.title === 'string') {
-          next.title = {
-            text: next.title,
-            ...(next.titleFont ? { font: next.titleFont } : {}),
-          };
-        }
-        if ('titleFont' in next) delete next.titleFont;
-        return next;
-      };
-      const migrateChart = (chart: any) => {
-        if (!chart?.layout) return chart;
-        const layout = { ...chart.layout };
-        if (layout.xaxis) layout.xaxis = migrateAxis(layout.xaxis);
-        if (layout.yaxis) layout.yaxis = migrateAxis(layout.yaxis);
-        return { ...chart, layout };
-      };
-
-      const normalizedPayload = {
-        ...payloadWithoutSource,
-        exportPrefix: payloadWithoutSource.exportPrefix || 'config',
-        services: payloadWithoutSource.services || [],
-        workflows: payloadWithoutSource.workflows || [],
-
-        // Only add default mapConstraints if none exist in the imported config
-        mapConstraints: payloadWithoutSource.mapConstraints !== undefined 
-          ? {
-              ...payloadWithoutSource.mapConstraints,
-              projection: payloadWithoutSource.mapConstraints.projection || 'EPSG:3857'
-            }
-          : {
-              zoom: 0,
-              center: [0, 0],
-              projection: 'EPSG:3857'
-            },
-        sources: payloadWithoutSource.sources.map((source: any) => ({
-          ...source,
-          data: normalizeDataToArray(source.data),
-          // Preserve statistics array if it exists
-          ...(source.statistics && { statistics: source.statistics }),
-          // Migrate chart axis title shape if charts present
-          ...(Array.isArray(source.charts) && { charts: source.charts.map(migrateChart) })
-        }))
-      };
-      
+      const { config, source } = normalizeLoadedConfig(action.payload);
       return {
-        ...normalizedPayload,
-        isLoading: false,
+        ...config,
+        ...clearedSession(),
         isDirty: false,
         lastLoaded: new Date(),
-        lastLoadedSource: __source ?? null,
+        lastLoadedSource: source ?? null,
         lastExported: state.lastExported,
-        validationResults: new Map(),
-        hasUnsavedFormChanges: false,
-        unsavedFormDescription: null,
-      };
+      } as ConfigState;
+    }
+    case 'RESTORE_DRAFT': {
+      const payload = action.payload ?? {};
+      const { config } = normalizeLoadedConfig(payload);
+      return {
+        ...config,
+        ...clearedSession(),
+        isDirty: payload.isDirty === true,
+        lastLoaded: payload.lastLoaded ? new Date(payload.lastLoaded) : null,
+        lastLoadedSource: payload.lastLoadedSource ?? null,
+        lastExported: payload.lastExported ? new Date(payload.lastExported) : null,
+      } as ConfigState;
     }
     case 'RESET_CONFIG':
       return {

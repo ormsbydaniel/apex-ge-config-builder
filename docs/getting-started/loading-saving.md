@@ -3,9 +3,21 @@ title: Loading and saving
 ---
 # Loading and saving
 
-The Configuration Builder never auto-saves to a server — your work lives in
-the browser session and is exported as a JSON file. There are four ways to
-**load** an existing config and one way to **export**.
+The Configuration Builder keeps a local copy of your working configuration in
+this browser and opens it again when you come back. Nothing is saved to a
+server. Exporting still downloads the JSON file you ship, and exporting does
+not remove the local copy.
+
+## Starting over
+
+**New** on the Home tab resets the builder. **Discard saved session** deletes
+the local copy without changing what is on screen. The unsaved-changes guard
+still asks before **New** or loading a different file replaces unexported edits.
+
+If the same configuration is edited in two tabs, the older tab stops saving
+and asks you to load the other tab's version or keep this one. If the browser
+refuses to store the copy, one message asks you to export, and closing the
+tab warns you while there are unexported edits.
 
 ## Loading a config
 

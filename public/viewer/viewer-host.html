@@ -8,7 +8,9 @@
     (function() {
       var params = new URLSearchParams(window.location.search);
 
-      // Reset URL path to '/' so the viewer's router matches its root route.
+      // Reset the iframe path to '/' so the explorer router matches its root route.
+      // This must stay '/' even when the builder itself is served under a prefix
+      // such as /builder/. The explorer must not inherit that base path.
       history.replaceState(null, '', '/' + window.location.search);
 
       var version = params.get('version');

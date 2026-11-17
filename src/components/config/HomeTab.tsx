@@ -26,6 +26,7 @@ import { LayerIssuesDialog } from './components/LayerIssuesDialog';
 import LatestUpdatesSection from './components/LatestUpdatesSection';
 import { DataSource } from '@/types/config';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
+import { useDraftStatus } from '@/components/DraftPersistence';
 
 interface HomeTabProps {
   config: any;
@@ -37,6 +38,7 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
   const { handleFileSelect, importConfig, importConfigFromUrl } = useConfigImport();
   const { exportConfig } = useConfigExport();
   const { guardAction, isOpen: showUnsavedDialog, onConfirm: onUnsavedConfirm, onCancel: onUnsavedCancel } = useUnsavedChangesGuard();
+  const { savedAt, discardDraft } = useDraftStatus();
   const [showLoadDialog, setShowLoadDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -339,6 +341,18 @@ const HomeTab = ({ config, onNavigateToLayer }: HomeTabProps) => {
                     <RotateCcw className="h-4 w-4 mr-2" />
                     New
                   </Button>
+
+                  {savedAt && (
+                    <Button
+                      type="button"
+                      onClick={() => { void discardDraft(); }}
+                      variant="ghost"
+                      size="sm"
+                      className="h-9 text-sm text-muted-foreground"
+                    >
+                      Discard saved session
+                    </Button>
+                  )}
 
                 </div>
               </div>

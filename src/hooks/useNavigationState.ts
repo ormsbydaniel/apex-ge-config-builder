@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { readStored, removeStored, writeStored } from '@/utils/browserStorage';
 
 /**
  * Hook for persisting navigation state across Preview <-> Config Builder transitions
@@ -26,7 +27,7 @@ export const useNavigationState = () => {
   const [navigationState, setNavigationState] = useState<NavigationState>(() => {
     // Try to load from sessionStorage on mount
     try {
-      const saved = sessionStorage.getItem(STORAGE_KEY);
+      const saved = readStored(sessionStorage, STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
         return { ...defaultState, ...parsed };
@@ -40,7 +41,7 @@ export const useNavigationState = () => {
   // Save to sessionStorage whenever state changes
   const saveState = useCallback((newState: NavigationState) => {
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+      writeStored(sessionStorage, STORAGE_KEY, JSON.stringify(newState));
       setNavigationState(newState);
     } catch (error) {
       console.error('Failed to save navigation state:', error);
@@ -52,7 +53,7 @@ export const useNavigationState = () => {
     setNavigationState(prev => {
       const newState = { ...prev, activeTab: tab };
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+        writeStored(sessionStorage, STORAGE_KEY, JSON.stringify(newState));
       } catch (error) {
         console.error('Failed to save navigation state:', error);
       }
@@ -64,7 +65,7 @@ export const useNavigationState = () => {
     setNavigationState(prev => {
       const newState = { ...prev, expandedGroups: groups };
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+        writeStored(sessionStorage, STORAGE_KEY, JSON.stringify(newState));
       } catch (error) {
         console.error('Failed to save navigation state:', error);
       }
@@ -76,7 +77,7 @@ export const useNavigationState = () => {
     setNavigationState(prev => {
       const newState = { ...prev, expandedLayers: layers };
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+        writeStored(sessionStorage, STORAGE_KEY, JSON.stringify(newState));
       } catch (error) {
         console.error('Failed to save navigation state:', error);
       }
@@ -88,7 +89,7 @@ export const useNavigationState = () => {
     setNavigationState(prev => {
       const newState = { ...prev, scrollPosition: position };
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+        writeStored(sessionStorage, STORAGE_KEY, JSON.stringify(newState));
       } catch (error) {
         console.error('Failed to save navigation state:', error);
       }
@@ -100,7 +101,7 @@ export const useNavigationState = () => {
     setNavigationState(prev => {
       const newState = { ...prev, expandedSubGroups: subGroups };
       try {
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+        writeStored(sessionStorage, STORAGE_KEY, JSON.stringify(newState));
       } catch (error) {
         console.error('Failed to save navigation state:', error);
       }
@@ -111,7 +112,7 @@ export const useNavigationState = () => {
   // Clear state (useful for reset)
   const clearState = useCallback(() => {
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      removeStored(sessionStorage, STORAGE_KEY);
       setNavigationState(defaultState);
     } catch (error) {
       console.error('Failed to clear navigation state:', error);
