@@ -8,7 +8,7 @@ export const announcements: Announcement[] = [
   {
     date: "2026-11-19",
     title:
-      "Release 2.11.0 - Config builder login (to support algorithm integration).  Requires 4.4.0 or above in "Preview". Local in-browser database storage of config for reload after authentication and persistence between sessions.",
+      "Release 2.11.0 - Config builder login (to support algorithm integration).  Requires 4.4.0 or above in \"Preview\". Local in-browser database storage of config for reload after authentication and persistence between sessions.",
     category: "Feature",
   },
   {
