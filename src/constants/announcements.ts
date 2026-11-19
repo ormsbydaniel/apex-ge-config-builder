@@ -6,6 +6,12 @@ export interface Announcement {
 
 export const announcements: Announcement[] = [
   {
+    date: "2026-11-19",
+    title:
+      "Release 2.11.0 - Integration of Keycloak sign-in, and local in-browser storage of your config so it is remembered between sessions",
+    category: "Feature",
+  },
+  {
     date: "2026-10-13",
     title:
       "Release 2.10.0 - Comprehensive support for STAC data sources in configuration builder.  Addition of further tutorials",
