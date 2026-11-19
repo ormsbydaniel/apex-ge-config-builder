@@ -7,7 +7,7 @@
  * All failures are non-fatal: callers fall back to manual entry.
  */
 
-import { deserialize } from 'flatgeobuf/lib/mjs/geojson';
+import { deserialize } from 'flatgeobuf/geojson';
 
 /** Hard cap on features inspected, to keep sampling cheap on large files. */
 export const MAX_SAMPLED_FEATURES = 500;

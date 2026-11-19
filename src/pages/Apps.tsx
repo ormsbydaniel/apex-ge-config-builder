@@ -10,6 +10,8 @@ import { APP_TEMPLATES, AppTemplate } from '@/utils/appTemplates/templates';
 import { AppWizardDraft, loadWizardDraft } from '@/utils/appTemplates/wizardDraft';
 import AppWizardDialog from '@/components/apps/AppWizardDialog';
 import { CommunityTemplatesResult, fetchCommunityTemplates } from '@/utils/appTemplates/communityTemplates';
+import AuthMenu from '@/components/auth/AuthMenu';
+import { withBase } from '@/utils/appPaths';
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'change-swipe': Columns2,
@@ -70,7 +72,10 @@ const Apps: React.FC = () => {
       <header className="border-b">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <span className="font-semibold tracking-tight">Geospatial Explorer <span className="text-primary">Apps</span></span>
-          <a href="/" className="text-sm text-muted-foreground hover:text-foreground">Advanced Config Builder →</a>
+          <div className="flex items-center gap-3">
+            <AuthMenu />
+            <a href={withBase('')} className="text-sm text-muted-foreground hover:text-foreground">Advanced Config Builder →</a>
+          </div>
         </div>
       </header>
 

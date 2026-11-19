@@ -14,6 +14,8 @@
  * bypass in sessionStorage so devs can navigate freely during a QA session.
  */
 
+import { readStored, writeStored } from "@/utils/browserStorage";
+
 export const NEW_SITE_URL = "https://ge-config-builder.apex.esa.int/";
 export const BYPASS_PARAM = "devview";
 export const BYPASS_STORAGE_KEY = "apex.devview";
@@ -43,10 +45,10 @@ export function shouldShowRelocationNotice(): boolean {
   try {
     const params = new URLSearchParams(window.location.search);
     if (params.get(BYPASS_PARAM) === "1") {
-      window.sessionStorage.setItem(BYPASS_STORAGE_KEY, "1");
+      writeStored(window.sessionStorage, BYPASS_STORAGE_KEY, "1");
       return false;
     }
-    if (window.sessionStorage.getItem(BYPASS_STORAGE_KEY) === "1") {
+    if (readStored(window.sessionStorage, BYPASS_STORAGE_KEY) === "1") {
       return false;
     }
   } catch {

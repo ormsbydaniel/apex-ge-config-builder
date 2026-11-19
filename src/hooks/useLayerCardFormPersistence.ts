@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { DataSource, Category, Colormap, TimeframeType } from '@/types/config';
 import { FieldsConfig } from '@/types/category';
 import { useToast } from '@/hooks/use-toast';
+import { readStored, removeStored, writeStored } from '@/utils/browserStorage';
 
 interface LayerCardFormData {
   name: string;
@@ -111,7 +112,7 @@ export const useLayerCardFormPersistence = (
     // For new layers, try to load from localStorage first
     if (!isEditing) {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = readStored(localStorage, STORAGE_KEY);
         if (saved) {
           const parsed = JSON.parse(saved);
           return {
@@ -164,7 +165,7 @@ export const useLayerCardFormPersistence = (
       const timeoutId = setTimeout(() => {
         setIsAutoSaving(true);
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+          writeStored(localStorage, STORAGE_KEY, JSON.stringify(formData));
         } catch (error) {
           console.warn('Failed to save draft to localStorage:', error);
         }
@@ -198,7 +199,7 @@ export const useLayerCardFormPersistence = (
   const clearDraft = useCallback(() => {
     if (!isEditing) {
       try {
-        localStorage.removeItem(STORAGE_KEY);
+        removeStored(localStorage, STORAGE_KEY);
       } catch (error) {
         console.warn('Failed to clear draft from localStorage:', error);
       }

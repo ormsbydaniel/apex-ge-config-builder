@@ -1,5 +1,6 @@
 import { ViewerVersion } from '@/types/viewer';
 import { VIEWER_BUCKET_LIST_URL, VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
+import { readStored, writeStored } from '@/utils/browserStorage';
 
 /**
  * Fetch available viewer versions by listing S3 bucket prefixes.
@@ -88,21 +89,41 @@ export function getLatestVersion(versions: ViewerVersion[]): ViewerVersion | nul
   return versions.sort((a, b) => compareVersions(a.version, b.version))[0];
 }
 
+/**
+ * First explorer bundle that accepts a host-owned Keycloak session.
+ * Published bundles through 4.3.0-rc do not. Raise this only if a later
+ * release ships without the adapter, or lower it to the version that does.
+ */
+export const HOST_AUTH_MIN_VERSION = '4.4.0';
+
+/**
+ * True when this bundle reads `AUTH_MODE: 'host'` and will not start its own
+ * Keycloak flow inside the preview iframe. A dev build opts in with a
+ * `dev-auth` version name (the published S3 prefix).
+ */
+export function supportsHostAuth(version: string): boolean {
+  if (!version) return false;
+  if (version.startsWith('dev-auth') || version.startsWith('dev-host-auth')) return true;
+  const baseVersion = version.replace(/-.*$/, '');
+  if (!/^\d+\.\d+\.\d+$/.test(baseVersion)) return false;
+  return compareVersions(baseVersion, HOST_AUTH_MIN_VERSION) <= 0;
+}
+
 const VIEWER_VERSION_KEY = 'apex-viewer-version';
 const VERSION_ALERT_SHOWN_KEY = 'apex-viewer-update-alert-shown';
 
 export function getSavedViewerVersion(): string | null {
-  return localStorage.getItem(VIEWER_VERSION_KEY);
+  return readStored(localStorage, VIEWER_VERSION_KEY);
 }
 
 export function saveViewerVersion(version: string): void {
-  localStorage.setItem(VIEWER_VERSION_KEY, version);
+  writeStored(localStorage, VIEWER_VERSION_KEY, version);
 }
 
 export function hasShownVersionAlertThisSession(): boolean {
-  return sessionStorage.getItem(VERSION_ALERT_SHOWN_KEY) === 'true';
+  return readStored(sessionStorage, VERSION_ALERT_SHOWN_KEY) === 'true';
 }
 
 export function markVersionAlertAsShown(): void {
-  sessionStorage.setItem(VERSION_ALERT_SHOWN_KEY, 'true');
+  writeStored(sessionStorage, VERSION_ALERT_SHOWN_KEY, 'true');
 }

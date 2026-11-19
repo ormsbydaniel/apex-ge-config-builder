@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { VIEWER_BUNDLE_BASE_URL } from '@/config/viewerBundleConfig';
-import { buildViewerEnv } from '@/config/viewerEnv';
-import { compareVersions } from '@/utils/viewerVersions';
+import { buildViewerEnv, loadApexEnv } from '@/config/apexEnv';
+import { compareVersions, supportsHostAuth } from '@/utils/viewerVersions';
+import { withBase } from '@/utils/appPaths';
 
-// Merge the hardcoded viewer env into the delivered config without mutating
+// Merge the runtime viewer env into the delivered config without mutating
 // the source object (so export/round-trip stays clean).
 const withEnv = (config: any, version: string) =>
-  config ? { ...config, env: buildViewerEnv(version) } : config;
+  config ? { ...config, env: buildViewerEnv(version, supportsHostAuth(version)) } : config;
 
 
 interface UseViewerLoaderProps {
@@ -30,8 +31,9 @@ interface UseViewerLoaderReturn {
  * vs the legacy initApexViewer/postMessage approach.
  */
 function isModernViewer(version: string): boolean {
-  // Dev/candidate builds for 3.6+ are modern
+  // Dev/candidate builds for 3.6+ are modern. dev-auth is the current host-auth bundle.
   if (version.startsWith('dev-3-6') || version.startsWith('dev-3.6')) return true;
+  if (version.startsWith('dev-auth') || version.startsWith('dev-host-auth')) return true;
   // Strip pre-release suffix (e.g., "3.6.0-rc" -> "3.6.0", "3.6.0-beta.1" -> "3.6.0")
   const baseVersion = version.replace(/-.*$/, '');
   // Must be a valid semver base (x.y.z)
@@ -57,7 +59,8 @@ export function useViewerLoader({
   versionRef.current = version;
 
   // For modern viewers: set window.explorerConfig on iframe
-  const setExplorerConfig = useCallback(() => {
+  const setExplorerConfig = useCallback(async () => {
+    await loadApexEnv();
     const iframe = iframeRef.current;
     if (!iframe?.contentWindow || !configRef.current) return;
     try {
@@ -68,19 +71,21 @@ export function useViewerLoader({
   }, []);
 
   // For legacy viewers: send config via postMessage
-  const sendConfigLegacy = useCallback(() => {
+  const sendConfigLegacy = useCallback(async () => {
+    await loadApexEnv();
     const iframe = iframeRef.current;
     if (iframe?.contentWindow && configRef.current) {
       console.log('[Config Builder] Sending config to viewer iframe (legacy)');
       iframe.contentWindow.postMessage(
         { type: 'apex-viewer-config', config: withEnv(configRef.current, versionRef.current) },
-        '*'
+        window.location.origin
       );
     }
   }, []);
 
   // Invalidate React Query cache in modern viewer for live updates
-  const invalidateViewerConfig = useCallback(() => {
+  const invalidateViewerConfig = useCallback(async () => {
+    await loadApexEnv();
     const iframe = iframeRef.current;
     if (!iframe?.contentWindow) return;
     try {
@@ -99,16 +104,21 @@ export function useViewerLoader({
   // Listen for messages from viewer iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (!iframeRef.current || event.source !== iframeRef.current.contentWindow) return;
+
       // Modern viewer host requests config before loading bundle
       if (event.data?.type === 'apex-viewer-request-config') {
         console.log('[Config Builder] Viewer host requested config, delivering...');
-        const iframe = iframeRef.current;
-        if (iframe?.contentWindow && configRef.current) {
-          iframe.contentWindow.postMessage(
-            { type: 'apex-viewer-config-delivery', config: withEnv(configRef.current, versionRef.current) },
-            '*'
-          );
-        }
+        void loadApexEnv().then(() => {
+          const iframe = iframeRef.current;
+          if (iframe?.contentWindow && configRef.current) {
+            iframe.contentWindow.postMessage(
+              { type: 'apex-viewer-config-delivery', config: withEnv(configRef.current, versionRef.current) },
+              window.location.origin
+            );
+          }
+        });
       }
 
       // Viewer is ready (rendered content)
@@ -159,7 +169,7 @@ export function useViewerLoader({
 
     const cacheBuster = Date.now();
     const baseUrlParam = encodeURIComponent(VIEWER_BUNDLE_BASE_URL);
-    iframe.src = `/viewer/viewer-host.html?version=${version}&baseUrl=${baseUrlParam}&t=${cacheBuster}`;
+    iframe.src = `${withBase('viewer/viewer-host.html')}?version=${version}&baseUrl=${baseUrlParam}&t=${cacheBuster}`;
 
     // Poll for legacy viewers that expose window.initApexViewer
     const legacyPoll = setInterval(() => {
@@ -212,7 +222,21 @@ export function useViewerLoader({
     }
   }, [enabled, version, loadViewer]);
 
-  const deliveredConfig = useMemo(() => withEnv(config, version), [config, version]);
+  const [envReady, setEnvReady] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    loadApexEnv().finally(() => {
+      if (!cancelled) setEnvReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const deliveredConfig = useMemo(
+    () => (envReady ? withEnv(config, version) : config),
+    [config, version, envReady],
+  );
 
   return {
     isLoading,

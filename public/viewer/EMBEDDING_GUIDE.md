@@ -353,3 +353,27 @@ console.log('[ApexViewer] Available methods:', Object.keys(window).filter(k => k
 5. **Test in the preview page** at `/preview`
 
 Need help with a specific step? Check the debugging checklist above or review the console logs for clues.
+
+## Host authentication bridge (`apexAuthBridge: 1`)
+
+From explorer bundles **4.4.0** onward, the preview does not let the explorer start Keycloak inside the iframe. The builder owns the session and the explorer talks to it with `postMessage`. Every message includes `apexAuthBridge: 1`. Both sides accept messages only from their own origin, and the builder also checks that `event.source` is the preview iframe.
+
+The builder delivers `env.AUTH_MODE: "host"` with the config. Older bundles ignore that field, so the builder turns `FEATURE_FLAGS.KEYCLOAK_ACTIVE` off for versions before 4.4.0.
+
+| Message | Sender | Purpose |
+| --- | --- | --- |
+| `apex-auth-request-state` | Explorer | Ask for the current session |
+| `apex-auth-state` | Builder | `{ authenticated, token, tokenParsed, expiresAt, requestId }` |
+| `apex-auth-refresh` | Explorer | `{ minValidity, requestId }`. The builder refreshes and replies with `apex-auth-state` |
+| `apex-auth-login` | Explorer | The builder saves the draft and redirects the top-level page to Keycloak |
+| `apex-auth-logout` | Explorer | The builder signs out the top-level page |
+| `apex-auth-account` | Explorer | The builder opens account management in a new tab |
+
+Tokens are memory-only. They are not written into the configuration, the draft, or the "Inspect delivered config" dialog. Only the short-lived access token crosses the bridge. The refresh token never does.
+
+### Security boundaries
+
+- `viewer-host.html` refuses to run when it is framed by another origin. It accepts `apex-viewer-config-delivery` only from its parent at its own origin, and it posts its handshake messages only to its own origin.
+- Bundles load only from `https://esa-apex.s3.eu-west-1.amazonaws.com/software/{version}/`. The base URL must match exactly, and `version` must be a single path segment with no `..`.
+- The explorer bundle runs with the builder's origin, in the same browser context as the session. **Write access to `esa-apex/software/` is therefore equivalent to access to signed-in users' tokens.** Restrict it to the release pipeline.
+- Config link URLs (attributions, footer links, provider websites) must be `http:`, `https:` or `mailto:`. The builder strips other schemes when a config is loaded, and the explorer refuses to render them.

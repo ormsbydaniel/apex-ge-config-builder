@@ -21,6 +21,9 @@ import SettingsTab from './config/SettingsTab';
 import WorkflowsTab from './config/workflows/WorkflowsTab';
 import StorymapsTab from './config/StorymapsTab';
 import DonorConfigPickerDialog from './layers/import/DonorConfigPickerDialog';
+import AuthMenu from '@/components/auth/AuthMenu';
+import { formatDraftTime, useDraftStatus } from '@/components/DraftPersistence';
+import { withBase } from '@/utils/appPaths';
 
 
 // Error boundary component to catch context errors
@@ -71,6 +74,8 @@ const ConfigBuilderContent = () => {
   const navigate = useNavigate();
   const { config: configState } = useConfig();
   const { exportConfig } = useConfigExport();
+  const { savedAt } = useDraftStatus();
+  const draftTime = formatDraftTime(savedAt);
   const {
     config,
     newExclusivitySet,
@@ -230,32 +235,36 @@ const ConfigBuilderContent = () => {
       backgroundColor: '#043346'
     }}>
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 bg-clip-text mb-2 flex items-center gap-3 text-slate-50">
+        <div className="mb-8">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 bg-clip-text flex items-center gap-3 text-slate-50">
               <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
                 <Satellite className="h-8 w-8 text-white" />
               </div>
               ESA APEx Geospatial Explorer
             </h1>
-            <p className="text-xl text-slate-100 font-medium">Configuration Builder</p>
-            <p className="text-slate-200 mt-1">Build and manage your interactive mapping application configuration</p>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={() => setAppSettingsOpen(true)}
+                aria-label="Config Builder settings"
+                title="Config Builder settings"
+                className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+              <AuthMenu tone="onDark" />
+            </div>
           </div>
-
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => setAppSettingsOpen(true)}
-              aria-label="Config Builder settings"
-              title="Config Builder settings"
-              className="p-1 rounded text-white/40 hover:text-white/80 transition-colors"
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-
-            <div className="flex items-center gap-1 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
+          <p className="text-xl text-slate-100 font-medium mt-2">Configuration Builder</p>
+          <div className="mt-1 flex items-end justify-between gap-4">
+            <p className="text-slate-200">Build and manage your interactive mapping application configuration</p>
+            <div className="flex items-center gap-1 shrink-0 bg-white/5 backdrop-blur-sm p-1.5 rounded-xl border border-white/10">
+              {draftTime && (
+                <span className="px-2 text-xs text-white/70 whitespace-nowrap">Draft saved {draftTime}</span>
+              )}
               <a
-                href="/guide/index.html"
+                href={withBase('guide/index.html')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/10 transition-all group"

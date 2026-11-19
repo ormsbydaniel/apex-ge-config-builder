@@ -1,4 +1,5 @@
 import { useSyncExternalStore, useCallback } from 'react';
+import { readStored, storageKey, writeStored } from '@/utils/browserStorage';
 
 /**
  * App-level (browser-local) preferences for the Configuration Builder.
@@ -26,7 +27,7 @@ const DEFAULTS: AppSettings = {
 function read(): AppSettings {
   if (typeof window === 'undefined') return DEFAULTS;
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = readStored(window.localStorage, STORAGE_KEY);
     if (!raw) return DEFAULTS;
     const parsed = JSON.parse(raw);
     return { ...DEFAULTS, ...(parsed && typeof parsed === 'object' ? parsed : {}) };
@@ -54,7 +55,7 @@ function getSnapshot(): AppSettings {
 function write(next: AppSettings) {
   cached = next;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    writeStored(window.localStorage, STORAGE_KEY, JSON.stringify(next));
   } catch {
     // ignore quota / privacy-mode errors
   }
@@ -64,7 +65,7 @@ function write(next: AppSettings) {
 // Keep cross-tab updates in sync.
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
-    if (e.key === STORAGE_KEY) {
+    if (e.key === storageKey(STORAGE_KEY)) {
       cached = read();
       emit();
     }
