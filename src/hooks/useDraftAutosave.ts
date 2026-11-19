@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useConfig } from '@/contexts/ConfigContext';
+import { useAuth } from '@/auth/AuthContext';
 import { registerDraftFlush } from '@/utils/draftFlush';
 import { saveViewerVersion } from '@/utils/viewerVersions';
 import {
@@ -27,6 +28,8 @@ export function useDraftAutosave() {
   const { config, dispatch } = useConfig();
   const location = useLocation();
   const navigate = useNavigate();
+  const auth = useAuth();
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null);
   const configRef = useRef(config);
   configRef.current = config;
   const routeRef = useRef('/');
@@ -96,7 +99,7 @@ export function useDraftAutosave() {
         dispatch({ type: 'RESTORE_DRAFT', payload: envelope.state });
         setSavedAt(envelope.savedAt);
         if (marker?.previewVersion) saveViewerVersion(marker.previewVersion);
-        if (marker?.route && marker.route !== routeRef.current) navigate(marker.route);
+        if (marker?.route && marker.route !== routeRef.current) setPendingRoute(marker.route);
       } else if (draft.status === 'corrupt') {
         toast.error('The saved session could not be read');
       }
@@ -106,6 +109,15 @@ export function useDraftAutosave() {
       cancelled = true;
     };
   }, [dispatch, navigate]);
+
+  // Never leave the sign-in return page before Keycloak has read the code from the URL.
+  const onCallback = location.pathname.endsWith('/callback');
+  useEffect(() => {
+    if (!pendingRoute) return;
+    if (onCallback && !auth.ready) return;
+    setPendingRoute(null);
+    navigate(pendingRoute, { replace: true });
+  }, [pendingRoute, onCallback, auth.ready, navigate]);
 
   useEffect(() => {
     if (phase !== 'ready') return;
